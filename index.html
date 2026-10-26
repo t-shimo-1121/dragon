@@ -2,9 +2,11 @@
 <!--
   ドラゴン魔石表
   ・GitHub Pages 用の単一HTMLです（index.html としてリポジトリ直下に置いてください）
-  ・デフォルメイラストは images/ フォルダに「01.png」〜「16.png」（No.と同じ番号・2桁）で置くと自動で表示されます
-    画像が無い番号は「イラスト準備中」の枠が表示されます
-    ファイル名や拡張子を変える場合は、下の script 内の IMG_DIR / IMG_EXT を変更してください
+  ・イラストは images/ の中のフォルダに「01.png」〜「16.png」（No.と同じ番号・2桁）で置くと自動で表示されます
+      images/models/ … 3Dモデルの切り抜き
+      images/icons/  … 魔石アイコンの切り抜き
+      images/illust/ … デフォルメイラスト用（画像を入れるまでは「イラスト準備中」の枠が出ます）
+    ページ上部の「画像」ボタンで切り替えられます。フォルダや拡張子は script 内の IMG_SETS で変更できます
 -->
 <html lang="ja">
 <head>
@@ -53,6 +55,12 @@ button:focus-visible,select:focus-visible{outline:3px solid var(--flame);outline
 .hero h1{margin:0;font-family:var(--f-display);font-weight:400;font-size:clamp(36px,8vw,60px);line-height:1.05;color:var(--ember);letter-spacing:.02em}
 .hero h1 span{color:var(--flame)}
 .hero p{margin:6px 0 0;color:var(--muted);font-weight:700}
+.hero-side{display:flex;flex-direction:column;align-items:flex-end;gap:8px}
+.seg{display:inline-flex;border:2px solid var(--line);border-radius:999px;overflow:hidden}
+.seg::before{content:"画像";align-self:center;padding:0 8px 0 12px;font-size:14px;font-weight:700;color:var(--muted)}
+.seg button{border:0;background:var(--bg);padding:5px 12px;font-size:15px;font-weight:700}
+.seg button[aria-pressed="true"]{background:var(--ink);color:#fff}
+.illust.icon img{object-fit:cover}
 .hero .meta{font-weight:700;font-size:15px;color:var(--ember);border:2px solid var(--ember);border-radius:999px;padding:4px 14px}
 
 /* ---- タブ ---- */
@@ -187,7 +195,10 @@ tr.hit td.name{background:#fff3ea}
       <h1>ドラゴン<span>魔石表</span></h1>
       <p>ランク99・魔石21/48 の育成記録</p>
     </div>
-    <div class="meta">3月4週 時点・16体</div>
+    <div class="hero-side">
+      <div class="meta">3月4週 時点・16体</div>
+      <div class="seg" role="group" aria-label="画像の種類" id="imgseg"></div>
+    </div>
   </div>
 </header>
 
@@ -204,8 +215,11 @@ tr.hit td.name{background:#fff3ea}
 
 <script>
 /* ===== 設定 ===== */
-const IMG_DIR="images/";   // イラストを置くフォルダ
-const IMG_EXT=".png";      // 拡張子（.webp / .jpg なども可）
+const IMG_SETS={            // 画像の種類: [ボタン名, フォルダ, 拡張子]
+  model:["モデル","images/models/",".png"],
+  icon:["アイコン","images/icons/",".png"],
+  illust:["イラスト","images/illust/",".png"],
+};
 
 const STATS=["体力","攻撃","防御","素早さ","命中","回避"];
 /* [種族, ニックネーム, [[ランク,値]×6], [[スキル,Lv(0=Max)]×3], [[アビリティ,Lv(0=Max)]×3]] */
@@ -231,7 +245,6 @@ const D=[
   o.total=o.st.reduce((a,b)=>a+b.v,0);
   o.skMax=o.sk.filter(x=>x.lv==="Max").length;
   o.abMax=o.ab.filter(x=>x.lv==="Max").length;
-  o.img=IMG_DIR+String(o.no).padStart(2,"0")+IMG_EXT;
   return o;
 });
 const lvNum=l=>l==="Max"?5:l;
@@ -240,13 +253,15 @@ const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",
 
 /* イラスト枠（画像が無ければ仮置きの枠を表示） */
 const PH_ICON=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="9" cy="10" r="2"/><path d="M21 17l-5-5-9 8"/></svg>`;
+function imgPath(d){const[,dir,ext]=IMG_SETS[state.imgSet]||IMG_SETS.model;return dir+String(d.no).padStart(2,"0")+ext}
 function illust(d){
-  return `<div class="illust"><img src="${d.img}" alt="${esc(d.nk)}のイラスト" loading="lazy" onerror="this.parentNode.classList.add('empty');this.remove()"><span class="ph">${PH_ICON}<b>イラスト準備中</b>${esc(d.img)}</span></div>`;
+  const src=imgPath(d);
+  return `<div class="illust ${state.imgSet}"><img src="${src}" alt="${esc(d.nk)}のイラスト" loading="lazy" onerror="this.parentNode.classList.add('empty');this.remove()"><span class="ph">${PH_ICON}<b>イラスト準備中</b>${esc(src)}</span></div>`;
 }
 
 /* 六角形グラフ（上=体力、時計回りに 攻撃・防御・素早さ・命中・回避） */
 function radar(sets,{size=220,labels=true,values=false,pad}={}){
-  pad=pad??(labels?40:4);
+  pad=pad??(labels?(values?52:40):4);
   const W=size+pad*2,c=W/2,R=size/2;
   const pt=(i,f)=>{const a=(-90+60*i)*Math.PI/180;return[c+Math.cos(a)*R*f,c+Math.sin(a)*R*f]};
   const poly=f=>[0,1,2,3,4,5].map(i=>pt(i,f).map(n=>n.toFixed(1)).join(",")).join(" ");
@@ -271,9 +286,9 @@ const rk=r=>`<span class="rk ${r}">${r}</span>`;
 /* ===== 状態 ===== */
 const state={tab:"dragon",detail:null,vs:"",
   dSort:{key:"no",dir:1},sSort:{key:"total",dir:-1},kSort:{key:"no",dir:1},aSort:{key:"no",dir:1},
-  pick:[12,9],abHit:null};
-try{const s=JSON.parse(localStorage.getItem("dragon-maseki")||"{}");["dSort","sSort","kSort","aSort","pick"].forEach(k=>{if(s[k])state[k]=s[k]})}catch(e){}
-const save=()=>{try{localStorage.setItem("dragon-maseki",JSON.stringify({dSort:state.dSort,sSort:state.sSort,kSort:state.kSort,aSort:state.aSort,pick:state.pick}))}catch(e){}};
+  pick:[12,9],abHit:null,imgSet:"model"};
+try{const s=JSON.parse(localStorage.getItem("dragon-maseki")||"{}");["dSort","sSort","kSort","aSort","pick","imgSet"].forEach(k=>{if(s[k])state[k]=s[k]})}catch(e){}
+const save=()=>{try{localStorage.setItem("dragon-maseki",JSON.stringify({dSort:state.dSort,sSort:state.sSort,kSort:state.kSort,aSort:state.aSort,pick:state.pick,imgSet:state.imgSet}))}catch(e){}};
 
 function valOf(d,key){
   if(key==="no")return d.no;if(key==="total")return d.total;
@@ -413,6 +428,7 @@ function viewAbility(){
 const VIEWS={dragon:viewDragon,status:viewStatus,skill:viewSkill,ability:viewAbility};
 const view=document.getElementById("view");
 function render(){
+  document.getElementById("imgseg").innerHTML=Object.entries(IMG_SETS).map(([k,[n]])=>`<button data-imgset="${k}" aria-pressed="${state.imgSet===k}">${n}</button>`).join("");
   document.querySelectorAll(".tab").forEach(t=>t.setAttribute("aria-selected",t.dataset.tab===state.tab));
   view.innerHTML=VIEWS[state.tab]()+`<p class="foot">ステータスは各999が上限。六角形は上から時計回りに 体力・攻撃・防御・素早さ・命中・回避。</p>`;
   const vs=document.getElementById("vs");
@@ -426,8 +442,9 @@ function go(tab,detail=null){
   if(window.scrollY>top)window.scrollTo({top,behavior:"smooth"});
 }
 document.addEventListener("click",e=>{
-  const t=e.target.closest("[data-tab],[data-open],[data-back],[data-dsort],[data-ssort],[data-ksort],[data-asort],[data-pick],[data-ahit],[data-open-tab]");
+  const t=e.target.closest("[data-tab],[data-open],[data-back],[data-dsort],[data-ssort],[data-ksort],[data-asort],[data-pick],[data-ahit],[data-open-tab],[data-imgset]");
   if(!t)return;const ds=t.dataset;
+  if(ds.imgset){state.imgSet=ds.imgset;save();return render()}
   if(ds.tab)return go(ds.tab);
   if(ds.open)return go("dragon",+ds.open);
   if("back" in ds)return go("dragon");
