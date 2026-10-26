@@ -193,10 +193,10 @@ tr.hit td.name{background:#fff3ea}
   <div class="wrap">
     <div>
       <h1>ドラゴン<span>魔石表</span></h1>
-      <p>ランク99・魔石21/48 の育成記録</p>
+      <p>ランク99・魔石22/48 の育成記録</p>
     </div>
     <div class="hero-side">
-      <div class="meta">3月4週 時点・16体</div>
+      <div class="meta">6月4週 時点・17体</div>
       <div class="seg" role="group" aria-label="画像の種類" id="imgseg"></div>
     </div>
   </div>
@@ -240,6 +240,7 @@ const D=[
 ["ゴルィニシチェ変異種","ゴルー",[["A",895],["S",999],["E",328],["C",696],["B",723],["B",772]],[["急降下ひっかき",3],["ラッシュ噛み",0],["トリプルブレス",4]],[["リカバリー",0],["守りの構え",0],["デトックス",0]]],
 ["アジ・ダハーカ変異種","アジフライ",[["A",832],["S",960],["F",254],["B",752],["C",691],["C",667]],[["風の魔法",0],["炎の魔法",4],["氷の魔法",2]],[["クリティカル",0],["速攻の構え",0],["デトックス",0]]],
 ["応龍変異種","サイキョウオウ",[["B",727],["A",833],["B",726],["C",693],["B",734],["C",635]],[["聖なる力",0],["噛み砕く",0],["神通力",0]],[["狙いの構え",0],["守りの構え",0],["デトックス",0]]],
+["ヴリトラ変異種","ヴーリン",[["D",482],["S",984],["S",901],["S",999],["A",843],["B",775]],[["かまいたち",0],["神の守護",0],["トルネード",0]],[["リカバリー",0],["守りの構え",0],["デトックス",0]]],
 ].map((d,i)=>{
   const o={no:i+1,sp:d[0],nk:d[1],st:d[2].map(x=>({r:x[0],v:x[1]})),sk:d[3].map(x=>({n:x[0],lv:x[1]||"Max"})),ab:d[4].map(x=>({n:x[0],lv:x[1]||"Max"}))};
   o.total=o.st.reduce((a,b)=>a+b.v,0);
@@ -401,7 +402,7 @@ function viewSkill(){
   const rows=sorted(s).map(d=>`<tr data-open-tab="${d.no}">${nameCell(d)}${lvCells(d.sk)}
     <td class="num ${d.skMax===3?"max":""}">${d.skMax}/3</td></tr>`).join("");
   const done=D.filter(d=>d.skMax===3).length;
-  return `<div class="sec-head"><h2>スキル比較</h2><span class="hint">全スキルLvMax ${done}体／16体・見出しをタップで並べ替え</span></div>
+  return `<div class="sec-head"><h2>スキル比較</h2><span class="hint">全スキルLvMax ${done}体／${D.length}体・見出しをタップで並べ替え</span></div>
     <div class="tbl-wrap"><table><thead><tr>
       <th class="name sortable ${s.key==="no"?"on":""}" data-ksort="no" data-dd="1">ドラゴン${arr(s,"no")}</th>
       ${[0,1,2].map(i=>th("k"+i,"スキル"+(i+1),1)+th("K"+i,"Lv",-1)).join("")}
