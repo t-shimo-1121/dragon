@@ -1,0 +1,449 @@
+<!doctype html>
+<!--
+  ドラゴン魔石表
+  ・GitHub Pages 用の単一HTMLです（index.html としてリポジトリ直下に置いてください）
+  ・デフォルメイラストは images/ フォルダに「01.png」〜「16.png」（No.と同じ番号・2桁）で置くと自動で表示されます
+    画像が無い番号は「イラスト準備中」の枠が表示されます
+    ファイル名や拡張子を変える場合は、下の script 内の IMG_DIR / IMG_EXT を変更してください
+-->
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>ドラゴン魔石表</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Zen+Kaku+Gothic+New:wght@500;700;900&display=swap">
+<style>
+/* Layout: 白い紙面の上に、炎色の細い帯と赤いタブ。カードと表は白地＋淡い枠で、文字は大きめ。 */
+:root{
+  --bg:#ffffff;
+  --paper:#fbf7f3;       /* 淡い面（カード内の区切り・表の縞） */
+  --line:#e6dcd3;
+  --line-strong:#cdbcae;
+  --ink:#231915;
+  --muted:#6f6259;
+  --ember:#c8281a;       /* 炎の赤（アクセント） */
+  --flame:#ee7a12;
+  --gold:#b07a00;        /* LvMax・最高値（白地で読める金） */
+  --gold-bg:#fff4cf;
+  --radar:#2fae47;       /* 六角形グラフの緑 */
+  --radar-2:#2b8ce0;
+  --radar-3:#e0457f;
+  --grid:#d9cec4;
+  --f-display:"Dela Gothic One","Hiragino Sans","Yu Gothic",sans-serif;
+  --f-body:"Zen Kaku Gothic New","Hiragino Sans","Yu Gothic","Meiryo",sans-serif;
+  --rS:#b86cf0; --rA:#f2b400; --rB:#5cb1f2; --rC:#f58a3c; --rD:#e47aae; --rE:#2ec4d6; --rF:#6cc257; --rG:#a3a3a3;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink)}
+body{font-family:var(--f-body);font-size:17px;line-height:1.65;font-weight:500;-webkit-font-smoothing:antialiased;
+  padding-bottom:env(safe-area-inset-bottom,0px)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+img{max-width:100%}
+[hidden]{display:none!important}
+.wrap{max-width:1160px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,select:focus-visible{outline:3px solid var(--flame);outline-offset:2px}
+
+/* ---- ヘッダー ---- */
+.hero{border-top:6px solid transparent;border-image:linear-gradient(90deg,#9e170b,var(--ember),var(--flame),#ffc23a) 1;padding-top:env(safe-area-inset-top,0px)}
+.hero .wrap{padding-block:26px 18px;display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px}
+.hero h1{margin:0;font-family:var(--f-display);font-weight:400;font-size:clamp(36px,8vw,60px);line-height:1.05;color:var(--ember);letter-spacing:.02em}
+.hero h1 span{color:var(--flame)}
+.hero p{margin:6px 0 0;color:var(--muted);font-weight:700}
+.hero .meta{font-weight:700;font-size:15px;color:var(--ember);border:2px solid var(--ember);border-radius:999px;padding:4px 14px}
+
+/* ---- タブ ---- */
+.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:rgba(255,255,255,.96);backdrop-filter:blur(6px);border-bottom:1px solid var(--line)}
+.tabs .wrap{display:flex;gap:6px;overflow-x:auto;padding-block:10px;scrollbar-width:none}
+.tab{flex:1 0 auto;border:2px solid var(--line);background:var(--bg);padding:10px 16px;border-radius:12px;
+  font-family:var(--f-display);font-size:17px;color:var(--ink);white-space:nowrap}
+.tab:hover{border-color:var(--flame)}
+.tab[aria-selected="true"]{background:var(--ember);border-color:var(--ember);color:#fff}
+
+main .wrap{padding-block:24px 56px}
+.sec-head{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:8px 14px;margin-bottom:14px}
+.sec-head h2{margin:0;font-family:var(--f-display);font-weight:400;font-size:28px;color:var(--ink);text-wrap:balance}
+.hint{color:var(--muted);font-size:15px}
+
+/* ---- 並べ替えチップ ---- */
+.sorter,.chips-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.sorter{margin-bottom:16px}.chips-row{margin-bottom:14px}
+.chip{border:2px solid var(--line);background:var(--bg);border-radius:999px;padding:6px 14px;font-size:16px;font-weight:700}
+.chip:hover{border-color:var(--flame)}
+.chip[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:#fff}
+.chip .cnt{display:inline-block;margin-left:6px;font-size:13px;background:var(--paper);color:var(--muted);border-radius:999px;padding:0 7px}
+.chip[aria-pressed="true"] .cnt{background:rgba(255,255,255,.2);color:#fff}
+
+/* ---- イラスト枠 ---- */
+.illust{position:relative;aspect-ratio:1;max-width:100%;border-radius:14px;overflow:hidden;background:var(--paper);display:grid;place-items:center}
+.illust img{width:100%;height:100%;object-fit:contain}
+.illust .ph{display:none;text-align:center;color:var(--muted);font-size:12px;line-height:1.35;padding:6px}
+.illust.empty{border:2px dashed var(--line-strong)}
+.illust.empty .ph{display:block}
+.illust .ph b{display:block;font-size:13px;color:var(--ink)}
+.illust .ph svg{display:block;margin:0 auto 4px;width:30px;height:30px}
+
+/* ---- ドラゴン一覧カード ---- */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+.card{display:grid;grid-template-columns:96px minmax(0,1fr) 82px;gap:12px;align-items:center;text-align:left;
+  border:2px solid var(--line);background:var(--bg);border-radius:16px;padding:12px;transition:border-color .15s,box-shadow .15s}
+.card:hover{border-color:var(--flame);box-shadow:0 6px 18px rgba(200,40,26,.10)}
+.card .no{font-size:14px;color:var(--muted);font-weight:700;font-variant-numeric:tabular-nums}
+.card .sortval{color:var(--ember)}
+.card .nk{font-family:var(--f-display);font-size:23px;line-height:1.2}
+.card .sp{font-size:14px;color:var(--muted);line-height:1.35}
+.card .sum{margin-top:6px;display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 8px;font-variant-numeric:tabular-nums;font-size:14px;color:var(--muted)}
+.card .sum b{font-family:var(--f-display);font-weight:400;font-size:21px;color:var(--ember)}
+.ranks{display:flex;gap:3px;margin-top:6px}
+@media (max-width:380px){.card{grid-template-columns:80px minmax(0,1fr) 70px;gap:8px}}
+
+.rk{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:6px;font-family:var(--f-display);font-size:14px;line-height:1;color:#fff;text-shadow:0 1px 0 rgba(0,0,0,.25)}
+.rk.S{background:var(--rS)}.rk.A{background:var(--rA)}.rk.B{background:var(--rB)}.rk.C{background:var(--rC)}
+.rk.D{background:var(--rD)}.rk.E{background:var(--rE)}.rk.F{background:var(--rF)}.rk.G{background:var(--rG)}
+
+/* ---- 六角形グラフ ---- */
+.radar .ax{fill:var(--ink);font-family:var(--f-body);font-weight:900;font-size:13px}
+.radar .val{fill:var(--ember);font-family:var(--f-body);font-weight:900;font-size:12px}
+
+/* ---- 個別ページ ---- */
+.detail-nav{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;margin-bottom:14px}
+.btn{border:2px solid var(--line);background:var(--bg);border-radius:10px;padding:8px 14px;font-weight:700;font-size:16px}
+.btn:hover{border-color:var(--flame)}
+.detail{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:18px}
+@media (max-width:780px){.detail{grid-template-columns:1fr}}
+.panel{border:2px solid var(--line);background:var(--bg);border-radius:16px;padding:18px;min-width:0}
+.title-plate{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 12px;margin-bottom:12px}
+.title-plate h3{margin:0;font-family:var(--f-display);font-weight:400;font-size:34px;line-height:1.15}
+.title-plate .sp{color:var(--ember);font-weight:900;font-size:18px}
+.hero-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px;align-items:center}
+@media (max-width:460px){.hero-row{grid-template-columns:1fr}.hero-row .illust{max-width:220px;margin:0 auto;width:100%}}
+.hero-row .illust .ph{font-size:14px}.hero-row .illust .ph b{font-size:16px}.hero-row .illust .ph svg{width:44px;height:44px}
+.vs-row{display:flex;flex-wrap:wrap;gap:8px 10px;align-items:center;margin-top:14px;font-size:16px;font-weight:700}
+select{font:inherit;font-size:16px;font-weight:700;color:var(--ink);background:var(--bg);border:2px solid var(--line);border-radius:10px;padding:6px 10px;max-width:100%}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:15px;font-weight:700}
+.legend i{display:inline-block;width:14px;height:14px;border-radius:4px;margin-right:5px;vertical-align:-2px}
+
+.stats{display:grid;gap:9px}
+.stat{display:grid;grid-template-columns:4.6em 26px minmax(0,1fr) 3.4em;gap:10px;align-items:center;font-variant-numeric:tabular-nums}
+.stat .lb{font-weight:900}
+.bar{height:12px;border-radius:6px;background:var(--paper);box-shadow:inset 0 0 0 1px var(--line);overflow:hidden}
+.bar i{display:block;height:100%;border-radius:6px;background:linear-gradient(90deg,var(--flame),var(--ember))}
+.stat .v{text-align:right;font-weight:900;font-size:18px;line-height:1.2}
+.stat .v small{display:block;font-size:13px}
+.total{display:flex;justify-content:space-between;align-items:baseline;border-top:2px dashed var(--line);margin-top:12px;padding-top:10px;font-weight:700}
+.total b{font-family:var(--f-display);font-weight:400;color:var(--ember);font-size:26px}
+
+.kv-h{margin:20px 0 8px;font-family:var(--f-display);font-weight:400;font-size:18px;color:var(--ember)}
+.kv{display:grid;gap:6px}
+.kv div{display:flex;justify-content:space-between;gap:8px;padding:8px 12px;background:var(--paper);border-radius:10px;font-weight:700}
+.kv div.is-max{background:var(--gold-bg)}
+.lv{font-weight:900;font-variant-numeric:tabular-nums;color:var(--muted)}
+.max{color:var(--gold)!important;font-weight:900}
+
+/* ---- 比較表 ---- */
+.tbl-wrap{overflow-x:auto;border:2px solid var(--line);border-radius:14px;background:var(--bg)}
+table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums;font-size:17px}
+th,td{padding:10px 12px;border-bottom:1px solid var(--line);white-space:nowrap;text-align:left}
+thead th{background:var(--paper);color:var(--ink);font-weight:900;font-size:15px}
+th.sortable{cursor:pointer;user-select:none}
+th.sortable:hover{color:var(--ember)}
+th.on{background:var(--ember);color:#fff}
+th.on:hover{color:#fff}
+th .arr{margin-left:4px}
+td.name,th.name{position:sticky;left:0;background:var(--bg);z-index:1;box-shadow:1px 0 0 var(--line)}
+thead th.name{background:var(--paper);z-index:2}
+thead th.name.on{background:var(--ember)}
+td.name{display:flex;align-items:center;gap:10px}
+td.name .illust{width:44px;flex:none;border-radius:10px}
+td.name .illust .ph{display:none!important}
+td.name b{display:block;font-size:17px;line-height:1.2}
+td.name small{color:var(--muted);font-size:13px;font-weight:700}
+tbody tr{cursor:pointer}
+tbody tr:hover td{background:#fff3ea}
+td.num{text-align:right}
+.cellv{display:inline-flex;align-items:center;gap:8px}
+.best{color:var(--gold);font-weight:900;background:var(--gold-bg);border-radius:6px;padding:0 5px}
+td.dim{opacity:.3}
+tr.hit td{background:#fff3ea}
+tr.hit td.name{background:#fff3ea}
+
+.overlay{display:grid;grid-template-columns:minmax(0,340px) minmax(0,1fr);gap:16px;margin-bottom:18px}
+@media (max-width:780px){.overlay{grid-template-columns:1fr}}
+.overlay .panel:first-child{display:grid;justify-items:center;gap:8px}
+.pick{display:flex;flex-wrap:wrap;gap:8px;align-content:flex-start}
+.pick .chip[aria-pressed="true"]{color:#fff}
+.foot{margin-top:28px;color:var(--muted);font-size:14px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div>
+      <h1>ドラゴン<span>魔石表</span></h1>
+      <p>ランク99・魔石21/48 の育成記録</p>
+    </div>
+    <div class="meta">3月4週 時点・16体</div>
+  </div>
+</header>
+
+<nav class="tabs" aria-label="表示切り替え">
+  <div class="wrap" role="tablist">
+    <button class="tab" role="tab" id="t-dragon" data-tab="dragon">ドラゴン</button>
+    <button class="tab" role="tab" id="t-status" data-tab="status">ステータス比較</button>
+    <button class="tab" role="tab" id="t-skill" data-tab="skill">スキル比較</button>
+    <button class="tab" role="tab" id="t-ability" data-tab="ability">アビリティ比較</button>
+  </div>
+</nav>
+
+<main><div class="wrap" id="view"></div></main>
+
+<script>
+/* ===== 設定 ===== */
+const IMG_DIR="images/";   // イラストを置くフォルダ
+const IMG_EXT=".png";      // 拡張子（.webp / .jpg なども可）
+
+const STATS=["体力","攻撃","防御","素早さ","命中","回避"];
+/* [種族, ニックネーム, [[ランク,値]×6], [[スキル,Lv(0=Max)]×3], [[アビリティ,Lv(0=Max)]×3]] */
+const D=[
+["ワイヴァーン","ワイー",[["C",683],["S",999],["E",337],["C",592],["C",591],["C",689]],[["空中機動",3],["毒刺し",2],["焼き払う",3]],[["攻めの構え",2],["回避アップ",0],["デトックス",0]]],
+["イルルヤンカシュ","イルル",[["S",999],["B",743],["S",991],["G",141],["B",783],["G",96]],[["波の壁",0],["噛みちぎる",0],["大渦",4]],[["フクツの守り",0],["守りの構え",0],["デトックス",2]]],
+["メスター・ストゥアワーム","メスター",[["E",372],["S",999],["E",360],["S",994],["S",999],["D",450]],[["薙ぎ払う",0],["毒液発射",0],["丸飲み",0]],[["攻めの構え",3],["狙い撃ち",0],["デトックス",0]]],
+["ヴリトラ","ヴーリー",[["D",448],["B",750],["B",719],["S",991],["B",750],["A",876]],[["かまいたち",0],["神の守護",0],["トルネード",0]],[["ふんばる",0],["フクツの見切り",0],["デトックス",0]]],
+["応龍","リュウオウ",[["C",685],["C",678],["B",764],["C",666],["B",730],["C",694]],[["聖なる力",0],["噛み砕く",4],["神通力",0]],[["健康キラー",0],["強打の構え",4],["デトックス",0]]],
+["クエレブレ変異種","クエー",[["S",999],["A",832],["S",999],["F",201],["B",728],["F",200]],[["鱗の守り",0],["体当たり",0],["急降下",3]],[["マナアップ",0],["守りの構え",0],["デトックス",0]]],
+["ファイヤー・ドレイク変異種","ファイヤー",[["C",686],["S",977],["F",276],["B",723],["B",747],["B",797]],[["八つ裂き",0],["回転攻撃",0],["火炎放射",0]],[["リカバリー",0],["狙い撃ち",0],["デトックス",0]]],
+["九頭龍変異種","クズズ",[["C",673],["S",999],["E",308],["C",660],["C",681],["C",655]],[["恵みの雨",0],["九つ噛み",0],["災禍の嵐",0]],[["クリティカル",0],["追加攻撃",0],["デトックス",0]]],
+["イルルヤンカシュ変異種","イルー",[["S",999],["S",966],["S",999],["F",272],["S",949],["F",274]],[["波の壁",0],["噛みちぎる",0],["大渦",0]],[["攻撃アップ",0],["防御アップ",0],["デトックス",0]]],
+["ケツァルコアトル変異種","コアトル",[["B",794],["S",999],["E",359],["C",671],["B",727],["B",711]],[["豊穣の風",0],["尻尾払い",0],["回転頭突き",0]],[["回避アップ",4],["守りの構え",0],["デトックス",0]]],
+["ヒュドラー変異種","ヒュードラー",[["S",999],["S",930],["S",999],["F",274],["S",934],["G",116]],[["再生",3],["連続噛みつき",1],["猛毒放射",4]],[["健康キラー",4],["守りの構え",0],["フクツの守り",0]]],
+["フェルニゲシュ変異種","フェルニー",[["D",462],["B",756],["S",986],["S",999],["A",812],["B",757]],[["挑発",0],["ひっかく",0],["落石",0]],[["緊急チャージ",0],["フクツの見切り",0],["デトックス",0]]],
+["レインボー・サーペント変異種","レイン",[["E",345],["B",754],["C",681],["S",999],["C",609],["B",735]],[["叩きつけ",4],["暴風雨",0],["地割れ",0]],[["フクツの見切り",0],["守りの構え",2],["デトックス",0]]],
+["ゴルィニシチェ変異種","ゴルー",[["A",895],["S",999],["E",328],["C",696],["B",723],["B",772]],[["急降下ひっかき",3],["ラッシュ噛み",0],["トリプルブレス",4]],[["リカバリー",0],["守りの構え",0],["デトックス",0]]],
+["アジ・ダハーカ変異種","アジフライ",[["A",832],["S",960],["F",254],["B",752],["C",691],["C",667]],[["風の魔法",0],["炎の魔法",4],["氷の魔法",2]],[["クリティカル",0],["速攻の構え",0],["デトックス",0]]],
+["応龍変異種","サイキョウオウ",[["B",727],["A",833],["B",726],["C",693],["B",734],["C",635]],[["聖なる力",0],["噛み砕く",0],["神通力",0]],[["狙いの構え",0],["守りの構え",0],["デトックス",0]]],
+].map((d,i)=>{
+  const o={no:i+1,sp:d[0],nk:d[1],st:d[2].map(x=>({r:x[0],v:x[1]})),sk:d[3].map(x=>({n:x[0],lv:x[1]||"Max"})),ab:d[4].map(x=>({n:x[0],lv:x[1]||"Max"}))};
+  o.total=o.st.reduce((a,b)=>a+b.v,0);
+  o.skMax=o.sk.filter(x=>x.lv==="Max").length;
+  o.abMax=o.ab.filter(x=>x.lv==="Max").length;
+  o.img=IMG_DIR+String(o.no).padStart(2,"0")+IMG_EXT;
+  return o;
+});
+const lvNum=l=>l==="Max"?5:l;
+const lvTxt=l=>l==="Max"?"LvMax":"Lv "+l;
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+/* イラスト枠（画像が無ければ仮置きの枠を表示） */
+const PH_ICON=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="9" cy="10" r="2"/><path d="M21 17l-5-5-9 8"/></svg>`;
+function illust(d){
+  return `<div class="illust"><img src="${d.img}" alt="${esc(d.nk)}のイラスト" loading="lazy" onerror="this.parentNode.classList.add('empty');this.remove()"><span class="ph">${PH_ICON}<b>イラスト準備中</b>${esc(d.img)}</span></div>`;
+}
+
+/* 六角形グラフ（上=体力、時計回りに 攻撃・防御・素早さ・命中・回避） */
+function radar(sets,{size=220,labels=true,values=false,pad}={}){
+  pad=pad??(labels?40:4);
+  const W=size+pad*2,c=W/2,R=size/2;
+  const pt=(i,f)=>{const a=(-90+60*i)*Math.PI/180;return[c+Math.cos(a)*R*f,c+Math.sin(a)*R*f]};
+  const poly=f=>[0,1,2,3,4,5].map(i=>pt(i,f).map(n=>n.toFixed(1)).join(",")).join(" ");
+  let s=`<svg class="radar" viewBox="0 0 ${W} ${W}" width="100%" style="max-width:${W}px;display:block" role="img" aria-label="六角形ステータスグラフ">`;
+  s+=`<polygon points="${poly(1)}" fill="var(--paper)" stroke="var(--line-strong)" stroke-width="1.5"/>`;
+  [.25,.5,.75].forEach(f=>s+=`<polygon points="${poly(f)}" fill="none" stroke="var(--grid)" stroke-width="1"/>`);
+  for(let i=0;i<6;i++){const[x,y]=pt(i,1);s+=`<line x1="${c}" y1="${c}" x2="${x}" y2="${y}" stroke="var(--grid)"/>`}
+  sets.forEach(({st,color,op})=>{
+    const p=st.map((x,i)=>pt(i,Math.max(.03,x.v/999)).map(n=>n.toFixed(1)).join(",")).join(" ");
+    s+=`<polygon points="${p}" fill="${color}" fill-opacity="${op??.45}" stroke="${color}" stroke-width="2.5" stroke-linejoin="round"/>`;
+  });
+  if(labels)STATS.forEach((n,i)=>{
+    const[x,y]=pt(i,1.2);const anchor=i===0||i===3?"middle":(i<3?"start":"end");
+    const dy=i===0?-4:i===3?14:5;
+    s+=`<text class="ax" x="${x}" y="${y+dy}" text-anchor="${anchor}">${n}</text>`;
+    if(values&&sets.length===1)s+=`<text class="val" x="${x}" y="${y+dy+(i===0?-15:15)}" text-anchor="${anchor}">${sets[0].st[i].v}</text>`;
+  });
+  return s+"</svg>";
+}
+const rk=r=>`<span class="rk ${r}">${r}</span>`;
+
+/* ===== 状態 ===== */
+const state={tab:"dragon",detail:null,vs:"",
+  dSort:{key:"no",dir:1},sSort:{key:"total",dir:-1},kSort:{key:"no",dir:1},aSort:{key:"no",dir:1},
+  pick:[12,9],abHit:null};
+try{const s=JSON.parse(localStorage.getItem("dragon-maseki")||"{}");["dSort","sSort","kSort","aSort","pick"].forEach(k=>{if(s[k])state[k]=s[k]})}catch(e){}
+const save=()=>{try{localStorage.setItem("dragon-maseki",JSON.stringify({dSort:state.dSort,sSort:state.sSort,kSort:state.kSort,aSort:state.aSort,pick:state.pick}))}catch(e){}};
+
+function valOf(d,key){
+  if(key==="no")return d.no;if(key==="total")return d.total;
+  if(key==="max")return d.skMax+d.abMax;if(key==="skmax")return d.skMax;if(key==="abmax")return d.abMax;
+  const i=+key.slice(1);
+  if(key[0]==="s")return d.st[i].v;
+  if(key[0]==="k")return d.sk[i].n;
+  if(key[0]==="K")return lvNum(d.sk[i].lv);
+  if(key[0]==="a")return d.ab[i].n;
+  if(key[0]==="A")return lvNum(d.ab[i].lv);
+}
+function sorted(s){
+  return [...D].sort((a,b)=>{const x=valOf(a,s.key),y=valOf(b,s.key);
+    const c=typeof x==="string"?x.localeCompare(y,"ja"):x-y;return (c||a.no-b.no)*s.dir});
+}
+function toggle(s,key,defDir){if(s.key===key)s.dir*=-1;else{s.key=key;s.dir=defDir}save();render()}
+const arr=(s,key)=>s.key===key?`<span class="arr">${s.dir>0?"▲":"▼"}</span>`:"";
+const nameCell=d=>`<td class="name">${illust(d)}<span><b>${esc(d.nk)}</b><small>No.${d.no} ${esc(d.sp)}</small></span></td>`;
+
+/* ===== ドラゴン一覧 / 個別 ===== */
+const D_KEYS=[["no","No"],["total","合計"],...STATS.map((n,i)=>["s"+i,n]),["max","LvMax数"]];
+function viewDragon(){
+  if(state.detail)return viewDetail(D.find(d=>d.no===state.detail));
+  const s=state.dSort;
+  const chips=D_KEYS.map(([k,n])=>`<button class="chip" aria-pressed="${s.key===k}" data-dsort="${k}">${n}${arr(s,k)}</button>`).join("");
+  const label=(D_KEYS.find(x=>x[0]===s.key)||[])[1];
+  const cards=sorted(s).map(d=>`
+    <button class="card" data-open="${d.no}" aria-label="${esc(d.nk)}の詳細を開く">
+      ${illust(d)}
+      <div style="min-width:0">
+        <div class="no">No.${d.no}${!["no","total"].includes(s.key)?` <span class="sortval">${label} ${valOf(d,s.key)}</span>`:""}</div>
+        <div class="nk">${esc(d.nk)}</div>
+        <div class="sp">${esc(d.sp)}</div>
+        <div class="ranks">${d.st.map(x=>rk(x.r)).join("")}</div>
+        <div class="sum">合計<b>${d.total}</b>LvMax ${d.skMax+d.abMax}/6</div>
+      </div>
+      ${radar([{st:d.st,color:"var(--radar)"}],{size:76,labels:false,pad:3})}
+    </button>`).join("");
+  return `<div class="sec-head"><h2>ドラゴン一覧</h2><span class="hint">ボタンで並べ替え・カードをタップで詳細</span></div>
+    <div class="sorter">${chips}</div><div class="grid">${cards}</div>`;
+}
+function viewDetail(d){
+  const list=sorted(state.dSort),idx=list.findIndex(x=>x.no===d.no);
+  const prev=list[(idx-1+list.length)%list.length],next=list[(idx+1)%list.length];
+  const vs=state.vs?D.find(x=>x.no===+state.vs&&x.no!==d.no):null;
+  const sets=[{st:d.st,color:"var(--radar)"}];if(vs)sets.push({st:vs.st,color:"var(--radar-2)",op:.3});
+  const opts=D.filter(x=>x.no!==d.no).map(x=>`<option value="${x.no}" ${vs&&vs.no===x.no?"selected":""}>${esc(x.nk)}</option>`).join("");
+  const stats=d.st.map((x,i)=>{
+    const diff=vs?x.v-vs.st[i].v:null;
+    return `<div class="stat"><span class="lb">${STATS[i]}</span>${rk(x.r)}<span class="bar"><i style="width:${x.v/999*100}%"></i></span>
+      <span class="v">${x.v}${vs?`<small style="color:${diff>=0?"var(--radar)":"var(--radar-3)"}">${diff>=0?"+":""}${diff}</small>`:""}</span></div>`}).join("");
+  const kv=a=>a.map(x=>`<div class="${x.lv==="Max"?"is-max":""}"><span class="${x.lv==="Max"?"max":""}">${esc(x.n)}</span><span class="lv ${x.lv==="Max"?"max":""}">${lvTxt(x.lv)}</span></div>`).join("");
+  return `<div class="detail-nav">
+      <button class="btn" data-back>← 一覧へ</button>
+      <div style="display:flex;flex-wrap:wrap;gap:6px"><button class="btn" data-open="${prev.no}">‹ ${esc(prev.nk)}</button><button class="btn" data-open="${next.no}">${esc(next.nk)} ›</button></div>
+    </div>
+    <div class="detail">
+      <section class="panel">
+        <div class="title-plate"><h3>${esc(d.nk)}</h3><span class="sp">${esc(d.sp)}</span><span class="hint">No.${d.no}</span></div>
+        <div class="hero-row">${illust(d)}<div>${radar(sets,{size:200,values:!vs})}</div></div>
+        <div class="vs-row"><label for="vs">重ねて比べる</label>
+          <select id="vs"><option value="">なし</option>${opts}</select>
+        </div>
+        ${vs?`<div class="legend" style="margin-top:8px"><span><i style="background:var(--radar)"></i>${esc(d.nk)}</span><span><i style="background:var(--radar-2)"></i>${esc(vs.nk)}</span></div>`:""}
+      </section>
+      <section class="panel">
+        <div class="stats">${stats}</div>
+        <div class="total"><span>合計${vs?`（${esc(vs.nk)} ${vs.total}）`:""}</span><b>${d.total}</b></div>
+        <h4 class="kv-h">スキル</h4><div class="kv">${kv(d.sk)}</div>
+        <h4 class="kv-h">アビリティ</h4><div class="kv">${kv(d.ab)}</div>
+      </section>
+    </div>`;
+}
+
+/* ===== ステータス比較 ===== */
+const PCOL=["var(--radar)","var(--radar-2)","var(--radar-3)"];
+function viewStatus(){
+  const s=state.sSort;
+  const best=STATS.map((_,i)=>Math.max(...D.map(d=>d.st[i].v)));
+  const bestT=Math.max(...D.map(d=>d.total));
+  const pick=state.pick.map(n=>D.find(d=>d.no===n)).filter(Boolean);
+  const chips=D.map(d=>{const i=state.pick.indexOf(d.no);
+    return `<button class="chip" aria-pressed="${i>=0}" data-pick="${d.no}" style="${i>=0?`background:${PCOL[i]};border-color:${PCOL[i]}`:""}">${esc(d.nk)}</button>`}).join("");
+  const th=(k,n,dd=-1)=>`<th class="sortable ${s.key===k?"on":""}" data-ssort="${k}" data-dd="${dd}">${n}${arr(s,k)}</th>`;
+  const rows=sorted(s).map(d=>`<tr data-open-tab="${d.no}">${nameCell(d)}
+    <td style="width:66px">${radar([{st:d.st,color:"var(--radar)"}],{size:50,labels:false,pad:3})}</td>
+    ${d.st.map((x,i)=>`<td class="num"><span class="cellv">${rk(x.r)}<span class="${x.v===best[i]?"best":""}">${x.v}</span></span></td>`).join("")}
+    <td class="num"><span class="${d.total===bestT?"best":""}">${d.total}</span></td></tr>`).join("");
+  return `<div class="sec-head"><h2>ステータス比較</h2><span class="hint">見出しをタップで並べ替え・金色は最高値</span></div>
+    <div class="overlay">
+      <div class="panel">${radar(pick.map((d,i)=>({st:d.st,color:PCOL[i],op:.22})),{size:220})}
+        <div class="legend">${pick.map((d,i)=>`<span><i style="background:${PCOL[i]}"></i>${esc(d.nk)} ${d.total}</span>`).join("")||'<span class="hint">右からドラゴンを選んでください</span>'}</div>
+      </div>
+      <div class="panel"><div class="hint" style="margin-bottom:10px">六角形に重ねるドラゴン（最大3体）</div><div class="pick">${chips}</div></div>
+    </div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th class="name sortable ${s.key==="no"?"on":""}" data-ssort="no" data-dd="1">ドラゴン${arr(s,"no")}</th><th>形</th>
+      ${STATS.map((n,i)=>th("s"+i,n)).join("")}${th("total","合計")}</tr></thead>
+      <tbody>${rows}</tbody></table></div>`;
+}
+
+/* ===== スキル比較 / アビリティ比較 ===== */
+function lvCells(list,hit){
+  return list.map(x=>{const dim=hit&&x.n!==hit?"dim":"",m=x.lv==="Max"?"max":"";
+    return `<td class="${m} ${dim}">${esc(x.n)}</td><td class="lv ${m} ${dim}">${lvTxt(x.lv)}</td>`}).join("");
+}
+function viewSkill(){
+  const s=state.kSort;
+  const th=(k,n,dd)=>`<th class="sortable ${s.key===k?"on":""}" data-ksort="${k}" data-dd="${dd}">${n}${arr(s,k)}</th>`;
+  const rows=sorted(s).map(d=>`<tr data-open-tab="${d.no}">${nameCell(d)}${lvCells(d.sk)}
+    <td class="num ${d.skMax===3?"max":""}">${d.skMax}/3</td></tr>`).join("");
+  const done=D.filter(d=>d.skMax===3).length;
+  return `<div class="sec-head"><h2>スキル比較</h2><span class="hint">全スキルLvMax ${done}体／16体・見出しをタップで並べ替え</span></div>
+    <div class="tbl-wrap"><table><thead><tr>
+      <th class="name sortable ${s.key==="no"?"on":""}" data-ksort="no" data-dd="1">ドラゴン${arr(s,"no")}</th>
+      ${[0,1,2].map(i=>th("k"+i,"スキル"+(i+1),1)+th("K"+i,"Lv",-1)).join("")}
+      ${th("skmax","LvMax数",-1)}</tr></thead><tbody>${rows}</tbody></table></div>`;
+}
+function viewAbility(){
+  const s=state.aSort;
+  const cnt={};D.forEach(d=>d.ab.forEach(x=>cnt[x.n]=(cnt[x.n]||0)+1));
+  const names=Object.entries(cnt).sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0],"ja"));
+  const chips=names.map(([n,c])=>`<button class="chip" aria-pressed="${state.abHit===n}" data-ahit="${esc(n)}">${esc(n)}<span class="cnt">${c}</span></button>`).join("");
+  const th=(k,n,dd)=>`<th class="sortable ${s.key===k?"on":""}" data-asort="${k}" data-dd="${dd}">${n}${arr(s,k)}</th>`;
+  const rows=sorted(s).map(d=>{const has=state.abHit&&d.ab.some(x=>x.n===state.abHit);
+    return `<tr data-open-tab="${d.no}" class="${has?"hit":""}">${nameCell(d)}${lvCells(d.ab,state.abHit)}
+    <td class="num ${d.abMax===3?"max":""}">${d.abMax}/3</td></tr>`}).join("");
+  return `<div class="sec-head"><h2>アビリティ比較</h2><span class="hint">アビリティ名をタップで所持ドラゴンを強調</span></div>
+    <div class="chips-row">${chips}</div>
+    <div class="tbl-wrap"><table><thead><tr>
+      <th class="name sortable ${s.key==="no"?"on":""}" data-asort="no" data-dd="1">ドラゴン${arr(s,"no")}</th>
+      ${[0,1,2].map(i=>th("a"+i,"アビリティ"+(i+1),1)+th("A"+i,"Lv",-1)).join("")}
+      ${th("abmax","LvMax数",-1)}</tr></thead><tbody>${rows}</tbody></table></div>`;
+}
+
+/* ===== 描画・操作 ===== */
+const VIEWS={dragon:viewDragon,status:viewStatus,skill:viewSkill,ability:viewAbility};
+const view=document.getElementById("view");
+function render(){
+  document.querySelectorAll(".tab").forEach(t=>t.setAttribute("aria-selected",t.dataset.tab===state.tab));
+  view.innerHTML=VIEWS[state.tab]()+`<p class="foot">ステータスは各999が上限。六角形は上から時計回りに 体力・攻撃・防御・素早さ・命中・回避。</p>`;
+  const vs=document.getElementById("vs");
+  if(vs)vs.onchange=e=>{state.vs=e.target.value;render()};
+}
+function go(tab,detail=null){
+  state.tab=tab;state.detail=detail;
+  try{history.replaceState(null,"","#"+(detail?"d"+detail:tab))}catch(e){}
+  render();
+  const top=document.querySelector(".tabs").offsetTop;
+  if(window.scrollY>top)window.scrollTo({top,behavior:"smooth"});
+}
+document.addEventListener("click",e=>{
+  const t=e.target.closest("[data-tab],[data-open],[data-back],[data-dsort],[data-ssort],[data-ksort],[data-asort],[data-pick],[data-ahit],[data-open-tab]");
+  if(!t)return;const ds=t.dataset;
+  if(ds.tab)return go(ds.tab);
+  if(ds.open)return go("dragon",+ds.open);
+  if("back" in ds)return go("dragon");
+  if(ds.openTab)return go("dragon",+ds.openTab);
+  if(ds.dsort)return toggle(state.dSort,ds.dsort,ds.dsort==="no"?1:-1);
+  if(ds.ssort)return toggle(state.sSort,ds.ssort,+ds.dd);
+  if(ds.ksort)return toggle(state.kSort,ds.ksort,+ds.dd);
+  if(ds.asort)return toggle(state.aSort,ds.asort,+ds.dd);
+  if(ds.pick){const n=+ds.pick,i=state.pick.indexOf(n);
+    if(i>=0)state.pick.splice(i,1);else{state.pick.push(n);if(state.pick.length>3)state.pick.shift()}save();return render()}
+  if(ds.ahit){state.abHit=state.abHit===ds.ahit?null:ds.ahit;return render()}
+});
+/* URLの #status #skill #ability #d4 などで直接開ける */
+const h=(location.hash||"").slice(1);
+if(VIEWS[h])state.tab=h;else if(/^d\d+$/.test(h)&&D.find(d=>d.no===+h.slice(1))){state.tab="dragon";state.detail=+h.slice(1)}
+render();
+</script>
+</body>
+</html>
