@@ -295,7 +295,6 @@ mark{background:hsl(45 95% 62% / .55);color:inherit;border-radius:3px;padding:0 
 </nav>
 
 <main id="view"></main>
-<p class="foot">各能力の上限は999。六角形は上から時計回りに 体力・攻撃・防御・素早さ・命中・回避。</p>
 </div>
 
 <script>
@@ -468,8 +467,8 @@ const AB={
 
 /* ===== 状態（並べ替えと画像の種類は端末に保存） ===== */
 const state={tab:"dragon",detail:null,img:"icon",
-  dSort:{key:"no",dir:1},sSort:{key:"total",dir:-1},kSort:{key:"no",dir:1},aSort:{key:"no",dir:1},skDr:1,inDr:1};
-const KEEP=["dSort","sSort","img","skDr","inDr"];
+  dSort:{key:"no",dir:1},sSort:{key:"total",dir:-1},kSort:{key:"no",dir:1},aSort:{key:"no",dir:1},skDr:1,inDr:1,abCat:"all"};
+const KEEP=["dSort","sSort","img","skDr","inDr","abCat"];
 try{const s=JSON.parse(localStorage.getItem("dragon-maseki-v2")||"{}");KEEP.forEach(k=>{if(s[k])state[k]=s[k]})}catch(e){}
 if(!IMG_SETS[state.img])state.img="icon";
 const save=()=>{try{localStorage.setItem("dragon-maseki-v2",JSON.stringify(Object.fromEntries(KEEP.map(k=>[k,state[k]]))))}catch(e){}};
@@ -524,12 +523,13 @@ function sorted(s){
 function toggle(s,key,defDir){if(s.key===key)s.dir*=-1;else{s.key=key;s.dir=defDir}save();render()}
 const ariaSort=(s,k)=>s.key===k?` aria-sort="${s.dir>0?"ascending":"descending"}"`:"";
 
-/* ===== ランキング：同点は同じ順位、5位までを表示 ===== */
-function top5(items){
+/* ===== ランキング：同点は同じ順位、n位までを表示 ===== */
+function topN(items,n){
   const arr=[...items].sort((a,b)=>b.v-a.v||(a.tie??0)-(b.tie??0));
   let pos=0,prev=null;
-  return arr.map((x,i)=>{if(x.v!==prev){pos=i+1;prev=x.v}return{...x,pos}}).filter(x=>x.pos<=5);
+  return arr.map((x,i)=>{if(x.v!==prev){pos=i+1;prev=x.v}return{...x,pos}}).filter(x=>x.pos<=n);
 }
+const top5=items=>topN(items,5);
 function rankCard(icon,title,unit,rows){
   return `<section class="rank box"><div class="rank-h"><span class="tg">${ico(icon)}</span><span class="rank-t">${title}</span><span class="rank-u">${unit}</span></div><ol>${
     rows.map(r=>`<li class="${r.d?"go":"noimg"}"${r.d?` data-open="${r.d.no}"`:""}><span class="pos ${r.pos<=3?"r"+r.pos:""}">${r.pos}</span>${r.d?illust(r.d):""}<span class="rn">${esc(r.name)}<span class="rs">${r.sub}</span></span><span class="rv">${r.v}<small>${r.u||""}</small></span></li>`).join("")
@@ -664,8 +664,30 @@ function skillCard(spName,x){
 function pickStrip(attr,sel){
   return `<div class="pick">${D.map(d=>`<button data-${attr}="${d.no}" aria-pressed="${sel===d.no}">${illust(d)}<span>${esc(d.nk)}</span></button>`).join("")}</div>`;
 }
+/* 今のレベルの値が分かっているスキルを全部集める */
+function skillRows(){
+  const out=[];
+  D.forEach(d=>d.sk.forEach(x=>{
+    const db=(SK[d.sp]||{})[x.n];if(!db)return;
+    const v=db.L[lvKey(x.lv)];if(!v)return;
+    const pct=(v[4].match(/(\d+)%の確率/)||[])[1];
+    out.push({d,n:x.n,lv:x.lv,mana:+v[1]||0,pow:+v[2]||0,acc:v[3],pct:pct?+pct:null,eff:v[4]});
+  }));
+  return out;
+}
+function skillRanks(){
+  const rows=skillRows();
+  const sub=r=>`${esc(r.d.nk)}・${r.lv?"Lv"+r.lv:"最大"}`;
+  const mk=(list,v,u,extra)=>topN(list.map(r=>({d:r.d,name:r.n,v:v(r),u,sub:sub(r)+(extra?extra(r):""),tie:r.d.no})),10);
+  const pw=rows.filter(r=>r.pow>0);
+  return [
+    rankCard("sword","威力ベスト10","威力",mk(pw,r=>r.pow,"")),
+    rankCard("bolt","対マナ威力ベスト10","威力÷マナ",mk(pw.filter(r=>r.mana>0),r=>Math.round(r.pow/r.mana*10)/10,"",r=>`・威力${r.pow}／マナ${r.mana}`)),
+    rankCard("crown","命中◎の威力ベスト10","命中が◎のスキルだけ",mk(pw.filter(r=>r.acc==="◎"),r=>r.pow,"")),
+    rankCard("hex","追加効果の確率ベスト10","発動する確率",mk(rows.filter(r=>r.pct!=null),r=>r.pct,"%",r=>`<br>${esc(r.eff)}`)),
+  ].join("");
+}
 function viewSkill(){
-  const {card}=learnRank("sk","bolt","スキル");
   const d=D.find(x=>x.no===state.skDr)||D[0];
   const missing=D.filter(x=>!SK[x.sp]).map(x=>esc(x.nk)).join("・");
   return `<h2><span class="tg">${ico("bolt")}</span>ドラゴンごとのスキル</h2>
@@ -674,13 +696,19 @@ function viewSkill(){
     <section class="box skp"><div class="skp-h">${illust(d)}<div><b>${esc(d.nk)}</b><small>${esc(d.sp)}</small></div></div>
       ${d.sk.map(x=>skillCard(d.sp,x)).join("")}</section>
     ${missing?`<p class="hint" style="margin-top:10px">まだデータがないドラゴン：${missing}</p>`:""}
-    <h2><span class="tg">${ico("crown")}</span>スキルランキング</h2><div class="ranks">${card}</div>`;
+    <h2><span class="tg">${ico("crown")}</span>スキルランキング</h2><p class="hint">今のレベルの値が分かっているスキルで比べています</p><div class="ranks">${skillRanks()}</div>`;
 }
 
-/* ===== アビリティ ===== */
+/* ===== アビリティ =====
+   名前で分類：「構え」が付く／「フクツ」で始まる／「アップ」が付く／それ以外 */
+const AB_CATS=["構え","フクツ","アップ","その他"];
+const abCat=n=>/構え/.test(n)?"構え":/^フクツ/.test(n)?"フクツ":/アップ/.test(n)?"アップ":"その他";
 function viewAbility(){
   const {m,card}=learnRank("ab","shield","アビリティ");
-  const names=Object.entries(m).sort((a,b)=>b[1].length-a[1].length||a[0].localeCompare(b[0],"ja"));
+  const all=Object.entries(m).sort((a,b)=>b[1].length-a[1].length||a[0].localeCompare(b[0],"ja"));
+  const cnt=c=>all.filter(([n])=>abCat(n)===c).length;
+  const cats=[["all","すべて",all.length],...AB_CATS.map(c=>[c,c,cnt(c)])];
+  const names=state.abCat==="all"?all:all.filter(([n])=>abCat(n)===state.abCat);
   const cards=names.map(([n,ds])=>{
     const db=AB[n];
     const holders=ds.map(d=>{const x=d.ab.find(y=>y.n===n);return `<button class="hold" data-open="${d.no}">${esc(d.nk)}<span class="lvb${x.lv?"":" max"}">${x.lv?"Lv"+x.lv:"最大"}</span></button>`}).join("");
@@ -700,6 +728,7 @@ function viewAbility(){
   }).join("");
   return `<h2><span class="tg">${ico("crown")}</span>アビリティランキング</h2><div class="ranks">${card}</div>
     <h2><span class="tg">${ico("shield")}</span>アビリティの効果</h2><p class="hint">覚えているドラゴンを押すと、そのドラゴンのページが開きます</p>
+    <div class="sorter">${cats.map(([k,n,c])=>`<button data-abcat="${k}" aria-pressed="${state.abCat===k}">${n}<small>${c}</small></button>`).join("")}</div>
     <div class="abgrid">${cards}</div>`;
 }
 
@@ -737,7 +766,7 @@ function go(tab,detail=null){
   if(!same){const top=document.querySelector("nav.views").offsetTop-4;if(window.scrollY>top)window.scrollTo({top})}
 }
 document.addEventListener("click",e=>{
-  const t=e.target.closest("[data-tab],[data-open],[data-back],[data-dsort],[data-ssort],[data-skdr],[data-indr],[data-img]");
+  const t=e.target.closest("[data-tab],[data-open],[data-back],[data-dsort],[data-ssort],[data-skdr],[data-indr],[data-abcat],[data-img]");
   if(!t)return;const ds=t.dataset;
   if(ds.tab)return go(ds.tab);
   if(ds.open)return go("dragon",+ds.open);
@@ -747,6 +776,7 @@ document.addEventListener("click",e=>{
   if(ds.ssort)return toggle(state.sSort,ds.ssort,+ds.dd);
   if(ds.skdr){state.skDr=+ds.skdr;save();return render()}
   if(ds.indr){state.inDr=+ds.indr;save();return render()}
+  if(ds.abcat){state.abCat=ds.abcat;save();return render()}
 });
 /* #status #skill #ability #d4 などで直接ひらける */
 const h=(location.hash||"").slice(1);
