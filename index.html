@@ -772,11 +772,11 @@ function viewSkill(){
 }
 
 /* ===== アビリティ =====
-   分類：上がるパラメータごと（攻撃・防御・素早さ・命中・回避）と回復。どれにも入らないものは「その他」
+   分類：上がるパラメータごと（攻撃・防御・素早さ・命中・回避）と体力・マナ・状態。どれにも入らないものは「その他」
    新しいアビリティは AB_CAT に1行足す。足していない時は効果の文から自動で振り分ける */
-const AB_CATS=["攻撃","防御","素早さ","命中","回避","回復","その他"];
-const AB_CAT={"クリティカル":"攻撃","追加攻撃":"攻撃","狙い撃ち":"命中",
-  "リカバリー":"回復","ふんばる":"回復","マナアップ":"回復","マナセラピー":"回復","緊急チャージ":"回復"};
+const AB_CATS=["攻撃","防御","素早さ","命中","回避","体力","マナ","状態","その他"];
+const AB_CAT={"クリティカル":"攻撃","追加攻撃":"攻撃","健康キラー":"攻撃","狙い撃ち":"命中",
+  "リカバリー":"体力","ふんばる":"体力","マナアップ":"マナ","緊急チャージ":"マナ","デトックス":"状態","マナセラピー":"状態"};
 function abCat(n){
   if(AB_CAT[n])return AB_CAT[n];
   const db=AB[n];const e=db?Object.values(db.L).map(v=>v[1]).join(""):"";
@@ -787,7 +787,7 @@ function viewAbility(){
   const {m,card}=learnRank("ab","shield","アビリティ");
   const all=Object.entries(m).sort((a,b)=>b[1].length-a[1].length||a[0].localeCompare(b[0],"ja"));
   const cnt=c=>all.filter(([n])=>abCat(n)===c).length;
-  const cats=[["all","すべて",all.length],...AB_CATS.map(c=>[c,c,cnt(c)])];
+  const cats=[["all","すべて",all.length],...AB_CATS.map(c=>[c,c,cnt(c)]).filter(x=>x[2]>0||state.abCat===x[0])];
   const names=state.abCat==="all"?all:all.filter(([n])=>abCat(n)===state.abCat);
   const cards=names.map(([n,ds])=>{
     const db=AB[n];
