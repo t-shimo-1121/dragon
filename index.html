@@ -70,9 +70,9 @@ h1{font-family:var(--f-head);font-weight:900;font-size:clamp(1.7rem,7vw,2.3rem);
 
 /* タブ（アイコン＋文字の札） */
 nav.views{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:linear-gradient(var(--paper) 86%,transparent);
-  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;padding-block:8px 12px;margin-bottom:6px}
+  display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px;padding-block:8px 12px;margin-bottom:6px}
 nav.views button{display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 0 7px;border:1px solid var(--line);border-radius:12px;
-  background:var(--sheet);color:var(--mute);font-weight:700;font-size:clamp(.8rem,3.8vw,.95rem);line-height:1.15;min-width:0}
+  background:var(--sheet);color:var(--mute);font-weight:700;font-size:clamp(.66rem,3.3vw,.92rem);line-height:1.15;min-width:0;letter-spacing:-.02em}
 nav.views button .ic{font-size:1.4em}
 nav.views button[aria-selected="true"]{background:var(--accent);border-color:transparent;color:var(--sheet);box-shadow:0 4px 12px hsla(40,30%,25%,.22)}
 
@@ -193,6 +193,72 @@ td.num{text-align:right}
 td.dim{opacity:.3}
 tr.hit td{background:var(--soft)}
 td .lvn{font-size:.78rem;color:var(--accent);font-weight:700;margin-left:4px}
+/* 得意フィールド・弱点の札 */
+.sp-row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:1px;min-width:0}
+.sp-row .sp{margin:0;min-width:0}
+.fw{display:flex;gap:8px;flex:none}
+.d-h+.fw{margin-top:6px}
+.fw-i{display:inline-flex;align-items:center;gap:3px}
+.fw-i small{font-size:.7rem;color:var(--mute);font-weight:700}
+.el,.fd{display:inline-block;font-size:.8rem;font-weight:700;line-height:1.5;padding:0 7px;border-radius:6px;color:#fff;background:var(--mute);white-space:nowrap}
+.e-fire{background:hsl(8 72% 50%)}.e-water{background:hsl(208 70% 48%)}.e-earth{background:hsl(30 50% 42%)}
+.e-wind{background:hsl(150 50% 36%)}.e-light{background:hsl(44 90% 42%)}.e-dark{background:hsl(275 40% 45%)}
+.f-waste{background:hsl(68 45% 38%)}.f-water{background:hsl(195 65% 42%)}.f-forest{background:hsl(130 40% 34%)}.f-rock{background:hsl(35 30% 42%)}
+/* ドラゴンを選ぶ帯 */
+.pick{display:flex;gap:6px;overflow-x:auto;padding:2px 2px 8px;margin:0 -2px 8px;scrollbar-width:thin}
+.pick button{flex:none;width:4.6rem;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 4px;border:1px solid var(--line);border-radius:12px;background:var(--sheet);font-size:.74rem;font-weight:700;line-height:1.2}
+.pick button span{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pick .illust{width:3rem;border-radius:8px}
+.pick .illust .ph{display:none!important}
+.pick button[aria-pressed="true"]{border-color:var(--accent);background:var(--soft);box-shadow:inset 0 0 0 2px var(--accent)}
+/* スキル */
+.skp{padding:12px}
+.skp-h{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.skp-h .illust{width:3.2rem;flex:none}
+.skp-h b{display:block;font-family:var(--f-head);font-weight:900;font-size:1.4rem;line-height:1.2}
+.skp-h small{color:var(--mute);font-size:.82rem;font-weight:700}
+.sk{border-top:1px dashed var(--line);padding:10px 0 8px}
+.sk-h{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.sk-h b{font-size:1.15rem}
+.lvb{font-size:.78rem;font-weight:700;color:var(--accent);border:1px solid currentColor;border-radius:999px;padding:0 8px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.lvb.max{background:var(--accent);border-color:var(--accent);color:var(--sheet)}
+.sts{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px;margin-top:6px}
+.st{background:var(--tint);border-radius:9px;padding:4px 2px 5px;text-align:center;min-width:0}
+.st small{display:block;font-size:.66rem;color:var(--mute);font-weight:700;line-height:1.3}
+.st b{display:block;font-family:var(--f-head);font-weight:900;font-size:1.05rem;line-height:1.3;font-variant-numeric:tabular-nums;white-space:nowrap}
+.st b .el{font-size:.78rem;padding:0 5px}
+.st.chg{background:hsl(45 95% 62% / .45);box-shadow:inset 0 0 0 1.5px hsl(40 85% 45% / .6)}
+mark{background:hsl(45 95% 62% / .55);color:inherit;border-radius:3px;padding:0 2px;font-weight:700}
+.eff{margin:7px 0 0;font-size:.95rem;line-height:1.55}
+.eff.none{color:var(--mute);font-size:.85rem}
+.eff .src{display:block;font-size:.7rem;color:var(--mute)}
+.note{margin:4px 0 0;font-size:.78rem;color:var(--mute);line-height:1.5}
+.note b{color:var(--ink);margin-right:6px}
+.nodata{margin:6px 0 0;font-size:.85rem;color:var(--mute);border:1px dashed var(--line);border-radius:9px;padding:6px 10px}
+/* アビリティ */
+.abgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,340px),1fr));gap:10px}
+.abc{padding:10px 12px}
+.abc-h{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+.abc-h b{font-size:1.15rem}
+.abc-h .cnt{font-size:.8rem;color:var(--mute);font-weight:700}
+.ab-b{display:grid;grid-template-columns:3.6rem minmax(0,1fr);gap:8px;align-items:start;margin-top:6px}
+.ab-b .eff{margin:0}
+.holds{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+.hold{display:inline-flex;align-items:center;gap:4px;border:1px solid var(--line);background:var(--sheet);border-radius:9px;padding:2px 4px 2px 8px;font-size:.84rem;font-weight:700}
+.hold .lvb{font-size:.68rem;padding:0 6px}
+/* 情報 */
+.info{padding:14px}
+.info-h{display:flex;align-items:center;gap:12px}
+.info-h .illust{width:5rem;flex:none}
+.info-h small{display:block;color:var(--mute);font-size:.78rem;font-weight:700}
+.info-h b{display:block;font-family:var(--f-head);font-weight:900;font-size:1.35rem;line-height:1.25}
+.info-h span{font-size:.9rem;color:var(--mute);font-weight:700}
+.info-t{margin:12px 0 0;font-family:var(--f-head);font-weight:900;font-size:1.1rem;color:var(--accent)}
+.info-d{margin:6px 0 0;font-size:1rem;line-height:1.75}
+.facts{margin:12px 0 0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+.facts div{background:var(--tint);border-radius:10px;padding:6px 10px;min-width:0}
+.facts dt{font-size:.72rem;color:var(--mute);font-weight:700}
+.facts dd{margin:0;font-weight:700;font-size:.95rem;line-height:1.45}
 .foot{margin-top:26px;color:var(--mute);font-size:.8rem}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
@@ -206,6 +272,7 @@ td .lvn{font-size:.78rem;color:var(--accent);font-weight:700;margin-left:4px}
   <symbol id="i-crown" viewBox="0 0 24 24"><path d="M3 7.5 8 11l4-6.5 4 6.5 5-3.5-1.8 11.2H4.8ZM5 20h14v2H5Z"/></symbol>
   <symbol id="i-sword" viewBox="0 0 24 24"><path d="M20.8 2.2 21 7.4 11.6 16.8 7.2 12.4 16.6 3Zm-15 11.6 4.4 4.4-1.6 1.6-1.3-1.3-2.8 2.8a1.4 1.4 0 0 1-2-2l2.8-2.8-1.3-1.3Z"/></symbol>
   <symbol id="i-wing" viewBox="0 0 24 24"><path d="M2.5 5.5c6 0 11 1.6 14.5 5.6 1.8 2 3 4.6 4.5 7.9-3.3-1.7-6.4-2.3-9.5-2.2 1.2 1 2 2.2 2.6 3.7-4.6-1.2-8-4-10-7.6 1.5.4 3 .5 4.4.3C6 11.6 3.8 9 2.5 5.5Z"/></symbol>
+  <symbol id="i-book" viewBox="0 0 24 24"><path d="M3 4.5C5.8 3.6 8.9 3.9 11 5.6v15c-2.1-1.5-5.2-1.8-8-.9Zm18 0c-2.8-.9-5.9-.6-8 1.1v15c2.1-1.5 5.2-1.8 8-.9Z"/></symbol>
   <symbol id="i-img" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M5 3h14a3 3 0 0 1 3 3v12a3 3 0 0 1-3 3H5a3 3 0 0 1-3-3V6a3 3 0 0 1 3-3Zm0 2a1 1 0 0 0-1 1v9.6l4.3-4.3 5 5 2.7-2.7 4 4V6a1 1 0 0 0-1-1Zm11 2.5a2 2 0 1 1 0 4 2 2 0 0 1 0-4Z"/></symbol>
 </svg>
 
@@ -221,9 +288,10 @@ td .lvn{font-size:.78rem;color:var(--accent);font-weight:700;margin-left:4px}
 
 <nav class="views" role="tablist" aria-label="表示切り替え">
   <button role="tab" data-tab="dragon"><svg class="ic"><use href="#i-list"/></svg>ドラゴン</button>
-  <button role="tab" data-tab="status"><svg class="ic"><use href="#i-hex"/></svg>能力値</button>
+  <button role="tab" data-tab="status"><svg class="ic"><use href="#i-hex"/></svg>パラメータ</button>
   <button role="tab" data-tab="skill"><svg class="ic"><use href="#i-bolt"/></svg>スキル</button>
   <button role="tab" data-tab="ability"><svg class="ic"><use href="#i-shield"/></svg>アビリティ</button>
+  <button role="tab" data-tab="info"><svg class="ic"><use href="#i-book"/></svg>情報</button>
 </nav>
 
 <main id="view"></main>
@@ -272,10 +340,129 @@ const ico=(id,cls="ic")=>`<svg class="${cls}" aria-hidden="true"><use href="#i-$
 const rk=r=>`<span class="rk ${r}">${r}</span>`;
 const lvTag=lv=>lv?`<span class="lv">Lv ${lv}</span>`:"";   /* 最大は表示しない */
 
+/* ===== 種族のデータ =====
+   f=得意フィールド w=弱点 a=属性 reg=伝承地域 src=出典 len=戦闘体長 desc=紹介（要約）
+   出典：ゲーム内の「ドラゴン情報」画面、Wan！space♪ のドラゴン別ページ */
+const VARIANT_DESC="たくさんの戦いをくぐりぬけて、突然変異したとされるドラゴン。通常種より強いといわれるが、くわしい生態はまだわかっていない。";
+const SP={
+  "ワイヴァーン":{f:"荒野",w:"火",a:"風",reg:"イギリス",src:"イギリスの伝承",len:"10m",title:"巨大な翼を有する翼竜",
+    desc:"イングランドの紋章や伝承に出てくる、2本足と大きな翼をもつ竜。「飛竜」とも呼ばれ、尾の先にある毒のトゲも武器になる。"},
+  "九頭龍":{f:"水辺",w:"土",a:"水",reg:"日本（長野県、神奈川県など）",src:"『阿娑縛抄諸寺略記』など",len:"20m",title:"悪竜から龍神に変化",
+    desc:"戸隠神社や箱根神社にまつられる、頭が9つある龍。芦ノ湖で人々を苦しめていたが、僧に調伏されて龍神になったと伝わる。"},
+  "イルルヤンカシュ":{f:"水辺",w:"光",a:"闇",reg:"アナトリア半島（今のトルコ）",src:"ハットゥシャ出土のレリーフ",len:"150m",
+    desc:"ヒッタイトの神話に出てくる大蛇の竜。嵐の神と戦い、一度は勝ったという話が残っている。"},
+  "メスター・ストゥアワーム":{f:"森林",w:"火",a:"風",reg:"スコットランド（オークニー諸島）",src:"『スコットランドの民話と伝奇物語』",len:"80m",
+    desc:"オークニー諸島に伝わる巨大な海の怪物。毒の息で草木を枯らし、船や城もひと飲みにしたという。"},
+  "ケツァルコアトル":{f:"森林",w:"火",a:"風",reg:"メソアメリカ",src:"アステカの金石文など",len:"100m",
+    desc:"アステカなどで信仰された、羽毛のある蛇の神。農業の神で、世界をつくった神ともされる。"},
+  "レインボー・サーペント":{f:"森林",w:"土",a:"水",reg:"オーストラリアなど",src:"オーストラリア先住民の伝承など",len:"100m",
+    desc:"オーストラリアの先住民が信じる、虹色の蛇の姿をした創造の精霊。這った跡が川や谷になり、雨を降らせる水の神でもある。"},
+  "ヴリトラ":{f:"荒野",w:"火",a:"風",reg:"インド",src:"『リグ・ヴェーダ』『マハーバーラタ』など",len:"150m",
+    desc:"インドの神話に出てくる魔物で、雷の神インドラと激しく戦った。インドラを退けたこともあるほどの力をもつ。"},
+  "レヴィアタン":{f:"水辺",w:"土",a:"水",reg:"イスラエル",src:"『旧約聖書』の『イザヤ書』『ヨブ記』など",len:"200m",
+    desc:"旧約聖書に出てくる海の竜。二重の硬い鱗におおわれ、青銅や鉄でも傷つかないとされる。"},
+  "応龍":{f:"森林",w:"闇",a:"光",reg:"中国",src:"『山海経』『本草綱目』など",len:"150m",
+    desc:"中国の伝説で、龍が長い年月をへてなる最高の姿とされる翼のある龍。黄帝を助けて戦いで大活躍した。"},
+  "クエレブレ変異種":{f:"岩場",w:"風",a:"土",len:"15m"},
+  "ファイヤー・ドレイク変異種":{f:"荒野",w:"水",a:"火",len:"30m"},
+  "九頭龍変異種":{f:"水辺",w:"闇",a:"光",len:"20m"},
+  "イルルヤンカシュ変異種":{f:"水辺",w:"土",a:"水",len:"150m"},
+  "ケツァルコアトル変異種":{f:"森林",w:"闇",a:"光"},
+  "ヒュドラー変異種":{f:"岩場",w:"光",a:"闇"},
+  "フェルニゲシュ変異種":{f:"岩場",w:"光",a:"闇"},
+  "レインボー・サーペント変異種":{f:"森林",w:"火",a:"土"},
+  "ゴルィニシチェ変異種":{f:"岩場",w:"水",a:"火"},
+  "アジ・ダハーカ変異種":{f:"荒野",w:"水",a:"火"},
+  "ヴリトラ変異種":{f:"荒野",w:"火",a:"風"},
+  "レヴィアタン変異種":{f:"水辺",w:"水",a:"火"},
+  "応龍変異種":{f:"森林",w:"闇",a:"光"},
+};
+
+/* ===== スキルのデータ =====
+   L のキーはレベル（M=最大）。[持続, マナ, 威力, 命中, 追加効果]。分かっているレベルだけ書く
+   at=スキルの属性（ゲーム画面で確かめたものだけ） */
+const SK={
+  "ワイヴァーン":{
+    "空中機動":{at:"風",L:{1:[1,3,10,"○","10%の確率で、自分の素早さを小アップ。"],3:[1,2,20,"○","10%の確率で、自分の素早さを小アップ。"],M:[1,2,20,"○","20%の確率で、自分の素早さを小アップ。"]}},
+    "毒刺し":{at:"風",L:{1:["-",3,20,"○","15%の確率で、相手を毒状態にする。"],2:["-",3,20,"○","20%の確率で、相手を毒状態にする。"],M:["-",3,30,"○","30%の確率で、相手を毒状態にする。"]}},
+    "焼き払う":{at:"火",L:{1:["-",6,80,"○",""],3:["-",5,80,"◎",""],M:["-",5,100,"◎",""]}},
+  },
+  "九頭龍":{
+    "恵みの雨":{at:"水",L:{1:["-",0,0,"-","自分のマナが3アップ。"],M:["-",0,0,"-","自分のマナが3アップ。"]}},
+    "九つ噛み":{at:"水",L:{1:["-",5,40,"○","45%の確率で、相手を毒状態にする。"],2:["-",5,40,"○","45%の確率で、相手を毒状態にする。"],M:["-",5,50,"○","60%の確率で、相手を毒状態にする。"]}},
+    "災禍の嵐":{at:"風",L:{1:[2,5,30,"○","50%の確率で、相手の回避を小ダウン。"],3:[2,5,40,"○","55%の確率で、相手の回避を小ダウン。"],M:[2,5,50,"○","60%の確率で、相手の回避を小ダウン。"]}},
+  },
+  "イルルヤンカシュ":{
+    "波の壁":{L:{1:[1,3,10,"○","20%の確率で、自分の防御を小アップ。"]}},
+    "噛みちぎる":{L:{1:["-",5,50,"△","45%の確率で、相手のマナを1ダウン。"]}},
+    "大渦":{L:{1:[1,7,70,"○","60%の確率で、相手の回避を中ダウン。"]}},
+  },
+  "メスター・ストゥアワーム":{
+    "薙ぎ払う":{L:{1:[1,4,20,"△","35%の確率で、相手の回避を中ダウン。"],M:[2,3,20,"△","40%の確率で、相手の回避を大ダウン。"]}},
+    "毒液発射":{L:{1:["-",4,70,"×","35%の確率で、相手を毒状態にする。"],M:["-",4,80,"×","50%の確率で、相手を毒状態にする。"]}},
+    "丸飲み":{L:{1:["-",7,80,"×","75%の確率で、相手のマナを2ダウン。"],M:["-",7,100,"△","80%の確率で、相手のマナを2ダウン。"]}},
+  },
+  "ケツァルコアトル":{
+    "豊穣の風":{L:{1:["-",0,0,"-","自分のマナが3アップ。"],M:["-",0,0,"-","自分のマナが3アップ。"]}},
+    "尻尾払い":{L:{1:[1,4,30,"○","50%の確率で、自分の防御を小アップ。"],M:[2,4,30,"○","60%の確率で、自分の防御を中アップ。"]}},
+    "回転頭突き":{L:{1:["-",6,70,"○","45%の確率で、相手を傷状態にする。"],M:["-",6,80,"○","60%の確率で、相手を傷状態にする。"]}},
+  },
+  "レインボー・サーペント":{
+    "叩きつけ":{L:{1:["-",4,70,"×","25%の確率で、相手をスタン状態にする。"],M:["-",4,80,"×","40%の確率で、相手をスタン状態にする。"]}},
+    "暴風雨":{L:{1:[1,4,60,"△","20%の確率で、自分の攻撃を小アップ。"],M:[2,4,60,"△","30%の確率で、自分の攻撃を中アップ。"]}},
+    "地割れ":{L:{1:["-",6,90,"△","40%の確率で、相手のマナを1ダウン。"],M:["-",6,100,"△","50%の確率で、相手のマナを2ダウン。"]}},
+  },
+  "ヴリトラ":{
+    "かまいたち":{L:{1:["-",3,20,"○",""],M:["-",2,40,"◎",""]}},
+    "神の守護":{L:{1:["-",4,0,"-","発動したターンの間、ダメージを0にする。"],M:["-",4,0,"-","発動したターンの間、ダメージを0にする。"]}},
+    "トルネード":{L:{1:["-",9,80,"◎","60%の確率で、相手のマナを2ダウン。"],M:["-",8,90,"◎","70%の確率で、相手のマナを2ダウン。"]}},
+  },
+  "レヴィアタン":{
+    "炎の噛みつき":{L:{1:["-",5,30,"○","40%の確率で、相手のマナを2ダウン。"],M:["-",4,40,"○","50%の確率で、相手のマナを2ダウン。"]}},
+    "高熱放射":{L:{1:[1,7,70,"○","45%の確率で、自分の防御を小アップ。"],M:[2,6,70,"○","50%の確率で、自分の防御を中アップ。"]}},
+    "のしかかる":{L:{1:[1,9,70,"○","100%の確率で、相手の攻撃を小ダウン。"],M:[2,8,80,"○","100%の確率で、相手の攻撃を中ダウン。"]}},
+  },
+  "応龍":{
+    "聖なる力":{L:{1:[4,3,0,"-","一度だけ状態異常を無効にする。"],M:[4,3,0,"-","一度だけ状態異常を無効にする。"]}},
+    "噛み砕く":{L:{1:[1,5,40,"○","25%の確率で、相手の防御を小ダウン。"],M:[2,4,40,"○","30%の確率で、相手の防御を中ダウン。"]}},
+    "神通力":{L:{1:["-",6,70,"○","35%の確率で、相手を麻痺状態にする。"],M:["-",6,80,"○","50%の確率で、相手を麻痺状態にする。"]}},
+  },
+  "クエレブレ変異種":{
+    "鱗の守り":{L:{1:[3,4,0,"-","自分の防御が小アップ。"]}},
+    "体当たり":{L:{1:["-",3,10,"×","30%の確率で、相手を傷状態にする。"]}},
+    "急降下":{L:{1:["-",8,60,"○","自分の防御バフが多いほど威力が上がる。"]}},
+  },
+  "ファイヤー・ドレイク変異種":{
+    "八つ裂き":{L:{1:["-",2,20,"△","25%の確率で、相手を傷状態にする。"],M:["-",2,20,"△","40%の確率で、相手を傷状態にする。"]}},
+    "回転攻撃":{L:{1:["-",3,20,"△","50%の確率で、相手のマナを1ダウン。"],M:["-",3,30,"△","60%の確率で、相手のマナを2ダウン。"]}},
+    "火炎放射":{L:{1:["-",5,50,"△","35%の確率で、相手を大やけど状態にする。"],M:["-",5,50,"△","50%の確率で、相手を大やけど状態にする。"]}},
+  },
+  "九頭龍変異種":{
+    "恵みの雨":{L:{1:["-",0,0,"-","自分のマナが3アップ。"]}},
+    "九つ噛み":{L:{1:["-",5,40,"○","45%の確率で、相手を傷状態にする。"]}},
+    "災禍の嵐":{L:{1:["-",5,50,"○","35%の確率で、相手を麻痺状態にする。"]}},
+  },
+  "イルルヤンカシュ変異種":{
+    "波の壁":{L:{1:[1,3,20,"○","20%の確率で、自分の防御を小アップ。"],M:[2,2,20,"○","30%の確率で、自分の防御を小アップ。"]}},
+    "噛みちぎる":{L:{1:["-",4,30,"△","45%の確率で、相手のマナを1ダウン。"],M:["-",4,50,"○","50%の確率で、相手のマナを1ダウン。"]}},
+    "大渦":{L:{1:[1,8,80,"○","65%の確率で、自分の攻撃を小アップ。"],M:[1,8,90,"◎","70%の確率で、自分の攻撃を中アップ。"]}},
+  },
+};
+
+/* ===== アビリティのデータ =====
+   L のキーはレベル（M=最大）。[持続, 効果]。ゲーム画面で確かめたレベルだけ書く */
+const AB={
+  "攻めの構え":{L:{2:["-","攻撃時、25%の確率で攻撃が小アップ。"]}},
+  "回避アップ":{L:{M:[1,"ターン開始時、20%の確率で回避が大アップ。"]}},
+  "デトックス":{L:{M:["-","状態異常の時、30%の確率で状態異常を消す。"]}},
+  "フクツの素早さ":{L:{2:[2,"体力が45%以下の時、素早さが小アップ。"]}},
+  "命中アップ":{L:{M:[1,"ターン開始時、20%の確率で命中が大アップ。"]}},
+};
+
 /* ===== 状態（並べ替えと画像の種類は端末に保存） ===== */
 const state={tab:"dragon",detail:null,img:"icon",
-  dSort:{key:"no",dir:1},sSort:{key:"total",dir:-1},kSort:{key:"no",dir:1},aSort:{key:"no",dir:1},abHit:null,skHit:null};
-const KEEP=["dSort","sSort","kSort","aSort","img"];
+  dSort:{key:"no",dir:1},sSort:{key:"total",dir:-1},kSort:{key:"no",dir:1},aSort:{key:"no",dir:1},skDr:1,inDr:1};
+const KEEP=["dSort","sSort","img","skDr","inDr"];
 try{const s=JSON.parse(localStorage.getItem("dragon-maseki-v2")||"{}");KEEP.forEach(k=>{if(s[k])state[k]=s[k]})}catch(e){}
 if(!IMG_SETS[state.img])state.img="icon";
 const save=()=>{try{localStorage.setItem("dragon-maseki-v2",JSON.stringify(Object.fromEntries(KEEP.map(k=>[k,state[k]]))))}catch(e){}};
@@ -354,7 +541,7 @@ function viewDragon(){
   const cards=sorted(s).map(d=>`
     <button class="card box" data-open="${d.no}" aria-label="${esc(d.nk)}をひらく">
       <div class="card-h"><span class="no">No.${d.no}</span><span class="nk">${esc(d.nk)}</span><span class="tot">合計<b>${d.total}</b></span></div>
-      <div class="sp">${esc(d.sp)}</div>
+      <div class="sp-row"><span class="sp">${esc(d.sp)}</span>${fieldRow(d)}</div>
       <div class="card-b">${illust(d)}${radar(d)}</div>
     </button>`).join("");
   return `<div class="sorter">${chips}</div>${imgSwitch()}<div class="grid">${cards}</div>`;
@@ -367,7 +554,7 @@ function viewDetail(d){
       <button class="btn" data-open="${prev.no}" aria-label="前のドラゴン">‹</button><button class="btn" data-open="${next.no}" aria-label="次のドラゴン">›</button></div>
     <div class="detail">
       <section class="dpanel box">
-        <div class="d-h"><h3>${esc(d.nk)}</h3><span class="sp">No.${d.no} ${esc(d.sp)}</span><span class="tot">合計<b>${d.total}</b></span></div>
+        <div class="d-h"><h3>${esc(d.nk)}</h3><span class="sp">No.${d.no} ${esc(d.sp)}</span><span class="tot">合計<b>${d.total}</b></span></div>${fieldRow(d)}
         <div class="d-art">${illust(d)}${radar(d)}</div>
       </section>
       <section class="dpanel box">
@@ -392,8 +579,8 @@ function viewStatus(){
   const rows=sorted(s).map(d=>`<tr data-open="${d.no}"><td class="nm"><span class="nmw">${illust(d)}${esc(d.nk)}</span></td>
     ${d.st.map((x,i)=>`<td class="num"><span class="cv">${rk(x.r)}<span class="${x.v===best[i]?"best":""}">${x.v}</span></span></td>`).join("")}
     <td class="num"><b>${d.total}</b></td></tr>`).join("");
-  return `<h2><span class="tg">${ico("crown")}</span>能力ランキング</h2><div class="ranks">${ranks}</div>
-    <h2><span class="tg">${ico("hex")}</span>能力値の一覧</h2><p class="hint">見出しを押すと並べ替え。色つきの数字は一番高い値</p>
+  return `<h2><span class="tg">${ico("crown")}</span>パラメータランキング</h2><div class="ranks">${ranks}</div>
+    <h2><span class="tg">${ico("hex")}</span>パラメータの一覧</h2><p class="hint">見出しを押すと並べ替え。色つきの数字は一番高い値</p>
     <div class="tbl box"><table><thead><tr><th class="nm"${ariaSort(s,"no")}><button data-ssort="no" data-dd="1">ドラゴン</button></th>
       ${STATS.map((n,i)=>th("s"+i,n)).join("")}${th("total","合計")}</tr></thead><tbody>${rows}</tbody></table></div>`;
 }
@@ -406,32 +593,125 @@ function learnRank(kind,icon,label){
   const rows=top5(Object.entries(m).map(([n,ds])=>({name:n,v:ds.length,u:"体",sub:sub(ds)})));
   return {m,card:rankCard(icon,"習得ドラゴン数ベスト5","覚えている数",rows)};
 }
-function learnTable(kind,s,sortAttr,hit,hitAttr,m){
-  const chips=Object.entries(m).sort((a,b)=>b[1].length-a[1].length||a[0].localeCompare(b[0],"ja"))
-    .map(([n,ds])=>`<button data-${hitAttr}="${esc(n)}" aria-pressed="${hit===n}">${esc(n)}<small>${ds.length}</small></button>`).join("");
-  const th=(k,n)=>`<th${ariaSort(s,k)}><button data-${sortAttr}="${k}" data-dd="1">${n}</button></th>`;
-  const L=kind==="sk"?"スキル":"アビリティ",p=kind==="sk"?"k":"a";
-  const rows=sorted(s).map(d=>{const has=hit&&d[kind].some(x=>x.n===hit);
-    return `<tr data-open="${d.no}" class="${has?"hit":""}"><td class="nm"><span class="nmw">${illust(d)}${esc(d.nk)}</span></td>
-    ${d[kind].map(x=>x.none?`<td class="dim">ー</td>`:`<td class="${hit&&x.n!==hit?"dim":""}">${esc(x.n)}${x.lv?`<span class="lvn">Lv${x.lv}</span>`:""}</td>`).join("")}</tr>`}).join("");
-  return `<p class="hint">名前を押すと、覚えているドラゴンに色がつきます。Lvの表示は最大まで育っていないもの</p>
-    <div class="sorter">${chips}</div>
-    <div class="tbl box"><table><thead><tr><th class="nm"${ariaSort(s,"no")}><button data-${sortAttr}="no" data-dd="1">ドラゴン</button></th>
-      ${[0,1,2].map(i=>th(p+i,L+(i+1))).join("")}</tr></thead><tbody>${rows}</tbody></table></div>`;
+/* ===== フィールド・属性の札 ===== */
+const EL_CLS={火:"e-fire",水:"e-water",土:"e-earth",風:"e-wind",光:"e-light",闇:"e-dark"};
+const FD_CLS={荒野:"f-waste",水辺:"f-water",森林:"f-forest",岩場:"f-rock"};
+const elTag=e=>e?`<span class="el ${EL_CLS[e]||""}">${esc(e)}</span>`:`<span class="el">？</span>`;
+const fdTag=f=>f?`<span class="fd ${FD_CLS[f]||""}">${esc(f)}</span>`:"";
+const spOf=d=>SP[d.sp]||{};
+function fieldRow(d){
+  const p=spOf(d);
+  return `<div class="fw"><span class="fw-i"><small>得意</small>${fdTag(p.f)}</span><span class="fw-i"><small>弱点</small>${elTag(p.w)}</span></div>`;
+}
+
+/* ===== レベルで変わる所を見つける =====
+   追加効果の文は「数字・%・小中大」で区切って、Lv1と最大を比べる */
+const SEG=/(\d+%|\d+|[小中大])/;
+function diffText(a,b){
+  const A=(a||"").split(SEG),B=(b||"").split(SEG);
+  if(A.length!==B.length)return null;
+  const ch=[];A.forEach((x,i)=>{if(x!==B[i])ch.push(i)});
+  return {A,B,ch};
+}
+function markText(t,ch){
+  if(!ch||!ch.length)return esc(t);
+  return t.split(SEG).map((x,i)=>ch.includes(i)?`<mark>${esc(x)}</mark>`:esc(x)).join("");
+}
+const segLabel=x=>/%$/.test(x)?"確率 ":/^\d+$/.test(x)?"数 ":"強さ ";
+const lvKey=lv=>lv?String(lv):"M";
+const lvName=k=>k==="M"?"最大":"Lv"+k;
+const FIELDS=["持続","マナ","威力","命中"];
+
+/* スキル1つ分のカード */
+function skillCard(spName,x){
+  const db=(SK[spName]||{})[x.n];
+  const cur=lvKey(x.lv);
+  const badge=`<span class="lvb${x.lv?"":" max"}">${x.lv?"Lv "+x.lv:"最大"}</span>`;
+  if(!db)return `<div class="sk"><div class="sk-h"><b>${esc(x.n)}</b>${badge}</div><p class="nodata">くわしいデータはまだありません</p></div>`;
+  const L=db.L,lo=L[1],hi=L.M,now=L[cur];
+  const both=lo&&hi;
+  const notes=[];
+  const cells=FIELDS.map((f,i)=>{
+    const chg=both&&String(lo[i])!==String(hi[i]);
+    if(chg)notes.push(`${f} ${lo[i]}→${hi[i]}`);
+    let v=now?now[i]:(both&&!chg?lo[i]:null);
+    const show=v!=null?esc(v):(both?`${esc(lo[i])}〜${esc(hi[i])}`:esc((lo||hi)[i]));
+    return `<div class="st${chg?" chg":""}"><small>${f}</small><b>${show}</b></div>`;
+  }).join("")+`<div class="st"><small>属性</small><b>${db.at?elTag(db.at):"？"}</b></div>`;
+  let eff=(now||hi||lo)[4],ch=null;
+  if(both){const d=diffText(lo[4],hi[4]);if(d){ch=d.ch;d.ch.forEach(i=>notes.push(segLabel(d.A[i])+`${d.A[i]}→${d.B[i]}`))}}
+  const known=Object.keys(L).map(lvName).join("・");
+  let foot="";
+  if(both)foot=notes.length?`<p class="note"><b>Lv1→最大</b>${notes.map(esc).join("、")}</p>`:`<p class="note">レベルで変わる所はありません</p>`;
+  else foot=`<p class="note">分かっているのは ${known} の値だけです</p>`;
+  if(!now&&both)foot+=`<p class="note">今の${lvName(cur)}の値はまだ確かめていません</p>`;
+  return `<div class="sk"><div class="sk-h"><b>${esc(x.n)}</b>${badge}</div><div class="sts">${cells}</div>
+    ${eff?`<p class="eff">${markText(eff,ch)}</p>`:`<p class="eff none">追加効果なし</p>`}${foot}</div>`;
+}
+
+/* ドラゴンを選ぶ帯（スキル・情報タブ） */
+function pickStrip(attr,sel){
+  return `<div class="pick">${D.map(d=>`<button data-${attr}="${d.no}" aria-pressed="${sel===d.no}">${illust(d)}<span>${esc(d.nk)}</span></button>`).join("")}</div>`;
 }
 function viewSkill(){
-  const {m,card}=learnRank("sk","bolt","スキル");
-  return `<h2><span class="tg">${ico("crown")}</span>スキルランキング</h2><div class="ranks">${card}</div>
-    <h2><span class="tg">${ico("bolt")}</span>スキルの一覧</h2>${learnTable("sk",state.kSort,"ksort",state.skHit,"khit",m)}`;
+  const {card}=learnRank("sk","bolt","スキル");
+  const d=D.find(x=>x.no===state.skDr)||D[0];
+  const missing=D.filter(x=>!SK[x.sp]).map(x=>esc(x.nk)).join("・");
+  return `<h2><span class="tg">${ico("bolt")}</span>ドラゴンごとのスキル</h2>
+    <p class="hint">色のついた所はレベルで変わります。下の小さな文字が Lv1 から最大までの変わり方です</p>
+    ${pickStrip("skdr",d.no)}
+    <section class="box skp"><div class="skp-h">${illust(d)}<div><b>${esc(d.nk)}</b><small>${esc(d.sp)}</small></div></div>
+      ${d.sk.map(x=>skillCard(d.sp,x)).join("")}</section>
+    ${missing?`<p class="hint" style="margin-top:10px">まだデータがないドラゴン：${missing}</p>`:""}
+    <h2><span class="tg">${ico("crown")}</span>スキルランキング</h2><div class="ranks">${card}</div>`;
 }
+
+/* ===== アビリティ ===== */
 function viewAbility(){
   const {m,card}=learnRank("ab","shield","アビリティ");
+  const names=Object.entries(m).sort((a,b)=>b[1].length-a[1].length||a[0].localeCompare(b[0],"ja"));
+  const cards=names.map(([n,ds])=>{
+    const db=AB[n];
+    const holders=ds.map(d=>{const x=d.ab.find(y=>y.n===n);return `<button class="hold" data-open="${d.no}">${esc(d.nk)}<span class="lvb${x.lv?"":" max"}">${x.lv?"Lv"+x.lv:"最大"}</span></button>`}).join("");
+    let body=`<p class="nodata">効果はまだ登録されていません</p>`;
+    if(db){
+      const keys=Object.keys(db.L);
+      const k=db.L.M?"M":keys[keys.length-1];
+      const lo=db.L[keys.find(x=>x!=="M")],hi=db.L.M;
+      let ch=null,durChg=false,notes=[];
+      if(lo&&hi){const d=diffText(lo[1],hi[1]);if(d){ch=d.ch;d.ch.forEach(i=>notes.push(segLabel(d.A[i])+`${d.A[i]}→${d.B[i]}`))}
+        durChg=String(lo[0])!==String(hi[0]);if(durChg)notes.unshift(`持続 ${lo[0]}→${hi[0]}`)}
+      const v=db.L[k];
+      body=`<div class="ab-b"><div class="st${durChg?" chg":""}"><small>持続</small><b>${esc(v[0])}</b></div><p class="eff">${markText(v[1],ch)}<small class="src">${lvName(k)}の効果</small></p></div>
+        ${notes.length?`<p class="note"><b>${lvName(keys.find(x=>x!=="M"))}→最大</b>${notes.map(esc).join("、")}</p>`:`<p class="note">レベルで変わる所は、ほかのレベルの画面がそろうと分かります</p>`}`;
+    }
+    return `<section class="box abc"><div class="abc-h"><b>${esc(n)}</b><span class="cnt">${ds.length}体</span></div>${body}<div class="holds">${holders}</div></section>`;
+  }).join("");
   return `<h2><span class="tg">${ico("crown")}</span>アビリティランキング</h2><div class="ranks">${card}</div>
-    <h2><span class="tg">${ico("shield")}</span>アビリティの一覧</h2>${learnTable("ab",state.aSort,"asort",state.abHit,"ahit",m)}`;
+    <h2><span class="tg">${ico("shield")}</span>アビリティの効果</h2><p class="hint">覚えているドラゴンを押すと、そのドラゴンのページが開きます</p>
+    <div class="abgrid">${cards}</div>`;
+}
+
+/* ===== 情報 ===== */
+function viewInfo(){
+  const d=D.find(x=>x.no===state.inDr)||D[0];
+  const p=spOf(d),isV=/変異種$/.test(d.sp);
+  const row=(k,v)=>`<div><dt>${k}</dt><dd>${v}</dd></div>`;
+  return `<h2><span class="tg">${ico("book")}</span>ドラゴン情報</h2>
+    ${pickStrip("indr",d.no)}
+    <section class="box info">
+      <div class="info-h">${illust(d)}<div><small>No.${d.no}</small><b>${esc(d.sp)}</b><span>${esc(d.nk)}</span></div></div>
+      ${p.title?`<p class="info-t">${esc(p.title)}</p>`:""}
+      <p class="info-d">${esc(p.desc||(isV?VARIANT_DESC:"まだ登録されていません"))}</p>
+      <dl class="facts">
+        ${row("属性",elTag(p.a))}${row("得意フィールド",fdTag(p.f)||"？")}${row("弱点",elTag(p.w))}
+        ${row("伝承地域",esc(p.reg||(isV?"不明":"？")))}${row("出典",esc(p.src||(isV?"不明":"？")))}${row("戦闘体長",esc(p.len||"？"))}
+      </dl>
+    </section>`;
 }
 
 /* ===== 描画・操作 ===== */
-const VIEWS={dragon:viewDragon,status:viewStatus,skill:viewSkill,ability:viewAbility};
+const VIEWS={dragon:viewDragon,status:viewStatus,skill:viewSkill,ability:viewAbility,info:viewInfo};
 const view=document.getElementById("view");
 document.getElementById("n-dragon").innerHTML=`${D.length}<small>体</small>`;
 function render(){
@@ -446,7 +726,7 @@ function go(tab,detail=null){
   if(!same){const top=document.querySelector("nav.views").offsetTop-4;if(window.scrollY>top)window.scrollTo({top})}
 }
 document.addEventListener("click",e=>{
-  const t=e.target.closest("[data-tab],[data-open],[data-back],[data-dsort],[data-ssort],[data-ksort],[data-asort],[data-ahit],[data-khit],[data-img]");
+  const t=e.target.closest("[data-tab],[data-open],[data-back],[data-dsort],[data-ssort],[data-skdr],[data-indr],[data-img]");
   if(!t)return;const ds=t.dataset;
   if(ds.tab)return go(ds.tab);
   if(ds.open)return go("dragon",+ds.open);
@@ -454,10 +734,8 @@ document.addEventListener("click",e=>{
   if(ds.img){state.img=ds.img;save();return render()}
   if(ds.dsort)return toggle(state.dSort,ds.dsort,ds.dsort==="no"?1:-1);
   if(ds.ssort)return toggle(state.sSort,ds.ssort,+ds.dd);
-  if(ds.ksort)return toggle(state.kSort,ds.ksort,+ds.dd);
-  if(ds.asort)return toggle(state.aSort,ds.asort,+ds.dd);
-  if(ds.ahit){state.abHit=state.abHit===ds.ahit?null:ds.ahit;return render()}
-  if(ds.khit){state.skHit=state.skHit===ds.khit?null:ds.khit;return render()}
+  if(ds.skdr){state.skDr=+ds.skdr;save();return render()}
+  if(ds.indr){state.inDr=+ds.indr;save();return render()}
 });
 /* #status #skill #ability #d4 などで直接ひらける */
 const h=(location.hash||"").slice(1);
