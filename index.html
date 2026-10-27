@@ -145,6 +145,7 @@ h2 .n{font-family:var(--f-body);font-size:.82rem;color:var(--mute);font-weight:5
 .d-sec:first-child{margin-top:0}
 .kv{list-style:none;margin:0;padding:0;display:grid;gap:6px}
 .kv li{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:9px 12px;background:var(--tint);border-radius:10px;font-weight:700;font-size:1.05rem}
+.kv li.none{color:var(--mute);font-weight:500;background:none;border:1px dashed var(--line)}
 .kv .lv{font-size:.82rem;color:var(--accent);border:1px solid currentColor;border-radius:999px;padding:0 8px;white-space:nowrap;font-variant-numeric:tabular-nums}
 
 /* ランキング（しおり集と同じ型） */
@@ -240,9 +241,13 @@ const STATS=["体力","攻撃","防御","素早さ","命中","回避"];
 /* [種族, ニックネーム, [[ランク,値]×6], [[スキル,Lv(0=最大)]×3], [[アビリティ,Lv(0=最大)]×3]] */
 const D=[
 ["ワイヴァーン","ワイー",[["C",683],["S",999],["E",337],["C",592],["C",591],["C",689]],[["空中機動",3],["毒刺し",2],["焼き払う",3]],[["攻めの構え",2],["回避アップ",0],["デトックス",0]]],
+["九頭龍","クズリュウ",[["E",351],["D",523],["F",224],["F",254],["E",367],["G",172]],[["恵みの雨",0],["九つ噛み",2],["災禍の嵐",3]],[["フクツの素早さ",2],["命中アップ",0],null]],
 ["イルルヤンカシュ","イルル",[["S",999],["B",743],["S",991],["G",141],["B",783],["G",96]],[["波の壁",0],["噛みちぎる",0],["大渦",4]],[["フクツの守り",0],["守りの構え",0],["デトックス",2]]],
 ["メスター・ストゥアワーム","メスター",[["E",372],["S",999],["E",360],["S",994],["S",999],["D",450]],[["薙ぎ払う",0],["毒液発射",0],["丸飲み",0]],[["攻めの構え",3],["狙い撃ち",0],["デトックス",0]]],
+["ケツァルコアトル","ケツァール",[["D",527],["D",439],["D",459],["D",443],["D",450],["D",406]],[["豊穣の風",0],["尻尾払い",0],["回転頭突き",0]],[["ふんばる",0],["命中アップ",0],["フクツの守り",0]]],
+["レインボー・サーペント","レインケー",[["E",346],["S",999],["E",364],["B",716],["S",999],["D",538]],[["叩きつけ",0],["暴風雨",0],["地割れ",0]],[["リカバリー",0],["気合の加速",0],["デトックス",0]]],
 ["ヴリトラ","ヴーリー",[["D",448],["B",750],["B",719],["S",991],["B",750],["A",876]],[["かまいたち",0],["神の守護",0],["トルネード",0]],[["ふんばる",0],["フクツの見切り",0],["デトックス",0]]],
+["レヴィアタン","レヴィアタン",[["C",648],["C",550],["C",640],["G",127],["D",464],["G",103]],[["炎の噛みつき",2],["高熱放射",3],["のしかかる",3]],[["ふんばる",3],["マナセラピー",0],["フクツの素早さ",4]]],
 ["応龍","リュウオウ",[["C",685],["C",678],["B",764],["C",666],["B",730],["C",694]],[["聖なる力",0],["噛み砕く",4],["神通力",0]],[["健康キラー",0],["強打の構え",4],["デトックス",0]]],
 ["クエレブレ変異種","クエー",[["S",999],["A",832],["S",999],["F",201],["B",728],["F",200]],[["鱗の守り",0],["体当たり",0],["急降下",3]],[["マナアップ",0],["守りの構え",0],["デトックス",0]]],
 ["ファイヤー・ドレイク変異種","ファイヤー",[["C",686],["S",977],["F",276],["B",723],["B",747],["B",797]],[["八つ裂き",0],["回転攻撃",0],["火炎放射",0]],[["リカバリー",0],["狙い撃ち",0],["デトックス",0]]],
@@ -254,10 +259,11 @@ const D=[
 ["レインボー・サーペント変異種","レイン",[["E",345],["B",754],["C",681],["S",999],["C",609],["B",735]],[["叩きつけ",4],["暴風雨",0],["地割れ",0]],[["フクツの見切り",0],["守りの構え",2],["デトックス",0]]],
 ["ゴルィニシチェ変異種","ゴルー",[["A",895],["S",999],["E",328],["C",696],["B",723],["B",772]],[["急降下ひっかき",3],["ラッシュ噛み",0],["トリプルブレス",4]],[["リカバリー",0],["守りの構え",0],["デトックス",0]]],
 ["アジ・ダハーカ変異種","アジフライ",[["A",832],["S",960],["F",254],["B",752],["C",691],["C",667]],[["風の魔法",0],["炎の魔法",4],["氷の魔法",2]],[["クリティカル",0],["速攻の構え",0],["デトックス",0]]],
-["応龍変異種","サイキョウオウ",[["B",727],["A",833],["B",726],["C",693],["B",734],["C",635]],[["聖なる力",0],["噛み砕く",0],["神通力",0]],[["狙いの構え",0],["守りの構え",0],["デトックス",0]]],
 ["ヴリトラ変異種","ヴーリン",[["D",482],["S",984],["S",901],["S",999],["A",843],["B",775]],[["かまいたち",0],["神の守護",0],["トルネード",0]],[["リカバリー",0],["守りの構え",0],["デトックス",0]]],
+["レヴィアタン変異種","レビイ",[["S",904],["D",476],["S",999],["F",243],["S",980],["G",124]],[["炎の噛みつき",0],["高熱放射",0],["のしかかる",0]],[["フクツの攻め",0],["狙い撃ち",0],["フクツの守り",0]]],
+["応龍変異種","サイキョウオウ",[["B",727],["A",833],["B",726],["C",693],["B",734],["C",635]],[["聖なる力",0],["噛み砕く",0],["神通力",0]],[["狙いの構え",0],["守りの構え",0],["デトックス",0]]]
 ].map((d,i)=>{
-  const o={no:i+1,sp:d[0],nk:d[1],st:d[2].map(x=>({r:x[0],v:x[1]})),sk:d[3].map(x=>({n:x[0],lv:x[1]})),ab:d[4].map(x=>({n:x[0],lv:x[1]}))};
+  const o={no:i+1,sp:d[0],nk:d[1],st:d[2].map(x=>({r:x[0],v:x[1]})),sk:d[3].map(x=>({n:x[0],lv:x[1]})),ab:d[4].map(x=>x?{n:x[0],lv:x[1]}:{n:"",lv:0,none:true})};
   o.total=o.st.reduce((a,b)=>a+b.v,0);
   return o;
 });
@@ -356,7 +362,7 @@ function viewDragon(){
 function viewDetail(d){
   const list=sorted(state.dSort),idx=list.findIndex(x=>x.no===d.no);
   const prev=list[(idx-1+list.length)%list.length],next=list[(idx+1)%list.length];
-  const kv=a=>`<ul class="kv">${a.map(x=>`<li><span>${esc(x.n)}</span>${lvTag(x.lv)}</li>`).join("")}</ul>`;
+  const kv=a=>`<ul class="kv">${a.map(x=>x.none?`<li class="none"><span>ー（空き）</span></li>`:`<li><span>${esc(x.n)}</span>${lvTag(x.lv)}</li>`).join("")}</ul>`;
   return `<div class="dnav"><button class="btn" data-back>‹ 一覧</button><span class="sp"></span>
       <button class="btn" data-open="${prev.no}" aria-label="前のドラゴン">‹</button><button class="btn" data-open="${next.no}" aria-label="次のドラゴン">›</button></div>
     <div class="detail">
@@ -394,7 +400,7 @@ function viewStatus(){
 
 /* ===== スキル・アビリティ共通 ===== */
 function learnRank(kind,icon,label){
-  const m={};D.forEach(d=>d[kind].forEach(x=>(m[x.n]=m[x.n]||[]).push(d)));
+  const m={};D.forEach(d=>d[kind].forEach(x=>{if(!x.none)(m[x.n]=m[x.n]||[]).push(d)}));
   /* 半分より多いドラゴンが覚えている時は「覚えていないドラゴン」を出す */
   const sub=ds=>ds.length>D.length/2?"覚えていない："+(D.filter(d=>!ds.includes(d)).map(d=>esc(d.nk)).join("・")||"なし"):ds.map(d=>esc(d.nk)).join("・");
   const rows=top5(Object.entries(m).map(([n,ds])=>({name:n,v:ds.length,u:"体",sub:sub(ds)})));
@@ -407,7 +413,7 @@ function learnTable(kind,s,sortAttr,hit,hitAttr,m){
   const L=kind==="sk"?"スキル":"アビリティ",p=kind==="sk"?"k":"a";
   const rows=sorted(s).map(d=>{const has=hit&&d[kind].some(x=>x.n===hit);
     return `<tr data-open="${d.no}" class="${has?"hit":""}"><td class="nm"><span class="nmw">${illust(d)}${esc(d.nk)}</span></td>
-    ${d[kind].map(x=>`<td class="${hit&&x.n!==hit?"dim":""}">${esc(x.n)}${x.lv?`<span class="lvn">Lv${x.lv}</span>`:""}</td>`).join("")}</tr>`}).join("");
+    ${d[kind].map(x=>x.none?`<td class="dim">ー</td>`:`<td class="${hit&&x.n!==hit?"dim":""}">${esc(x.n)}${x.lv?`<span class="lvn">Lv${x.lv}</span>`:""}</td>`).join("")}</tr>`}).join("");
   return `<p class="hint">名前を押すと、覚えているドラゴンに色がつきます。Lvの表示は最大まで育っていないもの</p>
     <div class="sorter">${chips}</div>
     <div class="tbl box"><table><thead><tr><th class="nm"${ariaSort(s,"no")}><button data-${sortAttr}="no" data-dd="1">ドラゴン</button></th>
