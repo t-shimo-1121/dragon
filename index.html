@@ -102,15 +102,16 @@ h2 .n{font-family:var(--f-body);font-size:.82rem;color:var(--mute);font-weight:5
 
 /* ドラゴン一覧のカード */
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,340px),1fr));gap:12px}
-.card{display:block;width:100%;text-align:left;padding:10px 12px 8px;color:inherit}
+.card{display:grid;grid-template-columns:minmax(0,40fr) minmax(0,60fr);gap:6px;align-items:center;width:100%;text-align:left;padding:10px;color:inherit}
 .card:active{transform:scale(.99)}
-.card-h{display:flex;align-items:baseline;gap:8px;min-width:0}
-.card-h .no{font-size:.8rem;color:var(--mute);font-weight:700;font-variant-numeric:tabular-nums;flex:none}
-.card-h .nk{font-family:var(--f-head);font-weight:900;font-size:1.45rem;line-height:1.2;white-space:nowrap}
-.card-h .tot{margin-left:auto;font-size:.78rem;color:var(--mute);font-weight:700;white-space:nowrap}
-.card-h .tot b{font-family:var(--f-head);font-weight:900;font-size:1.35rem;color:var(--ink);margin-left:3px;font-variant-numeric:tabular-nums}
-.card .sp{font-size:.82rem;color:var(--mute);line-height:1.3;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.card-b{display:grid;grid-template-columns:minmax(0,35fr) minmax(0,65fr);gap:4px;align-items:center;margin-top:4px}
+.cl{display:flex;flex-direction:column;gap:3px;min-width:0}
+.cl .nk{font-family:var(--f-head);font-weight:900;font-size:clamp(1rem,5vw,1.3rem);line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:-.02em}
+.cl .sp{font-size:.7rem;color:var(--mute);font-weight:700;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cl .fw{gap:4px;flex-wrap:wrap}
+.cl .fw-i small{font-size:.62rem}
+.cl .fw .el,.cl .fw .fd{font-size:.72rem;padding:0 5px}
+.cl .illust{margin-top:3px;border-radius:10px}
+.cr{min-width:0}
 .card .sortv{color:var(--accent);font-weight:700}
 
 /* 六角形グラフ */
@@ -120,6 +121,9 @@ h2 .n{font-family:var(--f-body);font-size:.82rem;color:var(--mute);font-weight:5
 .radar .rkt{fill:#fff;font-family:var(--f-head);font-weight:900}
 .radar .frame{fill:var(--tint);stroke:var(--grid);stroke-width:1.5}
 .radar .gl{fill:none;stroke:var(--grid);stroke-width:1}
+.radar .tl,.radar .tv{stroke:var(--sheet);stroke-width:4px;paint-order:stroke;stroke-linejoin:round}
+.radar .tl{fill:var(--mute);font-family:var(--f-body);font-weight:700}
+.radar .tv{fill:var(--ink);font-family:var(--f-head);font-weight:900}
 .radar .area{fill:var(--radar);fill-opacity:.35;stroke:var(--radar);stroke-width:2.5;stroke-linejoin:round}
 
 /* ランク札（文字） */
@@ -167,6 +171,10 @@ h2 .n{font-family:var(--f-body);font-size:.82rem;color:var(--mute);font-weight:5
 .rank li.noimg{grid-template-columns:1.9rem minmax(0,1fr) auto}
 .rn{font-weight:700;font-size:1.02rem;min-width:0;line-height:1.35}
 .rs{display:block;font-size:.76rem;color:var(--mute);font-weight:500;line-height:1.4}
+.rs .skw{display:block}
+.rs .ski{margin-right:6px;white-space:nowrap}
+.rs .ski b{color:var(--ink);font-weight:700;margin:0 4px 0 1px}
+.rs .ske{color:var(--ink)}
 .rv{text-align:right;font-family:var(--f-head);font-weight:900;font-size:1.2rem;font-variant-numeric:tabular-nums;white-space:nowrap}
 .rv small{font-family:var(--f-body);font-weight:500;font-size:.72rem;color:var(--mute);margin-left:2px}
 
@@ -538,30 +546,31 @@ function illust(d){
 }
 
 /* ===== 六角形グラフ：頂点の外側に「能力名」と「ランク・数値」 ===== */
-function radar(d,{W=250,R=66}={}){
-  const H=Math.round(R*2+86),cx=W/2,cy=H/2+1;
+function radar(d,{W=240,R=60,total=true}={}){
+  const B=19,FV=18,FL=13,LH=22;          // ランク札の大きさ・数値と能力名の文字サイズ・上下ラベルの高さ
+  const H=Math.round(R*2+(LH+6)*2),cx=W/2,cy=H/2;
   const pt=(i,f)=>{const a=(-90+60*i)*Math.PI/180;return[cx+Math.cos(a)*R*f,cy+Math.sin(a)*R*f]};
   const poly=f=>[0,1,2,3,4,5].map(i=>pt(i,f).map(n=>n.toFixed(1)).join(",")).join(" ");
-  let s=`<svg class="radar" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(d.nk)}の能力：${d.st.map((x,i)=>STATS[i]+x.r+x.v).join("、")}">`;
+  let s=`<svg class="radar" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(d.nk)}の能力：${d.st.map((x,i)=>STATS[i]+x.r+x.v).join("、")}、合計${d.total}">`;
   s+=`<polygon class="frame" points="${poly(1)}"/>`;
   [1/3,2/3].forEach(f=>s+=`<polygon class="gl" points="${poly(f)}"/>`);
   for(let i=0;i<6;i++){const[x,y]=pt(i,1);s+=`<line class="gl" x1="${cx}" y1="${cy}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}"/>`}
   s+=`<polygon class="area" points="${d.st.map((x,i)=>pt(i,Math.max(.04,x.v/999)).map(n=>n.toFixed(1)).join(",")).join(" ")}"/>`;
-  /* ラベル：上下は中央そろえ、左右は頂点の外側に */
-  const B=18,FV=16,FL=12.5;            // ランク札の大きさ・数値と能力名の文字サイズ
+  const badge=(bx,by,x)=>`<rect x="${bx.toFixed(1)}" y="${by.toFixed(1)}" width="${B}" height="${B}" rx="4" fill="var(--r${x.r})"/>`+
+    `<text class="rkt" x="${(bx+B/2).toFixed(1)}" y="${(by+B/2+5).toFixed(1)}" font-size="14" text-anchor="middle">${x.r}</text>`+
+    `<text class="vl" x="${(bx+B+3).toFixed(1)}" y="${(by+B/2+6).toFixed(1)}" font-size="${FV}">${x.v}</text>`;
   d.st.forEach((x,i)=>{
     const[vx,vy]=pt(i,1);
-    let ax,top;                           // ax=ラベル塊の中心x、top=能力名の上端
-    if(i===0){ax=vx;top=vy-8-FL-B-4}
-    else if(i===3){ax=vx;top=vy+8}
-    else{const side=i<3?1:-1;ax=vx+side*(7+26);top=vy-(FL+B+4)/2}
-    const bw=B+4+FV*1.9;                  // 札＋数値の幅
-    const bx=ax-bw/2,by=top+FL+3;
-    s+=`<text class="lb" x="${ax.toFixed(1)}" y="${(top+FL-1).toFixed(1)}" font-size="${FL}" text-anchor="middle">${STATS[i]}</text>`;
-    s+=`<rect x="${bx.toFixed(1)}" y="${by.toFixed(1)}" width="${B}" height="${B}" rx="4" fill="var(--r${x.r})"/>`;
-    s+=`<text class="rkt" x="${(bx+B/2).toFixed(1)}" y="${(by+B/2+4.6).toFixed(1)}" font-size="13.5" text-anchor="middle">${x.r}</text>`;
-    s+=`<text class="vl" x="${(bx+B+3).toFixed(1)}" y="${(by+B/2+5.4).toFixed(1)}" font-size="${FV}">${x.v}</text>`;
+    if(i===0||i===3){                     // 上下：能力名・札・数値を1行に
+      const lw=FL*STATS[i].length+4,bw=B+3+FV*1.75,w=lw+bw,x0=vx-w/2;
+      const by=i===0?vy-6-B:vy+6,ty=by+B/2+4.6;
+      s+=`<text class="lb" x="${x0.toFixed(1)}" y="${ty.toFixed(1)}" font-size="${FL}">${STATS[i]}</text>`+badge(x0+lw,by,x);
+    }else{                                // 左右：頂点の外に2行
+      const side=i<3?1:-1,bw=B+3+FV*1.75,ax=vx+side*(6+bw/2),top=vy-(FL+B+3)/2;
+      s+=`<text class="lb" x="${ax.toFixed(1)}" y="${(top+FL-1).toFixed(1)}" font-size="${FL}" text-anchor="middle">${STATS[i]}</text>`+badge(ax-bw/2,top+FL+3,x);
+    }
   });
+  if(total)s+=`<text class="tl" x="${cx}" y="${(cy-6).toFixed(1)}" font-size="10" text-anchor="middle">合計</text><text class="tv" x="${cx}" y="${(cy+13).toFixed(1)}" font-size="21" text-anchor="middle">${d.total}</text>`;
   return s+"</svg>";
 }
 
@@ -604,9 +613,8 @@ function viewDragon(){
   const chips=D_KEYS.map(([k,n])=>`<button data-dsort="${k}" aria-pressed="${s.key===k}">${n}${s.key===k?(s.dir>0?" ↑":" ↓"):""}</button>`).join("");
   const cards=sorted(s).map(d=>`
     <button class="card box" data-open="${d.no}" aria-label="${esc(d.nk)}をひらく">
-      <div class="card-h"><span class="no">No.${d.no}</span><span class="nk">${esc(d.nk)}</span><span class="tot">合計<b>${d.total}</b></span></div>
-      <div class="sp-row"><span class="sp">${esc(d.sp)}</span>${fieldRow(d)}</div>
-      <div class="card-b">${illust(d)}${radar(d)}</div>
+      <div class="cl"><b class="nk">${esc(d.nk)}</b><span class="sp">No.${d.no}・${esc(d.sp)}</span>${fieldRow(d)}${illust(d)}</div>
+      <div class="cr">${radar(d)}</div>
     </button>`).join("");
   return `<div class="sorter">${chips}</div>${imgSwitch()}<div class="grid">${cards}</div>`;
 }
@@ -732,34 +740,49 @@ function skillRows(){
   }));
   return out;
 }
+/* 補足の1行：ランキングの値以外の「威力・マナ・命中」と追加効果を短く */
+function skInfo(r,skip){
+  const parts=[["威力","pow",r.pow],["マナ","mana",r.mana],["命中","acc",r.acc]].filter(([,k])=>!skip.includes(k)).map(([n,,v])=>`${n}<b>${esc(v)}</b>`);
+  let e=(r.eff||"").replace(/。$/,"");
+  e=skip.includes("pct")?e.replace(/^\d+%の確率で、/,""):e.replace(/の確率で、/," ");
+  return `<span class="ski">${parts.join(" ")}</span>${e?`<span class="ske">${esc(e)}</span>`:""}`;
+}
 function skillRanks(){
   const rows=skillRows();
-  const sub=r=>`${esc(r.d.nk)}・${r.lv?"Lv"+r.lv:"最大"}`;
-  const mk=(list,v,u,extra)=>topN(list.map(r=>({d:r.d,name:r.n,v:v(r),u,sub:sub(r)+(extra?extra(r):""),tie:r.d.no})),10);
+  const who=r=>`${esc(r.d.nk)}・${r.lv?"Lv"+r.lv:"最大"}`;
+  const mk=(list,v,u,skip)=>topN(list.map(r=>({d:r.d,name:r.n,v:v(r),u,sub:`<span class="skw">${who(r)}</span>${skInfo(r,skip)}`,tie:r.d.no})),10);
   const pw=rows.filter(r=>r.pow>0);
   return [
-    rankCard("sword","威力ベスト10","威力",mk(pw,r=>r.pow,"")),
-    rankCard("bolt","対マナ威力ベスト10","威力÷マナ",mk(pw.filter(r=>r.mana>0),r=>Math.round(r.pow/r.mana*10)/10,"",r=>`・威力${r.pow}／マナ${r.mana}`)),
-    rankCard("crown","命中◎の威力ベスト10","命中が◎のスキルだけ",mk(pw.filter(r=>r.acc==="◎"),r=>r.pow,"")),
-    rankCard("hex","追加効果の確率ベスト10","発動する確率",mk(rows.filter(r=>r.pct!=null),r=>r.pct,"%",r=>`<br>${esc(r.eff)}`)),
+    rankCard("sword","威力ベスト10","威力",mk(pw,r=>r.pow,"",["pow"])),
+    rankCard("bolt","対マナ威力ベスト10","威力÷マナ",mk(pw.filter(r=>r.mana>0),r=>Math.round(r.pow/r.mana*10)/10,"",[])),
+    rankCard("crown","命中◎の威力ベスト10","命中が◎のスキルだけ",mk(pw.filter(r=>r.acc==="◎"),r=>r.pow,"",["pow","acc"])),
+    rankCard("hex","追加効果の確率ベスト10","発動する確率",mk(rows.filter(r=>r.pct!=null),r=>r.pct,"%",["pct"])),
   ].join("");
 }
 function viewSkill(){
   const d=D.find(x=>x.no===state.skDr)||D[0];
   const missing=D.filter(x=>!SK[x.sp]).map(x=>esc(x.nk)).join("・");
-  return `<h2><span class="tg">${ico("bolt")}</span>ドラゴンごとのスキル</h2>
+  return `<h2><span class="tg">${ico("crown")}</span>スキルランキング</h2><p class="hint">今のレベルの値が分かっているスキルで比べています</p><div class="ranks">${skillRanks()}</div>
+    <h2><span class="tg">${ico("bolt")}</span>ドラゴンごとのスキル</h2>
     <p class="hint">色のついた所はレベルで変わります。下の小さな文字が、分かっている一番低いレベルから高いレベルまでの変わり方です</p>
     ${pickStrip("skdr",d.no)}
     <section class="box skp"><div class="skp-h">${illust(d)}<div><b>${esc(d.nk)}</b><small>${esc(d.sp)}</small></div></div>
       ${d.sk.map(x=>skillCard(d.sp,x)).join("")}</section>
-    ${missing?`<p class="hint" style="margin-top:10px">まだデータがないドラゴン：${missing}</p>`:""}
-    <h2><span class="tg">${ico("crown")}</span>スキルランキング</h2><p class="hint">今のレベルの値が分かっているスキルで比べています</p><div class="ranks">${skillRanks()}</div>`;
+    ${missing?`<p class="hint" style="margin-top:10px">まだデータがないドラゴン：${missing}</p>`:""}`;
 }
 
 /* ===== アビリティ =====
-   名前で分類：「構え」が付く／「フクツ」で始まる／「アップ」が付く／それ以外 */
-const AB_CATS=["構え","フクツ","アップ","その他"];
-const abCat=n=>/構え/.test(n)?"構え":/^フクツ/.test(n)?"フクツ":/アップ/.test(n)?"アップ":"その他";
+   分類：上がるパラメータごと（攻撃・防御・素早さ・命中・回避）と回復。どれにも入らないものは「その他」
+   新しいアビリティは AB_CAT に1行足す。足していない時は効果の文から自動で振り分ける */
+const AB_CATS=["攻撃","防御","素早さ","命中","回避","回復","その他"];
+const AB_CAT={"クリティカル":"攻撃","追加攻撃":"攻撃","狙い撃ち":"命中",
+  "リカバリー":"回復","ふんばる":"回復","マナアップ":"回復","マナセラピー":"回復","緊急チャージ":"回復"};
+function abCat(n){
+  if(AB_CAT[n])return AB_CAT[n];
+  const db=AB[n];const e=db?Object.values(db.L).map(v=>v[1]).join(""):"";
+  const m=e.match(/(攻撃|防御|素早さ|命中|回避)が[小中大]アップ/);
+  return m?m[1]:"その他";
+}
 function viewAbility(){
   const {m,card}=learnRank("ab","shield","アビリティ");
   const all=Object.entries(m).sort((a,b)=>b[1].length-a[1].length||a[0].localeCompare(b[0],"ja"));
