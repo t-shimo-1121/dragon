@@ -4,7 +4,7 @@
   ・ドラゴンを足す時は script 内の D の配列に1行足すだけ。ランキングや比較は自動で計算されます
   ・画像は images/ の中に No. と同じ2桁の番号で置きます
       images/icons/01.png … 魔石アイコン　images/models/01.png … 3Dモデル　images/illust/01.png … イラスト
-      images/chibi/01.png … デフォルメイラスト
+      images/chibi/01.png … デフォルメイラスト　images/real/01.png … リアルイラスト
   ・デザインは「旅行のしおり集」（t-shimo-1121/shiori）に合わせています
 -->
 <html lang="ja">
@@ -90,8 +90,8 @@ h2 .n{font-family:var(--f-body);font-size:.82rem;color:var(--mute);font-weight:5
 .sorter button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--sheet)}
 .sorter button small{font-size:.74rem;margin-left:5px;opacity:.7;font-variant-numeric:tabular-nums}
 .imgset{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:.84rem;color:var(--mute);font-weight:700;margin:-4px 0 12px}
-.imgset .sorter{margin:0}
-.imgset .sorter button{font-size:.84rem;padding:3px 10px}
+.imgset .sorter{margin:0;gap:4px;flex-wrap:nowrap}
+.imgset .sorter button{font-size:.78rem;padding:3px 6px;white-space:nowrap}
 
 /* イラスト枠 */
 .illust{position:relative;aspect-ratio:1;max-width:100%;border-radius:12px;overflow:hidden;background:var(--tint);display:grid;place-items:center}
@@ -331,6 +331,7 @@ const IMG_SETS={
   model:["モデル","images/models/",".png"],
   illust:["イラスト","images/illust/",".png"],
   chibi:["デフォルメ","images/chibi/",".png"],
+  real:["リアル","images/real/",".png"],
 };
 const STATS=["体力","攻撃","防御","素早さ","命中","回避"];
 /* [種族, ニックネーム, [[ランク,値]×6], [[スキル,Lv(0=最大)]×3], [[アビリティ,Lv(0=最大)]×3]] */
