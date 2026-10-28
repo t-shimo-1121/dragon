@@ -28,6 +28,7 @@
   --tint:hsl(40 34% 90%);
   --dots:hsla(40,25%,45%,.10);
   --radar:hsl(140 55% 40%);
+  --hi:hsl(352 70% 46%);
   --grid:hsl(40 18% 80%);
   --f-head:"Zen Maru Gothic","Hiragino Maru Gothic ProN","Noto Sans JP",sans-serif;
   --f-body:"Noto Sans JP","Hiragino Sans","Yu Gothic",sans-serif;
@@ -39,11 +40,11 @@
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
   --paper:hsl(40 12% 11%);--sheet:hsl(40 11% 15%);--ink:hsl(40 18% 93%);--mute:hsl(40 8% 66%);
   --line:hsl(40 10% 27%);--accent:hsl(205 50% 66%);--soft:hsl(205 30% 20%);--tint:hsl(40 12% 19%);
-  --dots:hsla(40,20%,70%,.07);--radar:hsl(140 50% 52%);--grid:hsl(40 10% 32%);color-scheme:dark}}
+  --dots:hsla(40,20%,70%,.07);--radar:hsl(140 50% 52%);--hi:hsl(352 85% 70%);--grid:hsl(40 10% 32%);color-scheme:dark}}
 :root[data-theme="dark"]{
   --paper:hsl(40 12% 11%);--sheet:hsl(40 11% 15%);--ink:hsl(40 18% 93%);--mute:hsl(40 8% 66%);
   --line:hsl(40 10% 27%);--accent:hsl(205 50% 66%);--soft:hsl(205 30% 20%);--tint:hsl(40 12% 19%);
-  --dots:hsla(40,20%,70%,.07);--radar:hsl(140 50% 52%);--grid:hsl(40 10% 32%);color-scheme:dark}
+  --dots:hsla(40,20%,70%,.07);--radar:hsl(140 50% 52%);--hi:hsl(352 85% 70%);--grid:hsl(40 10% 32%);color-scheme:dark}
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}
 body{margin:0;background-color:var(--paper);background-image:radial-gradient(var(--dots) 1.1px,transparent 1.1px);background-size:22px 22px;
@@ -111,6 +112,13 @@ h2 .n{font-family:var(--f-body);font-size:.82rem;color:var(--mute);font-weight:5
 .cl .fw-i small{font-size:.62rem}
 .cl .fw .el,.cl .fw .fd{font-size:.72rem;padding:0 5px}
 .cl .illust{margin-top:3px;border-radius:10px}
+.cl .shape{font-size:.66rem;font-weight:700;color:var(--accent);line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sorter.shp button{font-size:.82rem;padding:4px 10px}
+.flt{align-items:center;margin-bottom:8px}
+.flt-l{font-size:.8rem;color:var(--mute);font-weight:700;margin-right:2px}
+.flt button{display:inline-flex;align-items:center;gap:2px;padding:3px 8px}
+.flt button .el,.flt button .fd{font-size:.82rem}
+.flt button[aria-pressed="true"]{background:var(--soft);border-color:var(--accent);color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--accent)}
 .cr{min-width:0}
 .card .sortv{color:var(--accent);font-weight:700}
 
@@ -196,8 +204,15 @@ td.nm{font-weight:700}
 .nmw .illust .ph{display:none!important}
 tbody tr{cursor:pointer}
 td.num{text-align:right}
-.cv{display:inline-flex;align-items:center;gap:6px}
-.best{background:hsl(45 90% 60% / .35);border-radius:5px;padding:0 4px}
+.cv{display:inline-grid;grid-template-columns:1.45em 3ch;align-items:center;gap:6px;justify-items:end}
+.cv .rk{justify-self:start}
+.v{display:inline-block;text-align:right;font-variant-numeric:tabular-nums;font-weight:500}
+.v.tot{min-width:4ch;font-weight:700}
+.best{color:var(--hi);font-weight:900}
+.tbl th:not(.nm){text-align:right}
+.tbl th button{justify-content:flex-end}
+.tbl td,.tbl th{border-left:1px solid var(--line)}
+.tbl td.nm,.tbl th.nm{border-left:0}
 td.dim{opacity:.3}
 tr.hit td{background:var(--soft)}
 td .lvn{font-size:.78rem;color:var(--accent);font-weight:700;margin-left:4px}
@@ -532,8 +547,8 @@ const AB={
 
 /* ===== 状態（並べ替えと画像の種類は端末に保存） ===== */
 const state={tab:"dragon",detail:null,img:"icon",
-  dSort:{key:"no",dir:1},sSort:{key:"total",dir:-1},kSort:{key:"no",dir:1},aSort:{key:"no",dir:1},skDr:1,inDr:1,abCat:"all"};
-const KEEP=["dSort","sSort","img","skDr","inDr","abCat"];
+  dSort:{key:"no",dir:1},sSort:{key:"total",dir:-1},kSort:{key:"no",dir:1},aSort:{key:"no",dir:1},skDr:1,inDr:1,abCat:"all",dGrp:"all",inEl:"all",inFd:"all"};
+const KEEP=["dSort","sSort","img","skDr","inDr","abCat","dGrp","inEl","inFd"];
 try{const s=JSON.parse(localStorage.getItem("dragon-maseki-v2")||"{}");KEEP.forEach(k=>{if(s[k])state[k]=s[k]})}catch(e){}
 if(!IMG_SETS[state.img])state.img="icon";
 const save=()=>{try{localStorage.setItem("dragon-maseki-v2",JSON.stringify(Object.fromEntries(KEEP.map(k=>[k,state[k]]))))}catch(e){}};
@@ -604,6 +619,16 @@ function rankCard(icon,title,unit,rows){
 
 /* ===== ドラゴン（一覧・個別） ===== */
 const D_KEYS=[["no","No"],["total","合計"],...STATS.map((n,i)=>["s"+i,n])];
+/* グラフの形での分類。No. を並べる。ここにないドラゴンは「その他」 */
+const SHAPES=[
+  ["低足・高耐久・高火力",[13,15]],
+  ["低足・高耐久・中火力",[3,10,21]],
+  ["高速・中耐久・高火力",[16,20]],
+  ["中速・中耐久・高火力",[11,12,14,18,19]],
+  ["中速・低耐久・高火力",[4,6]],
+  ["中速・中耐久・中火力",[9,22]],
+];
+const shapeOf=d=>(SHAPES.find(([,ns])=>ns.includes(d.no))||["その他"])[0];
 function imgSwitch(){
   return `<div class="imgset">画像<div class="sorter">${Object.entries(IMG_SETS).map(([k,[n]])=>`<button data-img="${k}" aria-pressed="${state.img===k}">${n}</button>`).join("")}</div></div>`;
 }
@@ -611,12 +636,15 @@ function viewDragon(){
   if(state.detail)return viewDetail(D.find(d=>d.no===state.detail));
   const s=state.dSort;
   const chips=D_KEYS.map(([k,n])=>`<button data-dsort="${k}" aria-pressed="${s.key===k}">${n}${s.key===k?(s.dir>0?" ↑":" ↓"):""}</button>`).join("");
-  const cards=sorted(s).map(d=>`
+  const grps=[...SHAPES.map(([n])=>n),"その他"].map(n=>[n,D.filter(d=>shapeOf(d)===n).length]);
+  const gchips=`<div class="sorter shp"><button data-dgrp="all" aria-pressed="${state.dGrp==="all"}">すべて<small>${D.length}</small></button>${grps.map(([n,c])=>`<button data-dgrp="${esc(n)}" aria-pressed="${state.dGrp===n}">${esc(n)}<small>${c}</small></button>`).join("")}</div>`;
+  const list=sorted(s).filter(d=>state.dGrp==="all"||shapeOf(d)===state.dGrp);
+  const cards=list.map(d=>`
     <button class="card box" data-open="${d.no}" aria-label="${esc(d.nk)}をひらく">
-      <div class="cl"><b class="nk">${esc(d.nk)}</b><span class="sp">No.${d.no}・${esc(d.sp)}</span>${fieldRow(d)}${illust(d)}</div>
+      <div class="cl"><b class="nk">${esc(d.nk)}</b><span class="sp">No.${d.no}・${esc(d.sp)}</span><span class="shape">${esc(shapeOf(d))}</span>${fieldRow(d)}${illust(d)}</div>
       <div class="cr">${radar(d)}</div>
     </button>`).join("");
-  return `<div class="sorter">${chips}</div>${imgSwitch()}<div class="grid">${cards}</div>`;
+  return `${gchips}<div class="sorter">${chips}</div>${imgSwitch()}<div class="grid">${cards}</div>`;
 }
 function viewDetail(d){
   const list=sorted(state.dSort),idx=list.findIndex(x=>x.no===d.no);
@@ -647,12 +675,13 @@ function viewStatus(){
   const ranks=GROUPS.map(([ic,t,u,f,sub])=>rankCard(ic,t+"ベスト5",u,top5(D.map(d=>({d,name:d.nk,v:f(d),sub:sub(d),tie:d.no}))))).join("");
   const s=state.sSort;
   const best=STATS.map((_,i)=>Math.max(...D.map(d=>d.st[i].v)));
+  const bestT=Math.max(...D.map(d=>d.total));
   const th=(k,n,dd=-1)=>`<th${ariaSort(s,k)}><button data-ssort="${k}" data-dd="${dd}">${n}</button></th>`;
   const rows=sorted(s).map(d=>`<tr data-open="${d.no}"><td class="nm"><span class="nmw">${illust(d)}${esc(d.nk)}</span></td>
-    ${d.st.map((x,i)=>`<td class="num"><span class="cv">${rk(x.r)}<span class="${x.v===best[i]?"best":""}">${x.v}</span></span></td>`).join("")}
-    <td class="num"><b>${d.total}</b></td></tr>`).join("");
+    ${d.st.map((x,i)=>`<td class="num"><span class="cv">${rk(x.r)}<span class="v${x.v===best[i]?" best":""}">${x.v}</span></span></td>`).join("")}
+    <td class="num"><span class="v tot${d.total===bestT?" best":""}">${d.total}</span></td></tr>`).join("");
   return `<h2><span class="tg">${ico("crown")}</span>パラメータランキング</h2><div class="ranks">${ranks}</div>
-    <h2><span class="tg">${ico("hex")}</span>パラメータの一覧</h2><p class="hint">見出しを押すと並べ替え。色つきの数字は一番高い値</p>
+    <h2><span class="tg">${ico("hex")}</span>パラメータの一覧</h2><p class="hint">見出しを押すと並べ替え。赤い数字は一番高い値</p>
     <div class="tbl box"><table><thead><tr><th class="nm"${ariaSort(s,"no")}><button data-ssort="no" data-dd="1">ドラゴン</button></th>
       ${STATS.map((n,i)=>th("s"+i,n)).join("")}${th("total","合計")}</tr></thead><tbody>${rows}</tbody></table></div>`;
 }
@@ -691,7 +720,7 @@ function markText(t,ch){
 }
 const segLabel=x=>/%$/.test(x)?"確率 ":/^\d+$/.test(x)?"数 ":"強さ ";
 const lvKey=lv=>lv?String(lv):"M";
-const lvName=k=>k==="M"?"最大":"Lv"+k;
+const lvName=k=>k==="M"?"Max":"Lv"+k;
 /* 分かっているレベルを低い順に（最大は最後） */
 const lvKeys=L=>Object.keys(L).sort((a,b)=>(a==="M"?99:+a)-(b==="M"?99:+b));
 const FIELDS=["持続","マナ","威力","命中"];
@@ -700,7 +729,7 @@ const FIELDS=["持続","マナ","威力","命中"];
 function skillCard(spName,x){
   const db=(SK[spName]||{})[x.n];
   const cur=lvKey(x.lv);
-  const badge=`<span class="lvb${x.lv?"":" max"}">${x.lv?"Lv "+x.lv:"最大"}</span>`;
+  const badge=`<span class="lvb${x.lv?"":" max"}">${x.lv?"Lv "+x.lv:"Max"}</span>`;
   if(!db)return `<div class="sk"><div class="sk-h"><b>${esc(x.n)}</b>${badge}</div><p class="nodata">くわしいデータはまだありません</p></div>`;
   const L=db.L,ks=lvKeys(L),k0=ks[0],k1=ks[ks.length-1],now=L[cur];
   const both=ks.length>1,lo=L[k0],hi=L[k1];
@@ -719,15 +748,16 @@ function skillCard(spName,x){
   let foot="";
   if(both)foot=notes.length?`<p class="note"><b>${span}</b>${notes.map(esc).join("、")}</p>`:`<p class="note">レベルで変わる所はありません</p>`;
   else foot=`<p class="note">分かっているのは ${known} の値だけです</p>`;
-  if(both&&k1!=="M")foot+=`<p class="note">最大の値はまだ確かめていません</p>`;
+  if(both&&k1!=="M")foot+=`<p class="note">Maxの値はまだ確かめていません</p>`;
   if(!now&&both)foot+=`<p class="note">今の${lvName(cur)}の値はまだ確かめていません</p>`;
   return `<div class="sk"><div class="sk-h"><b>${esc(x.n)}</b>${badge}</div><div class="sts">${cells}</div>
     ${eff?`<p class="eff">${markText(eff,ch)}</p>`:`<p class="eff none">追加効果なし</p>`}${foot}</div>`;
 }
 
 /* ドラゴンを選ぶ帯（スキル・情報タブ） */
-function pickStrip(attr,sel){
-  return `<div class="pick">${D.map(d=>`<button data-${attr}="${d.no}" aria-pressed="${sel===d.no}">${illust(d)}<span>${esc(d.nk)}</span></button>`).join("")}</div>`;
+function pickStrip(attr,sel,list=D){
+  if(!list.length)return `<p class="nodata">当てはまるドラゴンはいません</p>`;
+  return `<div class="pick">${list.map(d=>`<button data-${attr}="${d.no}" aria-pressed="${sel===d.no}">${illust(d)}<span>${esc(d.nk)}</span></button>`).join("")}</div>`;
 }
 /* 今のレベルの値が分かっているスキルを全部集める */
 function skillRows(){
@@ -749,7 +779,7 @@ function skInfo(r,skip){
 }
 function skillRanks(){
   const rows=skillRows();
-  const who=r=>`${esc(r.d.nk)}・${r.lv?"Lv"+r.lv:"最大"}`;
+  const who=r=>`${esc(r.d.nk)}・${r.lv?"Lv"+r.lv:"Max"}`;
   const mk=(list,v,u,skip)=>topN(list.map(r=>({d:r.d,name:r.n,v:v(r),u,sub:`<span class="skw">${who(r)}</span>${skInfo(r,skip)}`,tie:r.d.no})),10);
   const pw=rows.filter(r=>r.pow>0);
   return [
@@ -764,7 +794,7 @@ function viewSkill(){
   const missing=D.filter(x=>!SK[x.sp]).map(x=>esc(x.nk)).join("・");
   return `<h2><span class="tg">${ico("crown")}</span>スキルランキング</h2><p class="hint">今のレベルの値が分かっているスキルで比べています</p><div class="ranks">${skillRanks()}</div>
     <h2><span class="tg">${ico("bolt")}</span>ドラゴンごとのスキル</h2>
-    <p class="hint">色のついた所はレベルで変わります。下の小さな文字が、分かっている一番低いレベルから高いレベルまでの変わり方です</p>
+    <p class="hint">色のついた所はレベルで変わります。下の小さな文字が、分かっている一番低いレベルから高いレベル（Max）までの変わり方です</p>
     ${pickStrip("skdr",d.no)}
     <section class="box skp"><div class="skp-h">${illust(d)}<div><b>${esc(d.nk)}</b><small>${esc(d.sp)}</small></div></div>
       ${d.sk.map(x=>skillCard(d.sp,x)).join("")}</section>
@@ -791,7 +821,7 @@ function viewAbility(){
   const names=state.abCat==="all"?all:all.filter(([n])=>abCat(n)===state.abCat);
   const cards=names.map(([n,ds])=>{
     const db=AB[n];
-    const holders=ds.map(d=>{const x=d.ab.find(y=>y.n===n);return `<button class="hold" data-open="${d.no}">${esc(d.nk)}<span class="lvb${x.lv?"":" max"}">${x.lv?"Lv"+x.lv:"最大"}</span></button>`}).join("");
+    const holders=ds.map(d=>{const x=d.ab.find(y=>y.n===n);return `<button class="hold" data-open="${d.no}">${esc(d.nk)}<span class="lvb${x.lv?"":" max"}">${x.lv?"Lv"+x.lv:"Max"}</span></button>`}).join("");
     let body=`<p class="nodata">効果はまだ登録されていません</p>`;
     if(db){
       const keys=lvKeys(db.L);
@@ -813,12 +843,28 @@ function viewAbility(){
 }
 
 /* ===== 情報 ===== */
+const lenNum=p=>parseFloat(p.len)||0;
+const baseName=sp=>sp.replace(/変異種$/,"");
+function lenRank(){
+  /* 通常種と変異種は、同じ種族で体長が同じならまとめる */
+  const g={};
+  D.forEach(d=>{const p=spOf(d),L=lenNum(p);if(!L)return;const k=baseName(d.sp)+"|"+L;(g[k]=g[k]||{name:baseName(d.sp),v:L,ds:[],kinds:new Set()});g[k].ds.push(d);g[k].kinds.add(/変異種$/.test(d.sp)?"変異種":"通常種")});
+  const rows=top5(Object.values(g).map(x=>({d:x.ds[0],name:x.name,v:x.v,u:"m",sub:`${[...x.kinds].join("・")}：${x.ds.map(d=>esc(d.nk)).join("・")}`,tie:x.ds[0].no})));
+  return rankCard("crown","体長ベスト5","戦闘体長",rows);
+}
 function viewInfo(){
-  const d=D.find(x=>x.no===state.inDr)||D[0];
+  const ok=d=>{const p=spOf(d);return(state.inEl==="all"||p.a===state.inEl)&&(state.inFd==="all"||p.f===state.inFd)};
+  const list=D.filter(ok);
+  let d=list.find(x=>x.no===state.inDr)||list[0];
+  const chips=(attr,cur,vals,tag)=>`<div class="sorter flt"><span class="flt-l">${attr==="inel"?"属性":"得意"}</span><button data-${attr}="all" aria-pressed="${cur==="all"}">すべて</button>${vals.map(v=>{const c=D.filter(x=>spOf(x)[attr==="inel"?"a":"f"]===v).length;return c?`<button data-${attr}="${v}" aria-pressed="${cur===v}">${tag(v)}<small>${c}</small></button>`:""}).join("")}</div>`;
+  const head=`<h2><span class="tg">${ico("crown")}</span>体長ランキング</h2><div class="ranks">${lenRank()}</div>
+    <h2><span class="tg">${ico("book")}</span>ドラゴン情報</h2>
+    ${chips("inel",state.inEl,["火","水","土","風","光","闇"],elTag)}${chips("infd",state.inFd,["荒野","水辺","森林","岩場"],fdTag)}
+    ${pickStrip("indr",d&&d.no,list)}`;
+  if(!d)return head;
   const p=spOf(d),isV=/変異種$/.test(d.sp);
   const row=(k,v)=>`<div><dt>${k}</dt><dd>${v}</dd></div>`;
-  return `<h2><span class="tg">${ico("book")}</span>ドラゴン情報</h2>
-    ${pickStrip("indr",d.no)}
+  return head+`
     <section class="box info">
       <div class="info-h">${illust(d)}<div><small>No.${d.no}${p.cat?"・"+esc(p.cat):""}</small><b>${esc(d.sp)}</b><span>${esc(d.nk)}</span></div></div>
       ${(p.title||isV)?`<p class="info-t">${esc(p.title||"正体不明のドラゴン")}</p>`:""}
@@ -846,7 +892,7 @@ function go(tab,detail=null){
   if(!same){const top=document.querySelector("nav.views").offsetTop-4;if(window.scrollY>top)window.scrollTo({top})}
 }
 document.addEventListener("click",e=>{
-  const t=e.target.closest("[data-tab],[data-open],[data-back],[data-dsort],[data-ssort],[data-skdr],[data-indr],[data-abcat],[data-img]");
+  const t=e.target.closest("[data-tab],[data-open],[data-back],[data-dsort],[data-ssort],[data-skdr],[data-indr],[data-abcat],[data-dgrp],[data-inel],[data-infd],[data-img]");
   if(!t)return;const ds=t.dataset;
   if(ds.tab)return go(ds.tab);
   if(ds.open)return go("dragon",+ds.open);
@@ -857,6 +903,9 @@ document.addEventListener("click",e=>{
   if(ds.skdr){state.skDr=+ds.skdr;save();return render()}
   if(ds.indr){state.inDr=+ds.indr;save();return render()}
   if(ds.abcat){state.abCat=ds.abcat;save();return render()}
+  if(ds.dgrp){state.dGrp=ds.dgrp;save();return render()}
+  if(ds.inel){state.inEl=ds.inel;save();return render()}
+  if(ds.infd){state.inFd=ds.infd;save();return render()}
 });
 /* #status #skill #ability #d4 などで直接ひらける */
 const h=(location.hash||"").slice(1);
