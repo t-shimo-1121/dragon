@@ -118,6 +118,20 @@ h2 .n{font-family:var(--f-body);font-size:.82rem;color:var(--mute);font-weight:5
 .sorter.rksel{margin-bottom:10px}
 .sorter.rksel button{font-size:.84rem;padding:4px 11px}
 .ranks.one{grid-template-columns:minmax(0,560px)}
+/* パラメータ一覧：iPhone SEの幅でも1行に全部 */
+.ptbl{overflow-x:visible}
+.ptbl table{table-layout:fixed;font-size:.86rem}
+.ptbl th,.ptbl td{padding:7px 2px;border-left:1px solid var(--line)}
+.ptbl th:first-child,.ptbl td:first-child{border-left:0}
+.ptbl th.nm,.ptbl td.nm{width:4.6rem;position:static;box-shadow:none;padding-left:6px}
+.ptbl td.nm{font-size:.72rem;line-height:1.25;white-space:normal;word-break:break-all}
+.ptbl th{font-size:.68rem;text-align:center!important}
+.ptbl th button{justify-content:center!important;width:100%}
+.ptbl th button::after{display:none}
+.ptbl th[aria-sort] button{color:var(--accent)}
+.ptbl td.num{text-align:center;padding-right:2px}
+.detail .sk:first-of-type{border-top:0}
+.detail .d-sec+.sk{border-top:0;padding-top:4px}
 .flt{align-items:center;margin-bottom:8px}
 .flt-l{font-size:.8rem;color:var(--mute);font-weight:700;margin-right:2px}
 .flt button{display:inline-flex;align-items:center;gap:2px;padding:3px 8px}
@@ -553,9 +567,9 @@ const AB={
 
 /* ===== 状態（並べ替えと画像の種類は端末に保存） ===== */
 const state={tab:"dragon",detail:null,img:"icon",
-  dSort:{key:"no",dir:1},sSort:{key:"total",dir:-1},kSort:{key:"no",dir:1},aSort:{key:"no",dir:1},skDr:1,inDr:1,abCat:"all",dGrp:"all",inEl:"all",inFd:"all",
+  dSort:{key:"no",dir:1},sSort:{key:"total",dir:-1},kSort:{key:"no",dir:1},aSort:{key:"no",dir:1},skDr:1,inDr:1,abCat:"all",dGrp:"all",inEl:"all",inFd:"all",skMana:"all",
   rk:{status:"total",skill:"pow",ability:"all",info:"all"}};
-const KEEP=["dSort","sSort","img","skDr","inDr","abCat","dGrp","inEl","inFd","rk"];
+const KEEP=["dSort","sSort","img","skDr","inDr","abCat","dGrp","inEl","inFd","rk","skMana"];
 try{const s=JSON.parse(localStorage.getItem("dragon-maseki-v2")||"{}");KEEP.forEach(k=>{if(s[k])state[k]=s[k]})}catch(e){}
 if(!IMG_SETS[state.img])state.img="icon";
 const save=()=>{try{localStorage.setItem("dragon-maseki-v2",JSON.stringify(Object.fromEntries(KEEP.map(k=>[k,state[k]]))))}catch(e){}};
@@ -628,6 +642,7 @@ function rankCard(icon,title,unit,rows){
    opts は [id, 札の名前, カードを作る関数]。カードを作る関数が null を返す札は出さない */
 function rankSel(tab,opts){
   const ok=opts.map(([k,n,f])=>[k,n,f()]).filter(x=>x[2]);
+  if(!ok.length)return `<p class="nodata">当てはまるデータはありません</p>`;
   let cur=ok.find(x=>x[0]===state.rk[tab])||ok[0];
   return `<div class="sorter rksel">${ok.map(([k,n])=>`<button data-rk="${tab}|${esc(k)}" aria-pressed="${cur[0]===k}">${esc(n)}</button>`).join("")}</div><div class="ranks one">${cur[2]}</div>`;
 }
@@ -650,22 +665,39 @@ function imgSwitch(){
 }
 function viewDragon(){
   if(state.detail)return viewDetail(D.find(d=>d.no===state.detail));
-  const s=state.dSort;
-  const chips=D_KEYS.map(([k,n])=>`<button data-dsort="${k}" aria-pressed="${s.key===k}">${n}${s.key===k?(s.dir>0?" ↑":" ↓"):""}</button>`).join("");
   const grps=[...SHAPES.map(([n])=>n),"その他"].map(n=>[n,D.filter(d=>shapeOf(d)===n).length]);
   const gchips=`<div class="sorter shp"><button data-dgrp="all" aria-pressed="${state.dGrp==="all"}">すべて<small>${D.length}</small></button>${grps.map(([n,c])=>`<button data-dgrp="${esc(n)}" aria-pressed="${state.dGrp===n}">${esc(n)}<small>${c}</small></button>`).join("")}</div>`;
-  const list=sorted(s).filter(d=>state.dGrp==="all"||shapeOf(d)===state.dGrp);
+  const list=dList();
   const cards=list.map(d=>`
     <button class="card box" data-open="${d.no}" aria-label="${esc(d.nk)}をひらく">
       <div class="cl"><b class="nk">${esc(d.nk)}</b><span class="sp">No.${d.no}・${esc(d.sp)}</span><span class="shape">${esc(shapeOf(d))}</span>${fieldRow(d)}${illust(d)}</div>
       <div class="cr">${radar(d)}</div>
     </button>`).join("");
-  return `${gchips}<div class="sorter">${chips}</div>${imgSwitch()}<div class="grid">${cards}</div>`;
+  return `${gchips}${imgSwitch()}<div class="grid">${cards}</div>`;
+}
+/* 一覧はNo.順。グラフの形で絞り込んでいる時は、その中で前後に移る */
+const dList=()=>D.filter(d=>state.dGrp==="all"||shapeOf(d)===state.dGrp);
+/* アビリティ1つ分：今のレベルの効果（分からなければ一番近いレベル）と、レベルでの変わり方 */
+function abilityCard(x){
+  const db=AB[x.n];
+  const badge=`<span class="lvb${x.lv?"":" max"}">${x.lv?"Lv "+x.lv:"Max"}</span>`;
+  if(!db)return `<div class="sk"><div class="sk-h"><b>${esc(x.n)}</b>${badge}</div><p class="nodata">くわしいデータはまだありません</p></div>`;
+  const L=db.L,ks=lvKeys(L),k0=ks[0],k1=ks[ks.length-1],cur=lvKey(x.lv),now=L[cur];
+  const lo=ks.length>1?L[k0]:null,hi=L[k1];
+  let ch=null,notes=[],durChg=false;
+  if(lo){const d=diffText(lo[1],hi[1]);if(d){ch=d.ch;d.ch.forEach(i=>notes.push(segLabel(d.A[i])+`${d.A[i]}→${d.B[i]}`))}
+    durChg=String(lo[0])!==String(hi[0]);if(durChg)notes.unshift(`持続 ${lo[0]}→${hi[0]}`)}
+  const show=now||hi,showK=now?cur:k1;
+  let foot=lo?(notes.length?`<p class="note"><b>${lvName(k0)}→${lvName(k1)}</b>${notes.map(esc).join("、")}</p>`:`<p class="note">レベルで変わる所はありません</p>`)
+    :`<p class="note">分かっているのは ${lvName(k0)} の効果だけです</p>`;
+  if(!now)foot+=`<p class="note">今の${lvName(cur)}の効果はまだ確かめていません（上は${lvName(showK)}の効果）</p>`;
+  return `<div class="sk"><div class="sk-h"><b>${esc(x.n)}</b>${badge}</div>
+    <div class="ab-b"><div class="st${durChg?" chg":""}"><small>持続</small><b>${esc(show[0])}</b></div><p class="eff">${markText(show[1],ch)}</p></div>${foot}</div>`;
 }
 function viewDetail(d){
-  const list=sorted(state.dSort),idx=list.findIndex(x=>x.no===d.no);
+  const list=dList().some(x=>x.no===d.no)?dList():D,idx=list.findIndex(x=>x.no===d.no);
   const prev=list[(idx-1+list.length)%list.length],next=list[(idx+1)%list.length];
-  const kv=a=>`<ul class="kv">${a.map(x=>x.none?`<li class="none"><span>ー（空き）</span></li>`:`<li><span>${esc(x.n)}</span>${lvTag(x.lv)}</li>`).join("")}</ul>`;
+  const empty=`<div class="sk"><p class="nodata">ー（空き）</p></div>`;
   return `<div class="dnav"><button class="btn" data-back>‹ 一覧</button><span class="sp"></span>
       <button class="btn" data-open="${prev.no}" aria-label="前のドラゴン">‹</button><button class="btn" data-open="${next.no}" aria-label="次のドラゴン">›</button></div>
     <div class="detail">
@@ -674,21 +706,21 @@ function viewDetail(d){
         <div class="d-art">${illust(d)}${radar(d)}</div>
       </section>
       <section class="dpanel box">
-        <h4 class="d-sec">${ico("bolt")}スキル</h4>${kv(d.sk)}
-        <h4 class="d-sec">${ico("shield")}アビリティ</h4>${kv(d.ab)}
+        <h4 class="d-sec">${ico("bolt")}スキル</h4>${d.sk.map(x=>x.none?empty:skillCard(d.sp,x)).join("")}
+        <h4 class="d-sec">${ico("shield")}アビリティ</h4>${d.ab.map(x=>x.none?empty:abilityCard(x)).join("")}
       </section>
     </div>`;
 }
 
 /* ===== 能力値 ===== */
 const GROUPS=[
-  ["crown","合計能力","6つの合計",d=>d.total,d=>esc(d.sp)],
+  ["crown","合計パラメータ","6つの合計",d=>d.total,d=>esc(d.sp)],
   ["sword","攻撃系","攻撃＋命中",d=>d.st[1].v+d.st[4].v,d=>`攻撃 ${d.st[1].v}・命中 ${d.st[4].v}`],
   ["shield","防御系","体力＋防御",d=>d.st[0].v+d.st[2].v,d=>`体力 ${d.st[0].v}・防御 ${d.st[2].v}`],
   ["wing","スピード系","素早さ＋回避",d=>d.st[3].v+d.st[5].v,d=>`素早さ ${d.st[3].v}・回避 ${d.st[5].v}`],
 ];
 function viewStatus(){
-  const card=(ic,t,u,f,sub)=>()=>rankCard(ic,t+"ベスト5",u,top5(D.map(d=>({d,name:d.nk,v:f(d),sub:sub(d),tie:d.no}))));
+  const card=(ic,t,u,f,sub)=>()=>rankCard(ic,t+"ベスト10",u,topN(D.map(d=>({d,name:d.nk,v:f(d),sub:sub(d),tie:d.no})),10));
   const ST_IC=["shield","sword","shield","wing","crown","wing"];
   const ranks=rankSel("status",[
     ...GROUPS.map(([ic,t,u,f,sub],i)=>[["total","atk","def","spd"][i],t,card(ic,t,u,f,sub)]),
@@ -697,13 +729,13 @@ function viewStatus(){
   const best=STATS.map((_,i)=>Math.max(...D.map(d=>d.st[i].v)));
   const bestT=Math.max(...D.map(d=>d.total));
   const th=(k,n,dd=-1)=>`<th${ariaSort(s,k)}><button data-ssort="${k}" data-dd="${dd}">${n}</button></th>`;
-  const rows=sorted(s).map(d=>`<tr data-open="${d.no}"><td class="nm"><span class="nmw">${illust(d)}${esc(d.nk)}</span></td>
-    ${d.st.map((x,i)=>`<td class="num"><span class="cv">${rk(x.r)}<span class="v${x.v===best[i]?" best":""}">${x.v}</span></span></td>`).join("")}
+  const rows=sorted(s).map(d=>`<tr data-open="${d.no}"><td class="nm">${esc(d.nk)}</td>
+    ${d.st.map((x,i)=>`<td class="num"><span class="v${x.v===best[i]?" best":""}">${x.v}</span></td>`).join("")}
     <td class="num"><span class="v tot${d.total===bestT?" best":""}">${d.total}</span></td></tr>`).join("");
   return `<h2><span class="tg">${ico("crown")}</span>パラメータランキング</h2>${ranks}
     <h2><span class="tg">${ico("hex")}</span>パラメータの一覧</h2><p class="hint">見出しを押すと並べ替え。赤い数字は一番高い値</p>
-    <div class="tbl box"><table><thead><tr><th class="nm"${ariaSort(s,"no")}><button data-ssort="no" data-dd="1">ドラゴン</button></th>
-      ${STATS.map((n,i)=>th("s"+i,n)).join("")}${th("total","合計")}</tr></thead><tbody>${rows}</tbody></table></div>`;
+    <div class="tbl box ptbl"><table><thead><tr><th class="nm"${ariaSort(s,"no")}><button data-ssort="no" data-dd="1">名前</button></th>
+      ${STATS.map((n,i)=>th("s"+i,n==="素早さ"?"素早":n)).join("")}${th("total","合計")}</tr></thead><tbody>${rows}</tbody></table></div>`;
 }
 
 /* ===== スキル・アビリティ共通 ===== */
@@ -798,15 +830,23 @@ function skInfo(r,skip){
   return `<span class="ski">${parts.join(" ")}</span>${e?`<span class="ske">${esc(e)}</span>`:""}`;
 }
 function skillRanks(){
-  const rows=skillRows();
+  const all=skillRows();
+  const manas=[...new Set(all.map(r=>r.mana))].sort((a,b)=>a-b);
+  const m=state.skMana;
+  const rows=m==="all"||!manas.includes(+m)?all:all.filter(r=>r.mana===+m);
+  const mchips=`<div class="sorter flt"><span class="flt-l">マナ</span><button data-skmana="all" aria-pressed="${!manas.includes(+m)}">すべて</button>${manas.map(v=>`<button data-skmana="${v}" aria-pressed="${+m===v&&m!=="all"}">${v}<small>${all.filter(r=>r.mana===v).length}</small></button>`).join("")}</div>`;
   const who=r=>`${esc(r.d.nk)}・${r.lv?"Lv"+r.lv:"Max"}`;
-  const mk=(list,v,u,skip)=>topN(list.map(r=>({d:r.d,name:r.n,v:v(r),u,sub:`<span class="skw">${who(r)}</span>${skInfo(r,skip)}`,tie:r.d.no})),10);
+  const mk0=(list,v,u,skip)=>topN(list.map(r=>({d:r.d,name:r.n,v:v(r),u,sub:`<span class="skw">${who(r)}</span>${skInfo(r,skip)}`,tie:r.d.no})),10);
   const pw=rows.filter(r=>r.pow>0);
-  return rankSel("skill",[
-    ["pow","威力",()=>rankCard("sword","威力ベスト10","威力",mk(pw,r=>r.pow,"",["pow"]))],
-    ["eff","対マナ威力",()=>rankCard("bolt","対マナ威力ベスト10","威力÷マナ",mk(pw.filter(r=>r.mana>0),r=>Math.round(r.pow/r.mana*10)/10,"",[]))],
-    ["acc","命中◎の威力",()=>rankCard("crown","命中◎の威力ベスト10","命中が◎のスキルだけ",mk(pw.filter(r=>r.acc==="◎"),r=>r.pow,"",["pow","acc"]))],
-    ["pct","追加効果の確率",()=>rankCard("hex","追加効果の確率ベスト10","発動する確率",mk(rows.filter(r=>r.pct!=null),r=>r.pct,"%",["pct"]))],
+  const mk=(...a)=>{const r=mk0(...a);return r.length?r:null};
+  const rc=(ic,t,u,rs)=>rs?rankCard(ic,t,u,rs):null;
+  return mchips+rankSel("skill",[
+    ["pow","威力",()=>rc("sword","威力ベスト10","威力",mk(pw,r=>r.pow,"",["pow"]))],
+    ["eff","対マナ威力",()=>rc("bolt","対マナ威力ベスト10","威力÷マナ",mk(pw.filter(r=>r.mana>0),r=>Math.round(r.pow/r.mana*10)/10,"",[]))],
+    ["acc","命中◎の威力",()=>rc("crown","命中◎の威力ベスト10","命中が◎のスキルだけ",mk(pw.filter(r=>r.acc==="◎"),r=>r.pow,"",["pow","acc"]))],
+    ["pct","追加効果の確率",()=>rc("hex","追加効果の確率ベスト10","発動する確率",mk(rows.filter(r=>r.pct!=null),r=>r.pct,"%",["pct"]))],
+    /* マナを選んでいる時だけ：そのマナのスキルを全部（威力の高い順） */
+    ...(rows===all?[]:[["list","すべてのスキル",()=>rc("bolt",`マナ${m}のスキル`,"威力の高い順",topN(rows.map(r=>({d:r.d,name:r.n,v:r.pow,u:"",sub:`<span class="skw">${who(r)}</span>${skInfo(r,["pow","mana"])}`,tie:r.d.no})),99))]]),
   ]);
 }
 function viewSkill(){
@@ -915,11 +955,12 @@ function go(tab,detail=null){
   if(!same){const top=document.querySelector("nav.views").offsetTop-4;if(window.scrollY>top)window.scrollTo({top})}
 }
 document.addEventListener("click",e=>{
-  const t=e.target.closest("[data-tab],[data-open],[data-back],[data-dsort],[data-ssort],[data-skdr],[data-indr],[data-abcat],[data-dgrp],[data-inel],[data-infd],[data-img],[data-rk]");
+  const t=e.target.closest("[data-tab],[data-open],[data-back],[data-dsort],[data-ssort],[data-skdr],[data-indr],[data-abcat],[data-dgrp],[data-inel],[data-infd],[data-img],[data-rk],[data-skmana]");
   if(!t)return;const ds=t.dataset;
   if(ds.tab)return go(ds.tab);
   if(ds.open)return go("dragon",+ds.open);
   if("back" in ds)return go("dragon");
+  if(ds.skmana){state.skMana=ds.skmana;save();return render()}
   if(ds.rk){const [tb,k]=ds.rk.split("|");state.rk={...state.rk,[tb]:k};save();return render()}
   if(ds.img){state.img=ds.img;save();return render()}
   if(ds.dsort)return toggle(state.dSort,ds.dsort,ds.dsort==="no"?1:-1);
