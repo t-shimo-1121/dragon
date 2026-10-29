@@ -143,8 +143,10 @@ h2 .n{font-family:var(--f-body);font-size:.82rem;color:var(--mute);font-weight:5
 /* 六角形グラフ */
 .radar{display:block;width:100%;height:auto}
 .radar .lb{fill:var(--mute);font-family:var(--f-body);font-weight:700}
-.radar .vl{fill:var(--ink);font-family:var(--f-head);font-weight:900}
-.radar .rkt{fill:#fff;font-family:var(--f-head);font-weight:900}
+.radar .vl{fill:var(--ink);font-family:var(--f-head);font-weight:900;stroke:var(--tint);stroke-width:3.5px;paint-order:stroke;stroke-linejoin:round}
+.radar .vl.s{fill:var(--hi)}
+.radar .si{fill:var(--mute);opacity:.75}
+.radar .ti{fill:var(--mute)}
 .radar .frame{fill:var(--tint);stroke:var(--grid);stroke-width:1.5}
 .radar .gl{fill:none;stroke:var(--grid);stroke-width:1}
 .radar .tl,.radar .tv{stroke:var(--sheet);stroke-width:4px;paint-order:stroke;stroke-linejoin:round}
@@ -308,6 +310,8 @@ mark{background:hsl(45 95% 62% / .55);color:inherit;border-radius:3px;padding:0 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <symbol id="i-list" viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="8" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/><rect x="13" y="13" width="8" height="8" rx="2"/></symbol>
   <symbol id="i-hex" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M12 1.6 21.2 7v10L12 22.4 2.8 17V7Zm0 3.3L5.6 8.6v6.8l6.4 3.7 6.4-3.7V8.6Z"/><path d="M12 7.2 16.6 10 15 15.6 9 16 7.6 10.2Z"/></symbol>
+  <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 21.2C6.2 16.9 2.4 13.3 2.4 8.9A5 5 0 0 1 7.4 3.8c1.9 0 3.6 1 4.6 2.6 1-1.6 2.7-2.6 4.6-2.6a5 5 0 0 1 5 5.1c0 4.4-3.8 8-9.6 12.3Z"/></symbol>
+  <symbol id="i-target" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M12 2a10 10 0 1 1 0 20 10 10 0 0 1 0-20Zm0 2.6a7.4 7.4 0 1 0 0 14.8 7.4 7.4 0 0 0 0-14.8Zm0 2.8a4.6 4.6 0 1 1 0 9.2 4.6 4.6 0 0 1 0-9.2Zm0 2.4a2.2 2.2 0 1 0 0 4.4 2.2 2.2 0 0 0 0-4.4Z"/></symbol>
   <symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13.6 1.8 4.4 13.6h6.2l-1.4 8.6 9.6-12.4h-6.3Z"/></symbol>
   <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 1.8 20.4 5v6.3c0 5.2-3.6 9.3-8.4 10.9-4.8-1.6-8.4-5.7-8.4-10.9V5Z"/></symbol>
   <symbol id="i-crown" viewBox="0 0 24 24"><path d="M3 7.5 8 11l4-6.5 4 6.5 5-3.5-1.8 11.2H4.8ZM5 20h14v2H5Z"/></symbol>
@@ -581,32 +585,25 @@ function illust(d){
   return `<div class="illust ${state.img}"><img src="${src}" alt="" loading="lazy" onerror="this.parentNode.classList.add('empty');this.remove()"><span class="ph">${ico("img")}イラスト準備中<br>${esc(src)}</span></div>`;
 }
 
-/* ===== 六角形グラフ：頂点の外側に「能力名」と「ランク・数値」 ===== */
-function radar(d,{W=240,R=60,total=true}={}){
-  const B=19,FV=18,FL=13,LH=22;          // ランク札の大きさ・数値と能力名の文字サイズ・上下ラベルの高さ
-  const H=Math.round(R*2+(LH+6)*2),cx=W/2,cy=H/2;
+/* ===== 六角形グラフ：外側にアイコン、内側の角に数値（Sランクは赤） ===== */
+const ST_ICON=["heart","sword","shield","bolt","target","wing"];
+function radar(d,{W=240,R=74,total=true}={}){
+  const IS=17,FV=16,GAP=5;                // アイコンの大きさ・数値の文字サイズ・枠とアイコンの間
+  const H=Math.round(R*2+(IS+GAP+2)*2),cx=W/2,cy=H/2;
   const pt=(i,f)=>{const a=(-90+60*i)*Math.PI/180;return[cx+Math.cos(a)*R*f,cy+Math.sin(a)*R*f]};
   const poly=f=>[0,1,2,3,4,5].map(i=>pt(i,f).map(n=>n.toFixed(1)).join(",")).join(" ");
-  let s=`<svg class="radar" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(d.nk)}の能力：${d.st.map((x,i)=>STATS[i]+x.r+x.v).join("、")}、合計${d.total}">`;
+  let s=`<svg class="radar" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(d.nk)}の能力：${d.st.map((x,i)=>STATS[i]+x.v).join("、")}、合計${d.total}">`;
   s+=`<polygon class="frame" points="${poly(1)}"/>`;
   [1/3,2/3].forEach(f=>s+=`<polygon class="gl" points="${poly(f)}"/>`);
   for(let i=0;i<6;i++){const[x,y]=pt(i,1);s+=`<line class="gl" x1="${cx}" y1="${cy}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}"/>`}
   s+=`<polygon class="area" points="${d.st.map((x,i)=>pt(i,Math.max(.04,x.v/999)).map(n=>n.toFixed(1)).join(",")).join(" ")}"/>`;
-  const badge=(bx,by,x)=>`<rect x="${bx.toFixed(1)}" y="${by.toFixed(1)}" width="${B}" height="${B}" rx="4" fill="var(--r${x.r})"/>`+
-    `<text class="rkt" x="${(bx+B/2).toFixed(1)}" y="${(by+B/2+5).toFixed(1)}" font-size="14" text-anchor="middle">${x.r}</text>`+
-    `<text class="vl" x="${(bx+B+3).toFixed(1)}" y="${(by+B/2+6).toFixed(1)}" font-size="${FV}">${x.v}</text>`;
   d.st.forEach((x,i)=>{
-    const[vx,vy]=pt(i,1);
-    if(i===0||i===3){                     // 上下：能力名・札・数値を1行に
-      const lw=FL*STATS[i].length+4,bw=B+3+FV*1.75,w=lw+bw,x0=vx-w/2;
-      const by=i===0?vy-6-B:vy+6,ty=by+B/2+4.6;
-      s+=`<text class="lb" x="${x0.toFixed(1)}" y="${ty.toFixed(1)}" font-size="${FL}">${STATS[i]}</text>`+badge(x0+lw,by,x);
-    }else{                                // 左右：頂点の外に2行
-      const side=i<3?1:-1,bw=B+3+FV*1.75,ax=vx+side*(6+bw/2),top=vy-(FL+B+3)/2;
-      s+=`<text class="lb" x="${ax.toFixed(1)}" y="${(top+FL-1).toFixed(1)}" font-size="${FL}" text-anchor="middle">${STATS[i]}</text>`+badge(ax-bw/2,top+FL+3,x);
-    }
+    const[ix,iy]=pt(i,1+(GAP+IS/2)/R);    // 枠の外：アイコン
+    s+=`<use class="si" href="#i-${ST_ICON[i]}" x="${(ix-IS/2).toFixed(1)}" y="${(iy-IS/2).toFixed(1)}" width="${IS}" height="${IS}"><title>${STATS[i]}</title></use>`;
+    const[vx,vy]=pt(i,.76);               // 枠の内側の角：数値
+    s+=`<text class="vl${x.r==="S"?" s":""}" x="${vx.toFixed(1)}" y="${(vy+FV*.36).toFixed(1)}" font-size="${FV}" text-anchor="middle">${x.v}</text>`;
   });
-  if(total)s+=`<text class="tl" x="${cx}" y="${(cy-6).toFixed(1)}" font-size="10" text-anchor="middle">合計</text><text class="tv" x="${cx}" y="${(cy+13).toFixed(1)}" font-size="21" text-anchor="middle">${d.total}</text>`;
+  if(total)s+=`<use class="ti" href="#i-crown" x="${cx-6}" y="${(cy-19).toFixed(1)}" width="12" height="12"/><text class="tv" x="${cx}" y="${(cy+12).toFixed(1)}" font-size="20" text-anchor="middle">${d.total}</text>`;
   return s+"</svg>";
 }
 
@@ -721,7 +718,7 @@ const GROUPS=[
 ];
 function viewStatus(){
   const card=(ic,t,u,f,sub)=>()=>rankCard(ic,t+"ベスト10",u,topN(D.map(d=>({d,name:d.nk,v:f(d),sub:sub(d),tie:d.no})),10));
-  const ST_IC=["shield","sword","shield","wing","crown","wing"];
+  const ST_IC=ST_ICON;
   const ranks=rankSel("status",[
     ...GROUPS.map(([ic,t,u,f,sub],i)=>[["total","atk","def","spd"][i],t,card(ic,t,u,f,sub)]),
     ...STATS.map((n,i)=>["s"+i,n,card(ST_IC[i],n,n+"の値",d=>d.st[i].v,d=>`ランク ${esc(d.st[i].r)}・${esc(d.sp)}`)])]);
