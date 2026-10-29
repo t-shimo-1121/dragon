@@ -264,8 +264,6 @@ td .lvn{font-size:.78rem;color:var(--accent);font-weight:700;margin-left:4px}
 .sk{border-top:1px dashed var(--line);padding:10px 0 8px}
 .sk-h{display:flex;align-items:center;justify-content:space-between;gap:8px}
 .sk-h b{font-size:1.15rem}
-.lvb{font-size:.78rem;font-weight:700;color:var(--accent);border:1px solid currentColor;border-radius:999px;padding:0 8px;white-space:nowrap;font-variant-numeric:tabular-nums}
-.lvb.max{background:var(--accent);border-color:var(--accent);color:var(--sheet)}
 .sts{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px;margin-top:6px}
 .st{background:var(--tint);border-radius:9px;padding:4px 2px 5px;text-align:center;min-width:0}
 .st small{display:block;font-size:.66rem;color:var(--mute);font-weight:700;line-height:1.3}
@@ -289,7 +287,6 @@ mark{background:hsl(45 95% 62% / .55);color:inherit;border-radius:3px;padding:0 
 .ab-b .eff{margin:0}
 .holds{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
 .hold{display:inline-flex;align-items:center;gap:4px;border:1px solid var(--line);background:var(--sheet);border-radius:9px;padding:2px 4px 2px 8px;font-size:.84rem;font-weight:700}
-.hold .lvb{font-size:.68rem;padding:0 6px}
 /* 情報 */
 .info{padding:14px}
 .info-h{display:flex;align-items:center;gap:12px}
@@ -385,7 +382,6 @@ const D=[
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const ico=(id,cls="ic")=>`<svg class="${cls}" aria-hidden="true"><use href="#i-${id}"/></svg>`;
 const rk=r=>`<span class="rk ${r}">${r}</span>`;
-const lvTag=lv=>lv?`<span class="lv">Lv ${lv}</span>`:"";   /* 最大は表示しない */
 
 /* ===== 種族のデータ =====
    f=得意フィールド w=弱点 a=属性 reg=伝承地域 src=出典 len=戦闘体長 desc=紹介（要約）
@@ -672,22 +668,12 @@ function viewDragon(){
 }
 /* 一覧はNo.順。グラフの形で絞り込んでいる時は、その中で前後に移る */
 const dList=()=>D.filter(d=>state.dGrp==="all"||shapeOf(d)===state.dGrp);
-/* アビリティ1つ分：今のレベルの効果（分からなければ一番近いレベル）と、レベルでの変わり方 */
+/* アビリティ1つ分：Maxの効果だけ */
 function abilityCard(x){
-  const db=AB[x.n];
-  const badge=`<span class="lvb${x.lv?"":" max"}">${x.lv?"Lv "+x.lv:"Max"}</span>`;
-  if(!db)return `<div class="sk"><div class="sk-h"><b>${esc(x.n)}</b>${badge}</div><p class="nodata">くわしいデータはまだありません</p></div>`;
-  const L=db.L,ks=lvKeys(L),k0=ks[0],k1=ks[ks.length-1],cur=lvKey(x.lv),now=L[cur];
-  const lo=ks.length>1?L[k0]:null,hi=L[k1];
-  let ch=null,notes=[],durChg=false;
-  if(lo){const d=diffText(lo[1],hi[1]);if(d){ch=d.ch;d.ch.forEach(i=>notes.push(segLabel(d.A[i])+`${d.A[i]}→${d.B[i]}`))}
-    durChg=String(lo[0])!==String(hi[0]);if(durChg)notes.unshift(`持続 ${lo[0]}→${hi[0]}`)}
-  const show=now||hi,showK=now?cur:k1;
-  let foot=lo?(notes.length?`<p class="note"><b>${lvName(k0)}→${lvName(k1)}</b>${notes.map(esc).join("、")}</p>`:`<p class="note">レベルで変わる所はありません</p>`)
-    :`<p class="note">分かっているのは ${lvName(k0)} の効果だけです</p>`;
-  if(!now)foot+=`<p class="note">今の${lvName(cur)}の効果はまだ確かめていません（上は${lvName(showK)}の効果）</p>`;
-  return `<div class="sk"><div class="sk-h"><b>${esc(x.n)}</b>${badge}</div>
-    <div class="ab-b"><div class="st${durChg?" chg":""}"><small>持続</small><b>${esc(show[0])}</b></div><p class="eff">${markText(show[1],ch)}</p></div>${foot}</div>`;
+  const v=(AB[x.n]||{L:{}}).L.M;
+  const head=`<div class="sk-h"><b>${esc(x.n)}</b></div>`;
+  if(!v)return `<div class="sk">${head}<p class="nodata">Maxの効果はまだ確かめていません</p></div>`;
+  return `<div class="sk">${head}<div class="ab-b"><div class="st"><small>持続</small><b>${esc(v[0])}</b></div><p class="eff">${esc(v[1])}</p></div></div>`;
 }
 function viewDetail(d){
   const list=dList().some(x=>x.no===d.no)?dList():D,idx=list.findIndex(x=>x.no===d.no);
@@ -750,53 +736,17 @@ function fieldRow(d){
   return `<div class="fw"><span class="fw-i"><small>得意</small>${fdTag(p.f)}</span><span class="fw-i"><small>弱点</small>${elTag(p.w)}</span></div>`;
 }
 
-/* ===== レベルで変わる所を見つける =====
-   追加効果の文は「数字・%・小中大」で区切って、Lv1と最大を比べる */
-const SEG=/(\d+%|\d+|[小中大])/;
-function diffText(a,b){
-  const A=(a||"").split(SEG),B=(b||"").split(SEG);
-  if(A.length!==B.length)return null;
-  const ch=[];A.forEach((x,i)=>{if(x!==B[i])ch.push(i)});
-  return {A,B,ch};
-}
-function markText(t,ch){
-  if(!ch||!ch.length)return esc(t);
-  return t.split(SEG).map((x,i)=>ch.includes(i)?`<mark>${esc(x)}</mark>`:esc(x)).join("");
-}
-const segLabel=x=>/%$/.test(x)?"確率 ":/^\d+$/.test(x)?"数 ":"強さ ";
-const lvKey=lv=>lv?String(lv):"M";
-const lvName=k=>k==="M"?"Max":"Lv"+k;
-/* 分かっているレベルを低い順に（最大は最後） */
-const lvKeys=L=>Object.keys(L).sort((a,b)=>(a==="M"?99:+a)-(b==="M"?99:+b));
 const FIELDS=["持続","マナ","威力","命中"];
 
-/* スキル1つ分のカード */
+/* スキル1つ分のカード：Maxの値だけ */
 function skillCard(spName,x){
-  const db=(SK[spName]||{})[x.n];
-  const cur=lvKey(x.lv);
-  const badge=`<span class="lvb${x.lv?"":" max"}">${x.lv?"Lv "+x.lv:"Max"}</span>`;
-  if(!db)return `<div class="sk"><div class="sk-h"><b>${esc(x.n)}</b>${badge}</div><p class="nodata">くわしいデータはまだありません</p></div>`;
-  const L=db.L,ks=lvKeys(L),k0=ks[0],k1=ks[ks.length-1],now=L[cur];
-  const both=ks.length>1,lo=L[k0],hi=L[k1];
-  const span=`${lvName(k0)}→${lvName(k1)}`;
-  const notes=[];
-  const cells=FIELDS.map((f,i)=>{
-    const chg=both&&String(lo[i])!==String(hi[i]);
-    if(chg)notes.push(`${f} ${lo[i]}→${hi[i]}`);
-    let v=now?now[i]:(both&&!chg?lo[i]:null);
-    const show=v!=null?esc(v):(both?`${esc(lo[i])}〜${esc(hi[i])}`:esc((lo||hi)[i]));
-    return `<div class="st${chg?" chg":""}"><small>${f}</small><b>${show}</b></div>`;
-  }).join("")+`<div class="st"><small>属性</small><b>${db.at?elTag(db.at):"？"}</b></div>`;
-  let eff=(now||hi||lo)[4],ch=null;
-  if(both){const d=diffText(lo[4],hi[4]);if(d){ch=d.ch;d.ch.forEach(i=>notes.push(segLabel(d.A[i])+`${d.A[i]}→${d.B[i]}`))}}
-  const known=Object.keys(L).map(lvName).join("・");
-  let foot="";
-  if(both)foot=notes.length?`<p class="note"><b>${span}</b>${notes.map(esc).join("、")}</p>`:`<p class="note">レベルで変わる所はありません</p>`;
-  else foot=`<p class="note">分かっているのは ${known} の値だけです</p>`;
-  if(both&&k1!=="M")foot+=`<p class="note">Maxの値はまだ確かめていません</p>`;
-  if(!now&&both)foot+=`<p class="note">今の${lvName(cur)}の値はまだ確かめていません</p>`;
-  return `<div class="sk"><div class="sk-h"><b>${esc(x.n)}</b>${badge}</div><div class="sts">${cells}</div>
-    ${eff?`<p class="eff">${markText(eff,ch)}</p>`:`<p class="eff none">追加効果なし</p>`}${foot}</div>`;
+  const db=(SK[spName]||{})[x.n],v=db&&db.L.M;
+  const head=`<div class="sk-h"><b>${esc(x.n)}</b></div>`;
+  if(!v)return `<div class="sk">${head}<p class="nodata">Maxの値はまだ確かめていません</p></div>`;
+  const cells=FIELDS.map((f,i)=>`<div class="st"><small>${f}</small><b>${esc(v[i])}</b></div>`).join("")
+    +`<div class="st"><small>属性</small><b>${db.at?elTag(db.at):"？"}</b></div>`;
+  return `<div class="sk">${head}<div class="sts">${cells}</div>
+    ${v[4]?`<p class="eff">${esc(v[4])}</p>`:`<p class="eff none">追加効果なし</p>`}</div>`;
 }
 
 /* ドラゴンを選ぶ帯（スキル・情報タブ） */
@@ -804,14 +754,14 @@ function pickStrip(attr,sel,list=D){
   if(!list.length)return `<p class="nodata">当てはまるドラゴンはいません</p>`;
   return `<div class="pick">${list.map(d=>`<button data-${attr}="${d.no}" aria-pressed="${sel===d.no}">${illust(d)}<span>${esc(d.nk)}</span></button>`).join("")}</div>`;
 }
-/* 今のレベルの値が分かっているスキルを全部集める */
+/* Maxの値が分かっているスキルを全部集める */
 function skillRows(){
   const out=[];
   D.forEach(d=>d.sk.forEach(x=>{
     const db=(SK[d.sp]||{})[x.n];if(!db)return;
-    const v=db.L[lvKey(x.lv)];if(!v)return;
+    const v=db.L.M;if(!v)return;
     const pct=(v[4].match(/(\d+)%の確率/)||[])[1];
-    out.push({d,n:x.n,lv:x.lv,mana:+v[1]||0,pow:+v[2]||0,acc:v[3],pct:pct?+pct:null,eff:v[4]});
+    out.push({d,n:x.n,mana:+v[1]||0,pow:+v[2]||0,acc:v[3],pct:pct?+pct:null,eff:v[4]});
   }));
   return out;
 }
@@ -828,7 +778,7 @@ function skillRanks(){
   const m=state.skMana;
   const rows=m==="all"||!manas.includes(+m)?all:all.filter(r=>r.mana===+m);
   const mchips=`<div class="sorter flt"><span class="flt-l">マナ</span><button data-skmana="all" aria-pressed="${!manas.includes(+m)}">すべて</button>${manas.map(v=>`<button data-skmana="${v}" aria-pressed="${+m===v&&m!=="all"}">${v}<small>${all.filter(r=>r.mana===v).length}</small></button>`).join("")}</div>`;
-  const who=r=>`${esc(r.d.nk)}・${r.lv?"Lv"+r.lv:"Max"}`;
+  const who=r=>esc(r.d.nk);
   const mk0=(list,v,u,skip)=>topN(list.map(r=>({d:r.d,name:r.n,v:v(r),u,sub:`<span class="skw">${who(r)}</span>${skInfo(r,skip)}`,tie:r.d.no})),10);
   const pw=rows.filter(r=>r.pow>0);
   const mk=(...a)=>{const r=mk0(...a);return r.length?r:null};
@@ -845,9 +795,8 @@ function skillRanks(){
 function viewSkill(){
   const d=D.find(x=>x.no===state.skDr)||D[0];
   const missing=D.filter(x=>!SK[x.sp]).map(x=>esc(x.nk)).join("・");
-  return `<h2><span class="tg">${ico("crown")}</span>スキルランキング</h2><p class="hint">今のレベルの値が分かっているスキルで比べています</p>${skillRanks()}
+  return `<h2><span class="tg">${ico("crown")}</span>スキルランキング</h2><p class="hint">スキルの値はすべてMaxです</p>${skillRanks()}
     <h2><span class="tg">${ico("bolt")}</span>ドラゴンごとのスキル</h2>
-    <p class="hint">色のついた所はレベルで変わります。下の小さな文字が、分かっている一番低いレベルから高いレベル（Max）までの変わり方です</p>
     ${pickStrip("skdr",d.no)}
     <section class="box skp"><div class="skp-h">${illust(d)}<div><b>${esc(d.nk)}</b><small>${esc(d.sp)}</small></div></div>
       ${d.sk.map(x=>skillCard(d.sp,x)).join("")}</section>
@@ -876,23 +825,14 @@ function viewAbility(){
   const names=state.abCat==="all"?all:all.filter(([n])=>abCat(n)===state.abCat);
   const cards=names.map(([n,ds])=>{
     const db=AB[n];
-    const holders=ds.map(d=>{const x=d.ab.find(y=>y.n===n);return `<button class="hold" data-open="${d.no}">${esc(d.nk)}<span class="lvb${x.lv?"":" max"}">${x.lv?"Lv"+x.lv:"Max"}</span></button>`}).join("");
-    let body=`<p class="nodata">効果はまだ登録されていません</p>`;
-    if(db){
-      const keys=lvKeys(db.L);
-      const k=keys[keys.length-1];
-      const lo=keys.length>1?db.L[keys[0]]:null,hi=db.L[k];
-      let ch=null,durChg=false,notes=[];
-      if(lo&&hi){const d=diffText(lo[1],hi[1]);if(d){ch=d.ch;d.ch.forEach(i=>notes.push(segLabel(d.A[i])+`${d.A[i]}→${d.B[i]}`))}
-        durChg=String(lo[0])!==String(hi[0]);if(durChg)notes.unshift(`持続 ${lo[0]}→${hi[0]}`)}
-      const v=db.L[k];
-      body=`<div class="ab-b"><div class="st${durChg?" chg":""}"><small>持続</small><b>${esc(v[0])}</b></div><p class="eff">${markText(v[1],ch)}<small class="src">${lvName(k)}の効果</small></p></div>
-        ${notes.length?`<p class="note"><b>${lvName(keys[0])}→${lvName(k)}</b>${notes.map(esc).join("、")}</p>`:`<p class="note">レベルで変わる所は、ほかのレベルの画面がそろうと分かります</p>`}`;
-    }
+    const holders=ds.map(d=>`<button class="hold" data-open="${d.no}">${esc(d.nk)}</button>`).join("");
+    const v=db&&db.L.M;
+    const body=v?`<div class="ab-b"><div class="st"><small>持続</small><b>${esc(v[0])}</b></div><p class="eff">${esc(v[1])}</p></div>`
+      :`<p class="nodata">${db?"Maxの効果はまだ確かめていません":"効果はまだ登録されていません"}</p>`;
     return `<section class="box abc"><div class="abc-h"><b>${esc(n)}</b><span class="cnt">${ds.length}体</span></div>${body}<div class="holds">${holders}</div></section>`;
   }).join("");
   return `<h2><span class="tg">${ico("crown")}</span>アビリティランキング</h2>${card}
-    <h2><span class="tg">${ico("shield")}</span>アビリティの効果</h2><p class="hint">覚えているドラゴンを押すと、そのドラゴンのページが開きます</p>
+    <h2><span class="tg">${ico("shield")}</span>アビリティの効果</h2><p class="hint">効果はすべてMaxです。覚えているドラゴンを押すと、そのドラゴンのページが開きます</p>
     <div class="sorter">${cats.map(([k,n,c])=>`<button data-abcat="${k}" aria-pressed="${state.abCat===k}">${n}<small>${c}</small></button>`).join("")}</div>
     <div class="abgrid">${cards}</div>`;
 }
