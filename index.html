@@ -648,13 +648,9 @@ function rankSel(tab,opts){
 const D_KEYS=[["no","No"],["total","合計"],...STATS.map((n,i)=>["s"+i,n])];
 /* グラフの形での分類。No. を並べる。ここにないドラゴンは「その他」 */
 const SHAPES=[
-  ["低足・高耐久・高火力",[13,15]],
-  ["低足・高耐久・中火力",[3,10,21]],
-  ["高速・中耐久・高火力",[16,20]],
-  ["高速・中耐久・中火力",[7,17]],
-  ["中速・中耐久・高火力",[11,12,14,18,19]],
-  ["中速・低耐久・高火力",[4,6]],
-  ["中速・中耐久・中火力",[9,22]],
+  ["低速・高耐久",[3,10,13,15,21]],
+  ["中速・中耐久",[9,11,12,14,18,19,22]],
+  ["高速・中耐久",[7,16,17,20]],
 ];
 const shapeOf=d=>(SHAPES.find(([,ns])=>ns.includes(d.no))||["その他"])[0];
 function imgSwitch(){
@@ -662,6 +658,7 @@ function imgSwitch(){
 }
 function viewDragon(){
   if(state.detail)return viewDetail(D.find(d=>d.no===state.detail));
+  if(state.dGrp!=="all"&&state.dGrp!=="その他"&&!SHAPES.some(([n])=>n===state.dGrp))state.dGrp="all";
   const grps=[...SHAPES.map(([n])=>n),"その他"].map(n=>[n,D.filter(d=>shapeOf(d)===n).length]);
   const gchips=`<div class="sorter shp"><button data-dgrp="all" aria-pressed="${state.dGrp==="all"}">すべて<small>${D.length}</small></button>${grps.map(([n,c])=>`<button data-dgrp="${esc(n)}" aria-pressed="${state.dGrp===n}">${esc(n)}<small>${c}</small></button>`).join("")}</div>`;
   const list=dList();
