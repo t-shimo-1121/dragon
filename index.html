@@ -686,10 +686,18 @@ function viewDragon(){
 /* 一覧はNo.順。グラフの形で絞り込んでいる時は、その中で前後に移る */
 const dList=()=>D.filter(d=>state.dGrp==="all"||shapeOf(d)===state.dGrp);
 /* アビリティ1つ分：Maxの効果だけ */
+/* Maxのデータが無ければ、分かっている一番高いレベルのデータを使う。[値, "Lv3"などの札（Maxなら空）] */
+function bestLv(L){
+  if(!L)return [null,""];
+  if(L.M)return [L.M,""];
+  const k=Object.keys(L).filter(k=>k!=="M").sort((a,b)=>b-a)[0];
+  return k?[L[k],"Lv"+k]:[null,""];
+}
+const lvNote=t=>t?`<span class="lvb">${t}</span>`:"";
 function abilityCard(x){
-  const v=(AB[x.n]||{L:{}}).L.M;
-  const head=`<div class="sk-h"><b>${esc(x.n)}</b></div>`;
-  if(!v)return `<div class="sk">${head}<p class="nodata">Maxの効果はまだ確かめていません</p></div>`;
+  const [v,lt]=bestLv((AB[x.n]||{}).L);
+  const head=`<div class="sk-h"><b>${esc(x.n)}</b>${lvNote(lt)}</div>`;
+  if(!v)return `<div class="sk">${head}<p class="nodata">効果はまだ確かめていません</p></div>`;
   return `<div class="sk">${head}<div class="ab-b"><div class="st"><small>持続</small><b>${esc(v[0])}</b></div><p class="eff">${esc(v[1])}</p></div></div>`;
 }
 function viewDetail(d){
@@ -765,9 +773,9 @@ const FIELDS=["持続","マナ","威力","命中"];
 
 /* スキル1つ分のカード：Maxの値だけ */
 function skillCard(spName,x){
-  const db=(SK[spName]||{})[x.n],v=db&&db.L.M;
-  const head=`<div class="sk-h"><b>${esc(x.n)}</b></div>`;
-  if(!v)return `<div class="sk">${head}<p class="nodata">Maxの値はまだ確かめていません</p></div>`;
+  const db=(SK[spName]||{})[x.n],[v,lt]=bestLv(db&&db.L);
+  const head=`<div class="sk-h"><b>${esc(x.n)}</b>${lvNote(lt)}</div>`;
+  if(!v)return `<div class="sk">${head}<p class="nodata">値はまだ確かめていません</p></div>`;
   const cells=FIELDS.map((f,i)=>`<div class="st"><small>${f}</small><b>${esc(v[i])}</b></div>`).join("")
     +`<div class="st"><small>属性</small><b>${db.at?elTag(db.at):"？"}</b></div>`;
   return `<div class="sk">${head}<div class="sts">${cells}</div>
@@ -784,9 +792,9 @@ function skillRows(){
   const out=[];
   D.forEach(d=>d.sk.forEach(x=>{
     const db=(SK[d.sp]||{})[x.n];if(!db)return;
-    const v=db.L.M;if(!v)return;
+    const [v,lt]=bestLv(db.L);if(!v)return;
     const pct=(v[4].match(/(\d+)%の確率/)||[])[1];
-    out.push({d,n:x.n,mana:+v[1]||0,pow:+v[2]||0,acc:v[3],pct:pct?+pct:null,eff:v[4]});
+    out.push({d,n:x.n,lt,mana:+v[1]||0,pow:+v[2]||0,acc:v[3],pct:pct?+pct:null,eff:v[4]});
   }));
   return out;
 }
@@ -803,7 +811,7 @@ function skillRanks(){
   const m=state.skMana;
   const rows=m==="all"||!manas.includes(+m)?all:all.filter(r=>r.mana===+m);
   const mchips=`<div class="sorter flt"><span class="flt-l">マナ</span><button data-skmana="all" aria-pressed="${!manas.includes(+m)}">すべて</button>${manas.map(v=>`<button data-skmana="${v}" aria-pressed="${+m===v&&m!=="all"}">${v}<small>${all.filter(r=>r.mana===v).length}</small></button>`).join("")}</div>`;
-  const who=r=>esc(r.d.nk);
+  const who=r=>esc(r.d.nk)+(r.lt?"・"+r.lt:"");
   const mk0=(list,v,u,skip)=>topN(list.map(r=>({d:r.d,name:r.n,v:v(r),u,sub:`<span class="skw">${who(r)}</span>${skInfo(r,skip)}`,tie:r.d.no})),10);
   const pw=rows.filter(r=>r.pow>0);
   const mk=(...a)=>{const r=mk0(...a);return r.length?r:null};
@@ -851,13 +859,13 @@ function viewAbility(){
   const cards=names.map(([n,ds])=>{
     const db=AB[n];
     const holders=ds.map(d=>`<button class="hold" data-open="${d.no}">${esc(d.nk)}</button>`).join("");
-    const v=db&&db.L.M;
-    const body=v?`<div class="ab-b"><div class="st"><small>持続</small><b>${esc(v[0])}</b></div><p class="eff">${esc(v[1])}</p></div>`
-      :`<p class="nodata">${db?"Maxの効果はまだ確かめていません":"効果はまだ登録されていません"}</p>`;
+    const [v,lt]=bestLv(db&&db.L);
+    const body=v?`${lt?`<p class="note">${lt}の効果（Maxはまだ確かめていません）</p>`:""}<div class="ab-b"><div class="st"><small>持続</small><b>${esc(v[0])}</b></div><p class="eff">${esc(v[1])}</p></div>`
+      :`<p class="nodata">効果はまだ登録されていません</p>`;
     return `<section class="box abc"><div class="abc-h"><b>${esc(n)}</b><span class="cnt">${ds.length}体</span></div>${body}<div class="holds">${holders}</div></section>`;
   }).join("");
   return `<h2><span class="tg">${ico("crown")}</span>アビリティランキング</h2>${card}
-    <h2><span class="tg">${ico("shield")}</span>アビリティの効果</h2><p class="hint">効果はすべてMaxです。覚えているドラゴンを押すと、そのドラゴンのページが開きます</p>
+    <h2><span class="tg">${ico("shield")}</span>アビリティの効果</h2><p class="hint">効果はMaxの値です（Maxが分からないものは、分かっている一番高いレベル）。覚えているドラゴンを押すと、そのドラゴンのページが開きます</p>
     <div class="sorter">${cats.map(([k,n,c])=>`<button data-abcat="${k}" aria-pressed="${state.abCat===k}">${n}<small>${c}</small></button>`).join("")}</div>
     <div class="abgrid">${cards}</div>`;
 }
