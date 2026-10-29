@@ -3,8 +3,8 @@
   ドラゴン魔石表（GitHub Pages：index.html）
   ・ドラゴンを足す時は script 内の D の配列に1行足すだけ。ランキングや比較は自動で計算されます
   ・画像は images/ の中に No. と同じ2桁の番号で置きます
-      images/icons/01.png … 魔石アイコン　images/models/01.png … 3Dモデル　images/illust/01.png … イラスト
-      images/chibi/01.png … デフォルメイラスト　images/real/01.jpg … リアルイラスト（背景は白のまま）
+      images/illust/01.png … イラスト　images/chibi/01.png … デフォルメイラスト
+      （選んだ方の画像が無いドラゴンは、もう一方の画像を出します）
   ・デザインは「旅行のしおり集」（t-shimo-1121/shiori）に合わせています
 -->
 <html lang="ja">
@@ -96,7 +96,6 @@ h2 .n{font-family:var(--f-body);font-size:.82rem;color:var(--mute);font-weight:5
 /* イラスト枠 */
 .illust{position:relative;aspect-ratio:1;max-width:100%;border-radius:12px;overflow:hidden;background:var(--tint);display:grid;place-items:center}
 .illust img{width:100%;height:100%;object-fit:contain;display:block}
-.illust.icon img{object-fit:cover}
 .illust .ph{display:none;text-align:center;color:var(--mute);font-size:.72rem;line-height:1.35;padding:6px}
 .illust.empty{border:2px dashed var(--line)}
 .illust.empty .ph{display:block}
@@ -343,11 +342,8 @@ mark{background:hsl(45 95% 62% / .55);color:inherit;border-radius:3px;padding:0 
 <script>
 /* ===== 画像の種類: [ボタン名, フォルダ, 拡張子] ===== */
 const IMG_SETS={
-  icon:["アイコン","images/icons/",".png"],
-  model:["モデル","images/models/",".png"],
   illust:["イラスト","images/illust/",".png"],
   chibi:["デフォルメ","images/chibi/",".png"],
-  real:["リアル","images/real/",".jpg"],
 };
 const STATS=["体力","攻撃","防御","素早さ","命中","回避"];
 /* [種族, ニックネーム, [[ランク,値]×6], [[スキル,Lv(0=最大)]×3], [[アビリティ,Lv(0=最大)]×3]] */
@@ -567,19 +563,20 @@ const AB={
 };
 
 /* ===== 状態（並べ替えと画像の種類は端末に保存） ===== */
-const state={tab:"dragon",detail:null,img:"icon",
+const state={tab:"dragon",detail:null,img:"illust",
   dSort:{key:"no",dir:1},sSort:{key:"total",dir:-1},kSort:{key:"no",dir:1},aSort:{key:"no",dir:1},skDr:1,inDr:1,abCat:"all",dGrp:"all",inEl:"all",inFd:"all",skMana:"all",
   rk:{status:"total",skill:"pow",ability:"all",info:"all"}};
 const KEEP=["dSort","sSort","img","skDr","inDr","abCat","dGrp","inEl","inFd","rk","skMana"];
 try{const s=JSON.parse(localStorage.getItem("dragon-maseki-v2")||"{}");KEEP.forEach(k=>{if(s[k])state[k]=s[k]})}catch(e){}
-if(!IMG_SETS[state.img])state.img="icon";
+if(!IMG_SETS[state.img])state.img="illust";
 const save=()=>{try{localStorage.setItem("dragon-maseki-v2",JSON.stringify(Object.fromEntries(KEEP.map(k=>[k,state[k]]))))}catch(e){}};
 
 /* ===== イラスト枠（画像が無ければ仮置きの枠） ===== */
 function imgPath(d){const[,dir,ext]=IMG_SETS[state.img];return dir+String(d.no).padStart(2,"0")+ext}
 function illust(d){
   const src=imgPath(d);
-  return `<div class="illust ${state.img}"><img src="${src}" alt="" loading="lazy" onerror="this.parentNode.classList.add('empty');this.remove()"><span class="ph">${ico("img")}イラスト準備中<br>${esc(src)}</span></div>`;
+  const alt=Object.entries(IMG_SETS).filter(([k])=>k!==state.img).map(([,[,dir,ext]])=>dir+String(d.no).padStart(2,"0")+ext)[0];
+  return `<div class="illust ${state.img}"><img src="${src}" data-alt="${alt}" alt="" loading="lazy" onerror="if(this.dataset.alt){this.src=this.dataset.alt;this.dataset.alt=''}else{this.parentNode.classList.add('empty');this.remove()}"><span class="ph">${ico("img")}イラスト準備中<br>${esc(src)}</span></div>`;
 }
 
 /* ===== 六角形グラフ：外側にアイコン、内側の角に数値（800以上は赤、400未満は青） ===== */
