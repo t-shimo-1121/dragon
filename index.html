@@ -29,7 +29,7 @@
   --tint:hsl(40 34% 90%);
   --dots:hsla(40,25%,45%,.10);
   --radar:hsl(140 55% 40%);
-  --hi:hsl(352 70% 46%);
+  --hi:hsl(352 70% 46%);--lo:hsl(210 75% 44%);
   --grid:hsl(40 18% 80%);
   --f-head:"Zen Maru Gothic","Hiragino Maru Gothic ProN","Noto Sans JP",sans-serif;
   --f-body:"Noto Sans JP","Hiragino Sans","Yu Gothic",sans-serif;
@@ -41,11 +41,11 @@
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
   --paper:hsl(40 12% 11%);--sheet:hsl(40 11% 15%);--ink:hsl(40 18% 93%);--mute:hsl(40 8% 66%);
   --line:hsl(40 10% 27%);--accent:hsl(205 50% 66%);--soft:hsl(205 30% 20%);--tint:hsl(40 12% 19%);
-  --dots:hsla(40,20%,70%,.07);--radar:hsl(140 50% 52%);--hi:hsl(352 85% 70%);--grid:hsl(40 10% 32%);color-scheme:dark}}
+  --dots:hsla(40,20%,70%,.07);--radar:hsl(140 50% 52%);--hi:hsl(352 85% 70%);--lo:hsl(210 85% 70%);--grid:hsl(40 10% 32%);color-scheme:dark}}
 :root[data-theme="dark"]{
   --paper:hsl(40 12% 11%);--sheet:hsl(40 11% 15%);--ink:hsl(40 18% 93%);--mute:hsl(40 8% 66%);
   --line:hsl(40 10% 27%);--accent:hsl(205 50% 66%);--soft:hsl(205 30% 20%);--tint:hsl(40 12% 19%);
-  --dots:hsla(40,20%,70%,.07);--radar:hsl(140 50% 52%);--hi:hsl(352 85% 70%);--grid:hsl(40 10% 32%);color-scheme:dark}
+  --dots:hsla(40,20%,70%,.07);--radar:hsl(140 50% 52%);--hi:hsl(352 85% 70%);--lo:hsl(210 85% 70%);--grid:hsl(40 10% 32%);color-scheme:dark}
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}
 body{margin:0;background-color:var(--paper);background-image:radial-gradient(var(--dots) 1.1px,transparent 1.1px);background-size:22px 22px;
@@ -229,6 +229,7 @@ td.num{text-align:right}
 .v{display:inline-block;text-align:right;font-variant-numeric:tabular-nums;font-weight:500}
 .v.tot{min-width:4ch;font-weight:700}
 .best{color:var(--hi);font-weight:900}
+.ptbl .v.s{color:var(--hi);font-weight:900}.ptbl .v.lo{color:var(--lo)}
 .tbl th:not(.nm){text-align:right}
 .tbl th button{justify-content:flex-end}
 .tbl td,.tbl th{border-left:1px solid var(--line)}
@@ -720,14 +721,12 @@ function viewStatus(){
     ...GROUPS.map(([ic,t,u,f,sub],i)=>[["total","atk","def","spd"][i],t,card(ic,t,u,f,sub)]),
     ...STATS.map((n,i)=>["s"+i,n,card(ST_IC[i],n,n+"の値",d=>d.st[i].v,d=>`ランク ${esc(d.st[i].r)}・${esc(d.sp)}`)])]);
   const s=state.sSort;
-  const best=STATS.map((_,i)=>Math.max(...D.map(d=>d.st[i].v)));
-  const bestT=Math.max(...D.map(d=>d.total));
   const th=(k,n,dd=-1)=>`<th${ariaSort(s,k)}><button data-ssort="${k}" data-dd="${dd}">${n}</button></th>`;
   const rows=sorted(s).map(d=>`<tr data-open="${d.no}"><td class="nm">${esc(d.nk)}</td>
-    ${d.st.map((x,i)=>`<td class="num"><span class="v${x.v===best[i]?" best":""}">${x.v}</span></td>`).join("")}
-    <td class="num"><span class="v tot${d.total===bestT?" best":""}">${d.total}</span></td></tr>`).join("");
+    ${d.st.map((x,i)=>`<td class="num"><span class="v${x.r==="S"?" s":x.v<400?" lo":""}">${x.v}</span></td>`).join("")}
+    <td class="num"><span class="v tot">${d.total}</span></td></tr>`).join("");
   return `<h2><span class="tg">${ico("crown")}</span>パラメータランキング</h2>${ranks}
-    <h2><span class="tg">${ico("hex")}</span>パラメータの一覧</h2><p class="hint">見出しを押すと並べ替え。赤い数字は一番高い値</p>
+    <h2><span class="tg">${ico("hex")}</span>パラメータの一覧</h2><p class="hint">見出しを押すと並べ替え。<span style="color:var(--hi);font-weight:900">赤</span>はSランク、<span style="color:var(--lo);font-weight:900">青</span>は400未満</p>
     <div class="tbl box ptbl"><table><thead><tr><th class="nm"${ariaSort(s,"no")}><button data-ssort="no" data-dd="1">名前</button></th>
       ${STATS.map((n,i)=>th("s"+i,n==="素早さ"?"素早":n)).join("")}${th("total","合計")}</tr></thead><tbody>${rows}</tbody></table></div>`;
 }
