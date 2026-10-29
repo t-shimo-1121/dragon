@@ -137,6 +137,24 @@ h2 .n{font-family:var(--f-body);font-size:.82rem;color:var(--mute);font-weight:5
 .flt button .el,.flt button .fd{font-size:.82rem}
 .flt button[aria-pressed="true"]{background:var(--soft);border-color:var(--accent);color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--accent)}
 .cr{min-width:0}
+/* カード：上に名前と情報、下にイラストとグラフを同じ高さで横並び */
+.card:not(.miss){grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-areas:"t t" "i r";gap:8px 6px;align-items:center}
+.card .ct{grid-area:t;display:flex;flex-direction:column;gap:3px;min-width:0}
+.card .ct-a{display:flex;align-items:baseline;gap:8px;min-width:0}
+.card .ct-a .nk{font-family:var(--f-head);font-weight:900;font-size:1.3rem;line-height:1.2;white-space:nowrap;letter-spacing:-.02em}
+.card .ct-a .sp{font-size:.72rem;color:var(--mute);font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.card .ct-b{display:flex;align-items:center;flex-wrap:wrap;gap:4px 10px}
+.card .ct-b .shape{font-size:.72rem;font-weight:700;color:var(--accent);white-space:nowrap}
+.card .ct-b .fw{gap:6px}
+.card .ct-b .fw .el,.card .ct-b .fw .fd{font-size:.74rem;padding:0 5px}
+.card .ci{grid-area:i;min-width:0}
+.card .ci .illust{width:100%;border-radius:10px}
+.card .cr{grid-area:r;display:flex;align-items:center;justify-content:center}
+.card .cr .radar{width:100%;height:auto;display:block}
+.ordb{margin:-2px 0 12px}
+.ordb button{font-size:.8rem;padding:3px 8px}
+.acc{font-weight:900}
+.acc-a{color:#d62839}.acc-b{color:#1f9d55}.acc-c{color:#2b6fd6}.acc-d{color:var(--mute)}
 .miss-t{display:inline-flex;align-items:center;gap:6px;font-size:.86rem;font-weight:700;margin:-4px 0 12px;cursor:pointer}
 .miss-t input{width:1.1rem;height:1.1rem;accent-color:var(--accent);margin:0}
 .miss-t small{font-size:.74rem;color:var(--mute);font-variant-numeric:tabular-nums}
@@ -328,11 +346,6 @@ mark{background:hsl(45 95% 62% / .55);color:inherit;border-radius:3px;padding:0 
 <div class="wrap">
 <header>
   <h1>ドラゴン魔石表</h1>
-  <dl class="tally">
-    <div><dt>ドラゴン</dt><dd id="n-dragon"></dd></div>
-    <div><dt>魔石</dt><dd id="n-ms"></dd></div>
-    <div><dt>記録</dt><dd>4<small>月</small>1<small>週</small></dd></div>
-  </dl>
 </header>
 
 <nav class="views" role="tablist" aria-label="表示切り替え">
@@ -342,6 +355,7 @@ mark{background:hsl(45 95% 62% / .55);color:inherit;border-radius:3px;padding:0 
   <button role="tab" data-tab="ability"><svg class="ic"><use href="#i-shield"/></svg>アビリティ</button>
   <button role="tab" data-tab="info"><svg class="ic"><use href="#i-book"/></svg>情報</button>
 </nav>
+<div id="ordbar"></div>
 
 <main id="view"></main>
 </div>
@@ -578,9 +592,9 @@ const AB={
 
 /* ===== 状態（並べ替えと画像の種類は端末に保存） ===== */
 const state={tab:"dragon",detail:null,img:"illust",
-  dSort:{key:"no",dir:1},sSort:{key:"total",dir:-1},kSort:{key:"no",dir:1},aSort:{key:"no",dir:1},skDr:1,inDr:1,abCat:"all",dGrp:"all",inEl:"all",inFd:"all",skMana:"all",dMiss:false,
+  dSort:{key:"no",dir:1},sSort:{key:"total",dir:-1},kSort:{key:"no",dir:1},aSort:{key:"no",dir:1},ord:{key:"ms",dir:1},skDr:1,inDr:1,abCat:"all",dGrp:"all",inEl:"all",inFd:"all",skMana:"all",dMiss:false,
   rk:{status:"total",skill:"pow",ability:"all",info:"all"}};
-const KEEP=["dSort","sSort","img","skDr","inDr","abCat","dGrp","inEl","inFd","rk","skMana","dMiss"];
+const KEEP=["dSort","sSort","img","skDr","inDr","abCat","dGrp","inEl","inFd","rk","skMana","dMiss","ord"];
 try{const s=JSON.parse(localStorage.getItem("dragon-maseki-v2")||"{}");KEEP.forEach(k=>{if(s[k])state[k]=s[k]})}catch(e){}
 if(!IMG_SETS[state.img])state.img="illust";
 const save=()=>{try{localStorage.setItem("dragon-maseki-v2",JSON.stringify(Object.fromEntries(KEEP.map(k=>[k,state[k]]))))}catch(e){}};
@@ -617,14 +631,22 @@ function radar(d,{W=240,R=74,total=true}={}){
 
 /* ===== 並べ替え ===== */
 function valOf(d,key){
+  if(key==="ms")return msNo(d.sp)||99;
   if(key==="no")return d.no;if(key==="total")return d.total;
   const i=+key.slice(1);
   if(key[0]==="s")return d.st[i].v;
   if(key[0]==="k")return d.sk[i].n;
   if(key[0]==="a")return d.ab[i].n;
 }
-function sorted(s){
-  return [...D].sort((a,b)=>{const x=valOf(a,s.key),y=valOf(b,s.key);
+/* 全体の並び順（No.・合計・各パラメータ）。No.は小さい順、パラメータは大きい順から */
+const ORD_KEYS=[["ms","No."],["total","合計"],...STATS.map((n,i)=>["s"+i,n])];
+const orderD=(list=D)=>sorted(state.ord,list);
+function ordBar(){
+  const o=state.ord;
+  return `<div class="sorter ordb"><span class="flt-l">並び順</span>${ORD_KEYS.map(([k,n])=>`<button data-ord="${k}" aria-pressed="${o.key===k}">${n}${o.key===k?(o.dir>0?" ↑":" ↓"):""}</button>`).join("")}</div>`;
+}
+function sorted(s,list=D){
+  return [...list].sort((a,b)=>{const x=valOf(a,s.key),y=valOf(b,s.key);
     const c=typeof x==="string"?x.localeCompare(y,"ja"):x-y;return (c||a.no-b.no)*s.dir});
 }
 function toggle(s,key,defDir){if(s.key===key)s.dir*=-1;else{s.key=key;s.dir=defDir}save();render()}
@@ -671,20 +693,23 @@ function viewDragon(){
   const gchips=`<div class="sorter shp"><button data-dgrp="all" aria-pressed="${state.dGrp==="all"}">すべて<small>${D.length}</small></button>${grps.map(([n,c])=>`<button data-dgrp="${esc(n)}" aria-pressed="${state.dGrp===n}">${esc(n)}<small>${c}</small></button>`).join("")}</div>`;
   const list=dList();
   const have=new Set(D.map(d=>d.sp));
-  const items=[...list.map(d=>({d,n:msNo(d.sp)||99})),
-    ...(state.dMiss&&state.dGrp==="all"?MASEKI.map((sp,i)=>({sp,n:i+1})).filter(x=>!have.has(x.sp)):[])].sort((a,b)=>a.n-b.n);
+  const miss=state.dMiss&&state.dGrp==="all"?MASEKI.map((sp,i)=>({sp,n:i+1})).filter(x=>!have.has(x.sp)):[];
+  /* No.順の時は未取得もNo.の位置に混ぜる。パラメータ順の時は最後にまとめる */
+  const items=state.ord.key==="ms"?[...list.map(d=>({d,n:msNo(d.sp)||99})),...miss].sort((a,b)=>(a.n-b.n)*state.ord.dir)
+    :[...list.map(d=>({d})),...miss];
   const missN=MASEKI.filter(sp=>!have.has(sp)).length;
   const missBtn=`<label class="miss-t"><input type="checkbox" data-dmiss ${state.dMiss?"checked":""}>未取得の魔石も表示<small>${missN}</small></label>`;
   const cards=items.map(({d,sp,n})=>!d?`
     <div class="card box miss"><div class="cl"><b class="nk">${esc(sp)}</b><span class="sp">No.${n}・${rarOf(sp)}</span>${SP[sp]?fieldRow({sp}):""}</div><span class="miss-l">未取得</span></div>`:`
     <button class="card box" data-open="${d.no}" aria-label="${esc(d.nk)}をひらく">
-      <div class="cl"><b class="nk">${esc(d.nk)}</b><span class="sp">${noTag(d)}・${esc(d.sp)}</span><span class="shape">${esc(shapeOf(d))}</span>${fieldRow(d)}${illust(d)}</div>
-      <div class="cr">${radar(d)}</div>
+      <div class="ct"><div class="ct-a"><b class="nk">${esc(d.nk)}</b><span class="sp">${noTag(d)}・${esc(d.sp)}</span></div>
+        <div class="ct-b"><span class="shape">${esc(shapeOf(d))}</span>${fieldRow(d)}</div></div>
+      <div class="ci">${illust(d)}</div><div class="cr">${radar(d)}</div>
     </button>`).join("");
   return `${gchips}${imgSwitch()}${missBtn}${state.dMiss&&state.dGrp!=="all"?`<p class="hint">未取得の魔石は「すべて」の時に表示します</p>`:""}<div class="grid">${cards}</div>`;
 }
 /* 一覧はNo.順。グラフの形で絞り込んでいる時は、その中で前後に移る */
-const dList=()=>D.filter(d=>state.dGrp==="all"||shapeOf(d)===state.dGrp);
+const dList=()=>orderD(D.filter(d=>state.dGrp==="all"||shapeOf(d)===state.dGrp));
 /* アビリティ1つ分：Maxの効果だけ */
 /* Maxのデータが無ければ、分かっている一番高いレベルのデータを使う。[値, "Lv3"などの札（Maxなら空）] */
 function bestLv(L){
@@ -731,14 +756,14 @@ function viewStatus(){
   const ranks=rankSel("status",[
     ...GROUPS.map(([ic,t,u,f,sub],i)=>[["total","atk","def","spd"][i],t,card(ic,t,u,f,sub)]),
     ...STATS.map((n,i)=>["s"+i,n,card(ST_IC[i],n,n+"の値",d=>d.st[i].v,d=>`ランク ${esc(d.st[i].r)}・${esc(d.sp)}`)])]);
-  const s=state.sSort;
+  const s=state.ord;
   const th=(k,n,dd=-1)=>`<th${ariaSort(s,k)}><button data-ssort="${k}" data-dd="${dd}">${n}</button></th>`;
   const rows=sorted(s).map(d=>`<tr data-open="${d.no}"><td class="nm">${esc(d.nk)}</td>
     ${d.st.map((x,i)=>`<td class="num"><span class="v${x.v>=800?" s":x.v<400?" lo":""}">${x.v}</span></td>`).join("")}
     <td class="num"><span class="v tot">${d.total}</span></td></tr>`).join("");
   return `<h2><span class="tg">${ico("crown")}</span>パラメータランキング</h2>${ranks}
     <h2><span class="tg">${ico("hex")}</span>パラメータの一覧</h2><p class="hint">見出しを押すと並べ替え。<span style="color:var(--hi);font-weight:900">赤</span>は800以上、<span style="color:var(--lo);font-weight:900">青</span>は400未満</p>
-    <div class="tbl box ptbl"><table><thead><tr><th class="nm"${ariaSort(s,"no")}><button data-ssort="no" data-dd="1">名前</button></th>
+    <div class="tbl box ptbl"><table><thead><tr><th class="nm"${ariaSort(s,"ms")}><button data-ssort="no" data-dd="1">名前</button></th>
       ${STATS.map((n,i)=>th("s"+i,n==="素早さ"?"素早":n)).join("")}${th("total","合計")}</tr></thead><tbody>${rows}</tbody></table></div>`;
 }
 
@@ -763,6 +788,8 @@ const MASEKI=[...MASEKI_N,...MASEKI_R,...MASEKI_N.map(n=>n+"変異種"),...MASEK
 const RARITY=["N","R","SR","UR"];
 const msNo=sp=>MASEKI.indexOf(sp)+1;               // 見つからない時は0
 const rarOf=sp=>{const i=MASEKI.indexOf(sp);return i<0?"":RARITY[Math.floor(i/12)]};
+const ACC_CLS={"◎":"acc-a","○":"acc-b","△":"acc-c","×":"acc-d","✕":"acc-d","✖":"acc-d"};
+const accTag=v=>ACC_CLS[v]?`<span class="acc ${ACC_CLS[v]}">${esc(v)}</span>`:esc(v);
 const noTag=d=>{const n=msNo(d.sp);return n?`No.${n}・${rarOf(d.sp)}`:`No.${d.no}`};
 function fieldRow(d){
   const p=spOf(d);
@@ -776,7 +803,7 @@ function skillCard(spName,x){
   const db=(SK[spName]||{})[x.n],[v,lt]=bestLv(db&&db.L);
   const head=`<div class="sk-h"><b>${esc(x.n)}</b>${lvNote(lt)}</div>`;
   if(!v)return `<div class="sk">${head}<p class="nodata">値はまだ確かめていません</p></div>`;
-  const cells=FIELDS.map((f,i)=>`<div class="st"><small>${f}</small><b>${esc(v[i])}</b></div>`).join("")
+  const cells=FIELDS.map((f,i)=>`<div class="st"><small>${f}</small><b>${i===3?accTag(v[i]):esc(v[i])}</b></div>`).join("")
     +`<div class="st"><small>属性</small><b>${db.at?elTag(db.at):"？"}</b></div>`;
   return `<div class="sk">${head}<div class="sts">${cells}</div>
     ${v[4]?`<p class="eff">${esc(v[4])}</p>`:`<p class="eff none">追加効果なし</p>`}</div>`;
@@ -784,6 +811,7 @@ function skillCard(spName,x){
 
 /* ドラゴンを選ぶ帯（スキル・情報タブ） */
 function pickStrip(attr,sel,list=D){
+  list=orderD(list);
   if(!list.length)return `<p class="nodata">当てはまるドラゴンはいません</p>`;
   return `<div class="pick">${list.map(d=>`<button data-${attr}="${d.no}" aria-pressed="${sel===d.no}">${illust(d)}<span>${esc(d.nk)}</span></button>`).join("")}</div>`;
 }
@@ -800,7 +828,7 @@ function skillRows(){
 }
 /* 補足の1行：ランキングの値以外の「威力・マナ・命中」と追加効果を短く */
 function skInfo(r,skip){
-  const parts=[["威力","pow",r.pow],["マナ","mana",r.mana],["命中","acc",r.acc]].filter(([,k])=>!skip.includes(k)).map(([n,,v])=>`${n}<b>${esc(v)}</b>`);
+  const parts=[["威力","pow",r.pow],["マナ","mana",r.mana],["命中","acc",r.acc]].filter(([,k])=>!skip.includes(k)).map(([n,k,v])=>`${n}<b>${k==="acc"?accTag(v):esc(v)}</b>`);
   let e=(r.eff||"").replace(/。$/,"");
   e=skip.includes("pct")?e.replace(/^\d+%の確率で、/,""):e.replace(/の確率で、/," ");
   return `<span class="ski">${parts.join(" ")}</span>${e?`<span class="ske">${esc(e)}</span>`:""}`;
@@ -858,7 +886,7 @@ function viewAbility(){
   const names=state.abCat==="all"?all:all.filter(([n])=>abCat(n)===state.abCat);
   const cards=names.map(([n,ds])=>{
     const db=AB[n];
-    const holders=ds.map(d=>`<button class="hold" data-open="${d.no}">${esc(d.nk)}</button>`).join("");
+    const holders=orderD(ds).map(d=>`<button class="hold" data-open="${d.no}">${esc(d.nk)}</button>`).join("");
     const [v,lt]=bestLv(db&&db.L);
     const body=v?`${lt?`<p class="note">${lt}の効果（Maxはまだ確かめていません）</p>`:""}<div class="ab-b"><div class="st"><small>持続</small><b>${esc(v[0])}</b></div><p class="eff">${esc(v[1])}</p></div>`
       :`<p class="nodata">効果はまだ登録されていません</p>`;
@@ -908,10 +936,9 @@ function viewInfo(){
 /* ===== 描画・操作 ===== */
 const VIEWS={dragon:viewDragon,status:viewStatus,skill:viewSkill,ability:viewAbility,info:viewInfo};
 const view=document.getElementById("view");
-document.getElementById("n-dragon").innerHTML=`${D.length}<small>体</small>`;
-document.getElementById("n-ms").innerHTML=`${new Set(D.map(d=>d.sp).filter(sp=>msNo(sp))).size}<small>/${MASEKI.length}</small>`;
 function render(){
   document.querySelectorAll("nav.views button").forEach(t=>t.setAttribute("aria-selected",t.dataset.tab===state.tab));
+  document.getElementById("ordbar").innerHTML=ordBar();
   view.innerHTML=VIEWS[state.tab]();
 }
 function go(tab,detail=null){
@@ -925,7 +952,7 @@ document.addEventListener("change",e=>{
   if(e.target.matches("[data-dmiss]")){state.dMiss=e.target.checked;save();render()}
 });
 document.addEventListener("click",e=>{
-  const t=e.target.closest("[data-tab],[data-open],[data-back],[data-dsort],[data-ssort],[data-skdr],[data-indr],[data-abcat],[data-dgrp],[data-inel],[data-infd],[data-img],[data-rk],[data-skmana]");
+  const t=e.target.closest("[data-tab],[data-open],[data-back],[data-dsort],[data-ssort],[data-skdr],[data-indr],[data-abcat],[data-dgrp],[data-inel],[data-infd],[data-img],[data-rk],[data-skmana],[data-ord]");
   if(!t)return;const ds=t.dataset;
   if(ds.tab)return go(ds.tab);
   if(ds.open)return go("dragon",+ds.open);
@@ -934,7 +961,8 @@ document.addEventListener("click",e=>{
   if(ds.rk){const [tb,k]=ds.rk.split("|");state.rk={...state.rk,[tb]:k};save();return render()}
   if(ds.img){state.img=ds.img;save();return render()}
   if(ds.dsort)return toggle(state.dSort,ds.dsort,ds.dsort==="no"?1:-1);
-  if(ds.ssort)return toggle(state.sSort,ds.ssort,+ds.dd);
+  if(ds.ord)return toggle(state.ord,ds.ord,ds.ord==="ms"?1:-1);
+  if(ds.ssort)return toggle(state.ord,ds.ssort==="no"?"ms":ds.ssort,ds.ssort==="no"?1:-1);
   if(ds.skdr){state.skDr=+ds.skdr;save();return render()}
   if(ds.indr){state.inDr=+ds.indr;save();return render()}
   if(ds.abcat){state.abCat=ds.abcat;save();return render()}
