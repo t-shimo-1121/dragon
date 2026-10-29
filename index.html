@@ -586,7 +586,7 @@ function illust(d){
   return `<div class="illust ${state.img}"><img src="${src}" alt="" loading="lazy" onerror="this.parentNode.classList.add('empty');this.remove()"><span class="ph">${ico("img")}イラスト準備中<br>${esc(src)}</span></div>`;
 }
 
-/* ===== 六角形グラフ：外側にアイコン、内側の角に数値（Sランクは赤） ===== */
+/* ===== 六角形グラフ：外側にアイコン、内側の角に数値（800以上は赤） ===== */
 const ST_ICON=["heart","sword","shield","bolt","target","wing"];
 function radar(d,{W=240,R=74,total=true}={}){
   const IS=17,FV=16,GAP=5;                // アイコンの大きさ・数値の文字サイズ・枠とアイコンの間
@@ -602,7 +602,7 @@ function radar(d,{W=240,R=74,total=true}={}){
     const[ix,iy]=pt(i,1+(GAP+IS/2)/R);    // 枠の外：アイコン
     s+=`<use class="si" href="#i-${ST_ICON[i]}" x="${(ix-IS/2).toFixed(1)}" y="${(iy-IS/2).toFixed(1)}" width="${IS}" height="${IS}"><title>${STATS[i]}</title></use>`;
     const[vx,vy]=pt(i,.76);               // 枠の内側の角：数値
-    s+=`<text class="vl${x.r==="S"?" s":""}" x="${vx.toFixed(1)}" y="${(vy+FV*.36).toFixed(1)}" font-size="${FV}" text-anchor="middle">${x.v}</text>`;
+    s+=`<text class="vl${x.v>=800?" s":""}" x="${vx.toFixed(1)}" y="${(vy+FV*.36).toFixed(1)}" font-size="${FV}" text-anchor="middle">${x.v}</text>`;
   });
   if(total)s+=`<use class="ti" href="#i-crown" x="${cx-6}" y="${(cy-19).toFixed(1)}" width="12" height="12"/><text class="tv" x="${cx}" y="${(cy+12).toFixed(1)}" font-size="20" text-anchor="middle">${d.total}</text>`;
   return s+"</svg>";
@@ -723,10 +723,10 @@ function viewStatus(){
   const s=state.sSort;
   const th=(k,n,dd=-1)=>`<th${ariaSort(s,k)}><button data-ssort="${k}" data-dd="${dd}">${n}</button></th>`;
   const rows=sorted(s).map(d=>`<tr data-open="${d.no}"><td class="nm">${esc(d.nk)}</td>
-    ${d.st.map((x,i)=>`<td class="num"><span class="v${x.r==="S"?" s":x.v<400?" lo":""}">${x.v}</span></td>`).join("")}
+    ${d.st.map((x,i)=>`<td class="num"><span class="v${x.v>=800?" s":x.v<400?" lo":""}">${x.v}</span></td>`).join("")}
     <td class="num"><span class="v tot">${d.total}</span></td></tr>`).join("");
   return `<h2><span class="tg">${ico("crown")}</span>パラメータランキング</h2>${ranks}
-    <h2><span class="tg">${ico("hex")}</span>パラメータの一覧</h2><p class="hint">見出しを押すと並べ替え。<span style="color:var(--hi);font-weight:900">赤</span>はSランク、<span style="color:var(--lo);font-weight:900">青</span>は400未満</p>
+    <h2><span class="tg">${ico("hex")}</span>パラメータの一覧</h2><p class="hint">見出しを押すと並べ替え。<span style="color:var(--hi);font-weight:900">赤</span>は800以上、<span style="color:var(--lo);font-weight:900">青</span>は400未満</p>
     <div class="tbl box ptbl"><table><thead><tr><th class="nm"${ariaSort(s,"no")}><button data-ssort="no" data-dd="1">名前</button></th>
       ${STATS.map((n,i)=>th("s"+i,n==="素早さ"?"素早":n)).join("")}${th("total","合計")}</tr></thead><tbody>${rows}</tbody></table></div>`;
 }
