@@ -468,6 +468,15 @@ const D=[
   o.total=o.st.reduce((a,b)=>a+b.v,0);
   return o;
 });
+/* 種族名の短い表記（表示だけ。データの名前はそのまま） */
+const SP_SHORT=[["ファイヤードレイク","ファイヤー"],["レインボーサーペント","レインボー"],["イルルヤンカシュ","イルル"],["ケツァルコアトル","ケツァル"],["メスターストゥアワーム","メスター"],["ゴルィニシチェ","ゴルィニシ"],["フェルニゲシュ","フェルニ"]];
+const spn=sp=>{let t=String(sp).replace(/・/g,"").replace(/変異種$/,"変");SP_SHORT.forEach(([a,b])=>{t=t.replace(a,b)});return t};
+/* スキル・アビリティの効果の短い表記（表示だけ） */
+const fx=t=>String(t||"")
+  .replace(/発動したターンの間、/g,"発動ターン").replace(/ダメージを0にする。?/g,"ダメージ0")
+  .replace(/(\d+)%の確率で/g,"$1%で").replace(/状態にする/g,"")
+  .replace(/自分の|相手の|相手を/g,"").replace(/アップ/g,"↑").replace(/ダウン/g,"↓")
+  .replace(/[、。]/g,"");
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const ico=(id,cls="ic")=>`<svg class="${cls}" aria-hidden="true"><use href="#i-${id}"/></svg>`;
 const rk=r=>`<span class="rk ${r}">${r}</span>`;
@@ -773,7 +782,7 @@ function viewDragon(){
   const missN=MASEKI.filter(sp=>!have.has(sp)).length;
   const missBtn=`<label class="miss-t"><input type="checkbox" data-dmiss ${state.dMiss?"checked":""}>未取得の魔石も表示<small>${missN}</small></label>`;
   const cards=items.map(({d,sp,n})=>!d?`
-    <div class="card box miss"><div class="cl"><b class="nk">${esc(sp)}</b><span class="sp">No.${n}・${rarOf(sp)}</span>${SP[sp]?fieldRow({sp}):""}</div><span class="miss-l">未取得</span></div>`:`
+    <div class="card box miss"><div class="cl"><b class="nk">${esc(spn(sp))}</b><span class="sp">No.${n}・${rarOf(sp)}</span>${SP[sp]?fieldRow({sp}):""}</div><span class="miss-l">未取得</span></div>`:`
     <div class="card box fold${state.dOpen.includes(d.no)?" open":""}" data-acc="${d.no}" role="button" tabindex="0" aria-expanded="${state.dOpen.includes(d.no)}" aria-label="${esc(d.nk)}のくわしい情報">
       <div class="card-h">
         <b class="nk${[...d.nk].length>=6?" long":""}"><span class="nm">${esc(d.nk)}</span><small class="no">No.${msNo(d.sp)||d.no}</small></b><span class="shape">${esc(shapeOf(d))}</span>
@@ -809,10 +818,10 @@ function atkEls(d){
 const EL_ORDER=["火","水","土","風","光","闇"];
 function matchup(d){
   const mine=EL_ORDER.filter(a=>atkEls(d).has(a));
-  const head=(ic,a,t)=>`<h4 class="d-sec mu-t">${ico(ic)}${elTag(a)}<span>属性${t}</span></h4>`;
+  const head=(ic,a,t)=>`<h4 class="d-sec mu-t">${ico(ic)}${elTag(a)}<span>${t}</span></h4>`;
   /* 自分の攻撃属性が弱点の相手：種族名を並べる */
   const good=mine.map(a=>{const os=D.filter(o=>o!==d&&spOf(o).w===a);
-    return head("sword",a,"が弱点")+`<p class="mu-l">${os.length?os.map(o=>esc(o.sp)).join("・"):`<span class="none">なし</span>`}</p>`}).join("");
+    return head("sword",a,"が弱点")+`<p class="mu-l">${os.length?os.map(o=>esc(spn(o.sp))).join("・"):`<span class="none">なし</span>`}</p>`}).join("");
   /* 自分の弱点の属性で攻撃してくる相手：種族名・スキル・マナ・命中・威力 */
   const w=spOf(d).w;let bad="";
   if(w){
@@ -820,8 +829,8 @@ function matchup(d){
     D.filter(o=>o!==d).forEach(o=>o.sk.forEach(x=>{const db=(SK[o.sp]||{})[x.n],[v]=bestLv(db&&db.L);
       if(db&&db.at===w&&v&&+v[2]>0)rows.push({o,n:x.n,v})}));
     rows.sort((a,b)=>b.v[2]-a.v[2]||a.v[1]-b.v[1]);
-    bad=head("shield",w,"のスキル持ち")+(rows.length?`<div class="xtbl"><table class="mutbl"><thead><tr><th>種族</th><th>スキル</th><th class="c">マナ</th><th class="c">命中</th><th class="c">威力</th></tr></thead><tbody>${
-      rows.map(r=>`<tr><td class="sp">${esc(r.o.sp)}</td><td class="nm"><b>${esc(r.n)}</b></td><td class="c">${esc(r.v[1])}</td><td class="c">${accTag(r.v[3])}</td><td class="c">${esc(r.v[2])}</td></tr>`).join("")}</tbody></table></div>`
+    bad=head("shield",w,"スキル持ち")+(rows.length?`<div class="xtbl"><table class="mutbl"><thead><tr><th>種族</th><th>スキル</th><th class="c">マナ</th><th class="c">命中</th><th class="c">威力</th></tr></thead><tbody>${
+      rows.map(r=>`<tr><td class="sp">${esc(spn(r.o.sp))}</td><td class="nm"><b>${esc(r.n)}</b></td><td class="c">${esc(r.v[1])}</td><td class="c">${accTag(r.v[3])}</td><td class="c">${esc(r.v[2])}</td></tr>`).join("")}</tbody></table></div>`
       :`<p class="mu-l"><span class="none">なし</span></p>`);
   }
   return `<div class="mu">${good}${bad}</div>`;
@@ -835,7 +844,7 @@ function skillTable(spName,list){
     const db=(SK[spName]||{})[x.n],[v,lt]=bestLv(db&&db.L);
     const nm=`<td class="nm"><b>${esc(x.n)}</b>${lvNote(lt)}</td>`;
     if(!v)return `<tr>${nm}<td colspan="5" class="none">値はまだ確かめていません</td></tr>`;
-    const eff=(v[4]?esc(v[4]):`<span class="none">なし</span>`)+durNote(v[0]);
+    const eff=(v[4]?esc(fx(v[4])):`<span class="none">なし</span>`)+durNote(v[0]);
     return `<tr>${nm}<td class="c">${db.at?elTag(db.at):"？"}</td><td class="c">${esc(v[1])}</td><td class="c">${accTag(v[3])}</td><td class="c pw">${esc(v[2])}</td><td class="ef">${eff}</td></tr>`;
   }).join("");
   return `<div class="xtbl"><table class="sktbl"><thead><tr><th>スキル</th><th class="c">属性</th><th class="c">マナ</th><th class="c">命中</th><th class="c">威力</th><th>追加効果</th></tr></thead><tbody>${rows}</tbody></table></div>`;
@@ -845,7 +854,7 @@ function abilityTable(list,extra=()=>""){
   const rows=list.map(x=>{
     if(x.none)return `<tr><td class="nm" colspan="2"><span class="none">ー（空き）</span></td></tr>`;
     const [v,lt]=bestLv((AB[x.n]||{}).L);
-    const eff=v?esc(v[1])+durNote(v[0])+(lt?`<span class="dur">${lt}の効果</span>`:""):`<span class="none">効果はまだ確かめていません</span>`;
+    const eff=v?esc(fx(v[1]))+durNote(v[0])+(lt?`<span class="dur">${lt}の効果</span>`:""):`<span class="none">効果はまだ確かめていません</span>`;
     return `<tr><td class="nm"><b>${esc(x.n)}</b>${x.cnt?`<small class="cnt">${x.cnt}体</small>`:""}</td><td class="ef">${eff}${extra(x.n)}</td></tr>`;
   }).join("");
   return `<div class="xtbl"><table class="abtbl"><thead><tr><th>アビリティ</th><th>効果</th></tr></thead><tbody>${rows}</tbody></table></div>`;
@@ -858,7 +867,7 @@ function viewDetail(d){
       <button class="btn" data-open="${prev.no}" aria-label="前のドラゴン">‹</button><button class="btn" data-open="${next.no}" aria-label="次のドラゴン">›</button></div>
     <div class="detail">
       <section class="dpanel box">
-        <div class="d-h"><h3>${esc(d.nk)}</h3><span class="sp">No.${msNo(d.sp)||d.no} ${esc(d.sp)}</span></div>${fieldRow(d,true)}
+        <div class="d-h"><h3>${esc(d.nk)}</h3><span class="sp">No.${msNo(d.sp)||d.no} ${esc(spn(d.sp))}</span></div>${fieldRow(d,true)}
         <div class="d-art"><div class="ci">${illust(d)}</div><div class="cr">${radar(d,{sq:true,icons:false})}</div></div>
       </section>
       <section class="dpanel box">
@@ -881,7 +890,7 @@ function topSkill(d){
   return `<span class="rx"><b>${esc(t.n)}</b><span>マナ<i>${t.mana}</i>命中<i>${accTag(t.acc)}</i>威力<i>${t.pow}</i></span></span>`;
 }
 const GROUPS=[
-  ["crown","合計","6つの合計",d=>d.total,d=>esc(d.sp)],
+  ["crown","合計","6つの合計",d=>d.total,d=>esc(spn(d.sp))],
   ["sword","攻撃系","攻撃＋命中",d=>d.st[1].v+d.st[4].v,d=>`攻撃 ${d.st[1].v}・命中 ${d.st[4].v}`],
   ["shield","防御系","体力＋防御",d=>d.st[0].v+d.st[2].v,d=>`体力 ${d.st[0].v}・防御 ${d.st[2].v}`],
   ["wing","スピード系","素早さ＋回避",d=>d.st[3].v+d.st[5].v,d=>`素早さ ${d.st[3].v}・回避 ${d.st[5].v}`],
@@ -891,7 +900,7 @@ function viewStatus(){
   const ST_IC=ST_ICON;
   const ranks=rankSel("status",[
     ...GROUPS.map(([ic,t,u,f,sub],i)=>[["total","atk","def","spd"][i],t,card(ic,t,u,f,sub)]),
-    ...STATS.map((n,i)=>["s"+i,n,card(ST_IC[i],n,n+"の値",d=>d.st[i].v,d=>`ランク ${esc(d.st[i].r)}・${esc(d.sp)}`)])]);
+    ...STATS.map((n,i)=>["s"+i,n,card(ST_IC[i],n,n+"の値",d=>d.st[i].v,d=>`ランク ${esc(d.st[i].r)}・${esc(spn(d.sp))}`)])]);
   const th=(k,n)=>`<th>${n}</th>`;
   const rows=sorted({key:"total",dir:-1}).map(d=>`<tr data-open="${d.no}"><td class="nm">${esc(d.nk)}</td>
     ${d.st.map((x,i)=>`<td class="num"><span class="v${x.v>=800?" s":x.v<400?" lo":""}">${x.v}</span></td>`).join("")}
@@ -956,7 +965,7 @@ function skInfo(r,skip){
   const parts=[["威力","pow",r.pow],["マナ","mana",r.mana],["命中","acc",r.acc]].filter(([,k])=>!skip.includes(k)).map(([n,k,v])=>`${n}<b>${k==="acc"?accTag(v):esc(v)}</b>`);
   let e=(r.eff||"").replace(/。$/,"");
   e=skip.includes("pct")?e.replace(/^\d+%の確率で、/,""):e.replace(/の確率で、/," ");
-  return `<span class="ski">${parts.join(" ")}</span>${e?`<span class="ske">${esc(e)}</span>`:""}`;
+  return `<span class="ski">${parts.join(" ")}</span>${e?`<span class="ske">${esc(fx(e))}</span>`:""}`;
 }
 /* 追加効果での分類。上から順に当てはめる */
 const SK_CATS=["通常","異常","マナ↑","マナ↓","パラ↑","パラ↓","回復","その他"];
@@ -991,7 +1000,7 @@ function viewSkill(){
   return `<h2><span class="tg">${ico("bolt")}</span>スキル一覧</h2><p class="hint">威力の高い順。値はMaxです（Maxが分からないものはLvを表示）</p>${skillList()}
     <h2><span class="tg">${ico("bolt")}</span>ドラゴンごとのスキル</h2>
     ${pickStrip("skdr",d.no)}
-    <section class="box skp"><div class="skp-h">${illust(d)}<div><b>${esc(d.nk)}</b><small>${esc(d.sp)}</small></div></div>
+    <section class="box skp"><div class="skp-h">${illust(d)}<div><b>${esc(d.nk)}</b><small>${esc(spn(d.sp))}</small></div></div>
       ${skillTable(d.sp,d.sk)}</section>
     ${missing?`<p class="hint" style="margin-top:10px">まだデータがないドラゴン：${missing}</p>`:""}`;
 }
@@ -1027,7 +1036,7 @@ const baseName=sp=>sp.replace(/変異種$/,"");
 function lenRank(el="all"){
   /* 通常種と変異種は、同じ種族で体長が同じならまとめる */
   const g={};
-  D.forEach(d=>{const p=spOf(d),L=lenNum(p);if(!L||(el!=="all"&&p.a!==el))return;const k=baseName(d.sp)+"|"+L;(g[k]=g[k]||{name:baseName(d.sp),v:L,ds:[],kinds:new Set()});g[k].ds.push(d);g[k].kinds.add(/変異種$/.test(d.sp)?"変異種":"通常種")});
+  D.forEach(d=>{const p=spOf(d),L=lenNum(p);if(!L||(el!=="all"&&p.a!==el))return;const k=baseName(d.sp)+"|"+L;(g[k]=g[k]||{name:spn(baseName(d.sp)),v:L,ds:[],kinds:new Set()});g[k].ds.push(d);g[k].kinds.add(/変異種$/.test(d.sp)?"変異種":"通常種")});
   const rows=top5(Object.values(g).map(x=>({d:x.ds[0],name:x.name,v:x.v,u:"m",sub:`${[...x.kinds].join("・")}：${x.ds.map(d=>esc(d.nk)).join("・")}`,tie:x.ds[0].no})));
   if(!rows.length)return null;
   return rankCard("crown",(el==="all"?"":el+"属性：")+"体長ベスト5","戦闘体長",rows);
@@ -1046,7 +1055,7 @@ function viewInfo(){
   const row=(k,v)=>`<div><dt>${k}</dt><dd>${v}</dd></div>`;
   return head+`
     <section class="box info">
-      <div class="info-h">${illust(d)}<div><small>${noTag(d)}${p.cat?"・"+esc(p.cat):""}</small><b>${esc(d.sp)}</b><span>${esc(d.nk)}</span></div></div>
+      <div class="info-h">${illust(d)}<div><small>${noTag(d)}${p.cat?"・"+esc(p.cat):""}</small><b>${esc(spn(d.sp))}</b><span>${esc(d.nk)}</span></div></div>
       ${(p.title||isV)?`<p class="info-t">${esc(p.title||"正体不明のドラゴン")}</p>`:""}
       <p class="info-d">${esc(p.desc||(isV?VARIANT_DESC:"まだ登録されていません"))}</p>
       <dl class="facts">
