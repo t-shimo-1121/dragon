@@ -138,13 +138,16 @@ h2 .n{font-family:var(--f-body);font-size:.82rem;color:var(--mute);font-weight:5
 .flt button[aria-pressed="true"]{background:var(--soft);border-color:var(--accent);color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--accent)}
 .cr{min-width:0}
 /* カード：上に名前と情報、下にイラストとグラフを同じ高さで横並び */
-.card:not(.miss){grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-areas:"t s" "i r";gap:6px 8px;align-items:stretch}
-.card:not(.miss)>.nk{grid-area:t;align-self:end;font-family:var(--f-head);font-weight:900;font-size:1.3rem;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:-.02em;min-width:0}
-.card:not(.miss)>.nk{display:flex;align-items:baseline}
-.card:not(.miss)>.nk.long{font-size:1.05rem;letter-spacing:-.04em}
-.card:not(.miss)>.nk .nm{overflow:hidden;text-overflow:ellipsis;min-width:0}
-.card:not(.miss)>.nk .no{flex:none;font-family:var(--f-body);font-size:.72rem;font-weight:700;color:var(--mute);margin-left:6px;letter-spacing:0}
-.card:not(.miss)>.shape{grid-area:s;align-self:end;justify-self:center;font-size:.74rem;font-weight:700;color:var(--accent);background:var(--tint);border-radius:99px;padding:1px 10px;white-space:nowrap}
+.card.fold{display:block;padding:0}
+.card.fold:active{transform:none}
+.card-h{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-areas:"t s" "i r";gap:6px 8px;align-items:stretch;width:100%;padding:10px;border:0;background:none;text-align:left}
+.card-h:active{opacity:.85}
+.card-h>.nk{grid-area:t;align-self:end;font-family:var(--f-head);font-weight:900;font-size:1.3rem;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:-.02em;min-width:0}
+.card-h>.nk{display:flex;align-items:baseline}
+.card-h>.nk.long{font-size:1.05rem;letter-spacing:-.04em}
+.card-h>.nk .nm{overflow:hidden;text-overflow:ellipsis;min-width:0}
+.card-h>.nk .no{flex:none;font-family:var(--f-body);font-size:.72rem;font-weight:700;color:var(--mute);margin-left:6px;letter-spacing:0}
+.card-h>.shape{grid-area:s;align-self:end;justify-self:center;font-size:.74rem;font-weight:700;color:var(--accent);background:var(--tint);border-radius:99px;padding:1px 10px;white-space:nowrap}
 .card .ct{grid-area:t;display:flex;flex-direction:column;gap:3px;min-width:0}
 .card .ct-a{display:flex;align-items:baseline;gap:8px;min-width:0}
 .card .ct-a .nk{font-family:var(--f-head);font-weight:900;font-size:1.3rem;line-height:1.2;white-space:nowrap;letter-spacing:-.02em}
@@ -168,6 +171,12 @@ h2 .n{font-family:var(--f-body);font-size:.82rem;color:var(--mute);font-weight:5
 .card.miss:active{transform:none}
 .card.miss .nk{font-size:1.05rem}
 .miss-l{font-size:.78rem;font-weight:700;color:var(--mute);border:1px dashed var(--line);border-radius:999px;padding:2px 10px;white-space:nowrap}
+.card-h>.shape .chev{display:inline-block;margin-left:5px;transition:transform .2s;font-size:.7em}
+.card.open .card-h>.shape .chev{transform:rotate(180deg)}
+.fold-b{display:none;padding:2px 12px 12px;border-top:1px dashed var(--line)}
+.card.open .fold-b{display:block}
+.fold-b .fw{margin:10px 0 2px}
+.fold-b .d-sec{margin:14px 0 4px}
 .card .sortv{color:var(--accent);font-weight:700}
 
 /* 六角形グラフ */
@@ -622,7 +631,7 @@ const AB={
 
 /* ===== 状態（並べ替えと画像の種類は端末に保存） ===== */
 const state={tab:"dragon",detail:null,img:"illust",
-  dSort:{key:"no",dir:1},sSort:{key:"total",dir:-1},kSort:{key:"no",dir:1},aSort:{key:"no",dir:1},ord:{key:"ms",dir:1},skDr:1,inDr:1,abCat:"all",dGrp:"all",inEl:"all",inFd:"all",skMana:"all",skCat:"all",dMiss:false,
+  dSort:{key:"no",dir:1},sSort:{key:"total",dir:-1},kSort:{key:"no",dir:1},aSort:{key:"no",dir:1},ord:{key:"ms",dir:1},skDr:1,inDr:1,abCat:"all",dGrp:"all",inEl:"all",inFd:"all",skMana:"all",skCat:"all",dMiss:false,dOpen:[],
   rk:{status:"total",skill:"pow",ability:"all",info:"all"}};
 const KEEP=["dSort","sSort","img","skDr","inDr","abCat","dGrp","inEl","inFd","rk","skMana","skCat","dMiss","ord"];
 try{const s=JSON.parse(localStorage.getItem("dragon-maseki-v2")||"{}");KEEP.forEach(k=>{if(s[k])state[k]=s[k]})}catch(e){}
@@ -733,10 +742,15 @@ function viewDragon(){
   const missBtn=`<label class="miss-t"><input type="checkbox" data-dmiss ${state.dMiss?"checked":""}>未取得の魔石も表示<small>${missN}</small></label>`;
   const cards=items.map(({d,sp,n})=>!d?`
     <div class="card box miss"><div class="cl"><b class="nk">${esc(sp)}</b><span class="sp">No.${n}・${rarOf(sp)}</span>${SP[sp]?fieldRow({sp}):""}</div><span class="miss-l">未取得</span></div>`:`
-    <button class="card box" data-open="${d.no}" aria-label="${esc(d.nk)}をひらく">
-      <b class="nk${[...d.nk].length>=6?" long":""}"><span class="nm">${esc(d.nk)}</span><small class="no">No.${msNo(d.sp)||d.no}</small></b><span class="shape">${esc(shapeOf(d))}</span>
-      <div class="ci">${illust(d)}</div><div class="cr">${radar(d,{sq:true,icons:false})}</div>
-    </button>`).join("");
+    <div class="card box fold${state.dOpen.includes(d.no)?" open":""}">
+      <button class="card-h" data-acc="${d.no}" aria-expanded="${state.dOpen.includes(d.no)}" aria-label="${esc(d.nk)}のくわしい情報">
+        <b class="nk${[...d.nk].length>=6?" long":""}"><span class="nm">${esc(d.nk)}</span><small class="no">No.${msNo(d.sp)||d.no}</small></b><span class="shape">${esc(shapeOf(d))}<span class="chev">▼</span></span>
+        <div class="ci">${illust(d)}</div><div class="cr">${radar(d,{sq:true,icons:false})}</div>
+      </button>
+      <div class="fold-b">${fieldRow(d,true)}
+        <h4 class="d-sec">${ico("bolt")}スキル</h4>${skillTable(d.sp,d.sk)}
+        <h4 class="d-sec">${ico("shield")}アビリティ</h4>${abilityTable(d.ab)}</div>
+    </div>`).join("");
   return `${gchips}${missBtn}${state.dMiss&&state.dGrp!=="all"?`<p class="hint">未取得の魔石は「すべて」の時に表示します</p>`:""}<div class="grid">${cards}</div>`;
 }
 /* 一覧はNo.順。グラフの形で絞り込んでいる時は、その中で前後に移る */
@@ -996,8 +1010,12 @@ document.addEventListener("change",e=>{
   if(e.target.matches("[data-dmiss]")){state.dMiss=e.target.checked;save();render()}
 });
 document.addEventListener("click",e=>{
-  const t=e.target.closest("[data-tab],[data-open],[data-back],[data-dsort],[data-ssort],[data-skdr],[data-indr],[data-abcat],[data-dgrp],[data-inel],[data-infd],[data-img],[data-rk],[data-skmana],[data-skcat],[data-ord]");
+  const t=e.target.closest("[data-tab],[data-open],[data-back],[data-dsort],[data-ssort],[data-skdr],[data-indr],[data-abcat],[data-dgrp],[data-inel],[data-infd],[data-img],[data-rk],[data-skmana],[data-skcat],[data-ord],[data-acc]");
   if(!t)return;const ds=t.dataset;
+  /* アコーディオン：その場で開け閉めする（描き直さない） */
+  if(ds.acc){const n=+ds.acc,card=t.closest(".card"),on=!card.classList.contains("open");
+    card.classList.toggle("open",on);t.setAttribute("aria-expanded",on);
+    state.dOpen=on?[...state.dOpen,n]:state.dOpen.filter(x=>x!==n);return}
   if(ds.tab)return go(ds.tab);
   if(ds.open)return go("dragon",+ds.open);
   if("back" in ds)return go("dragon");
