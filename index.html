@@ -322,10 +322,18 @@ td .lvn{font-size:.78rem;color:var(--accent);font-weight:700;margin-left:4px}
 .d-h+.fw{margin-top:6px}
 .fw-i{display:inline-flex;align-items:center;gap:3px}
 .fw-i small{font-size:.7rem;color:var(--mute);font-weight:700}
-.el,.fd{display:inline-block;font-size:.8rem;font-weight:700;line-height:1.5;padding:0 7px;border-radius:6px;color:#fff;background:var(--mute);white-space:nowrap}
-.e-fire{background:hsl(8 72% 50%)}.e-water{background:hsl(208 70% 48%)}.e-earth{background:hsl(30 50% 42%)}
-.e-wind{background:hsl(150 50% 36%)}.e-light{background:hsl(44 90% 42%)}.e-dark{background:hsl(275 40% 45%)}
-.f-waste{background:hsl(68 45% 38%)}.f-water{background:hsl(195 65% 42%)}.f-forest{background:hsl(130 40% 34%)}.f-rock{background:hsl(35 30% 42%)}
+/* 属性・得意フィールドは文字色で見分ける（下地なし） */
+.el,.fd{display:inline-block;font-size:.8rem;font-weight:900;line-height:1.5;padding:0!important;background:none;color:var(--mute);white-space:nowrap}
+.e-fire{color:hsl(8 75% 46%)}.e-water{color:hsl(208 75% 42%)}.e-earth{color:hsl(28 55% 36%)}
+.e-wind{color:hsl(150 55% 32%)}.e-light{color:hsl(42 95% 36%)}.e-dark{color:hsl(275 45% 45%)}
+.f-waste{color:hsl(68 50% 32%)}.f-water{color:hsl(195 70% 36%)}.f-forest{color:hsl(130 45% 30%)}.f-rock{color:hsl(35 35% 36%)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .e-fire{color:hsl(8 85% 66%)}:root:not([data-theme="light"]) .e-water{color:hsl(208 85% 68%)}:root:not([data-theme="light"]) .e-earth{color:hsl(30 60% 62%)}
+:root:not([data-theme="light"]) .e-wind{color:hsl(150 55% 58%)}:root:not([data-theme="light"]) .e-light{color:hsl(46 95% 60%)}:root:not([data-theme="light"]) .e-dark{color:hsl(275 60% 74%)}
+:root:not([data-theme="light"]) .f-waste{color:hsl(68 55% 58%)}:root:not([data-theme="light"]) .f-water{color:hsl(195 70% 62%)}:root:not([data-theme="light"]) .f-forest{color:hsl(130 45% 58%)}:root:not([data-theme="light"]) .f-rock{color:hsl(35 40% 62%)}}
+:root[data-theme="dark"] .e-fire{color:hsl(8 85% 66%)}:root[data-theme="dark"] .e-water{color:hsl(208 85% 68%)}:root[data-theme="dark"] .e-earth{color:hsl(30 60% 62%)}
+:root[data-theme="dark"] .e-wind{color:hsl(150 55% 58%)}:root[data-theme="dark"] .e-light{color:hsl(46 95% 60%)}:root[data-theme="dark"] .e-dark{color:hsl(275 60% 74%)}
+:root[data-theme="dark"] .f-waste{color:hsl(68 55% 58%)}:root[data-theme="dark"] .f-water{color:hsl(195 70% 62%)}:root[data-theme="dark"] .f-forest{color:hsl(130 45% 58%)}:root[data-theme="dark"] .f-rock{color:hsl(35 40% 62%)}
+[aria-pressed="true"] .el,[aria-pressed="true"] .fd{color:inherit}
 /* ドラゴンを選ぶ帯 */
 .pick{display:flex;gap:6px;overflow-x:auto;padding:2px 2px 8px;margin:0 -2px 8px;scrollbar-width:thin}
 .pick button{flex:none;width:4.6rem;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 4px;border:1px solid var(--line);border-radius:12px;background:var(--sheet);font-size:.74rem;font-weight:700;line-height:1.2}
@@ -473,6 +481,8 @@ const SP_SHORT=[["ファイヤードレイク","ファイヤー"],["レインボ
 const spn=sp=>{let t=String(sp).replace(/・/g,"").replace(/変異種$/,"変");SP_SHORT.forEach(([a,b])=>{t=t.replace(a,b)});return t};
 /* スキル・アビリティの効果の短い表記（表示だけ） */
 const fx=t=>String(t||"")
+  .replace(/状態異常の時/g,"状態異常時").replace(/状態異常を消す/g,"治癒").replace(/状態異常を無効にする/g,"状態異常無効化")
+  .replace(/体力が(\d+)%以下の時、?0マナで使える/g,"体力$1%以下だと0マナ").replace(/攻撃を受ける前/g,"防御時")
   .replace(/発動したターンの間、/g,"発動ターン").replace(/ダメージを0にする。?/g,"ダメージ0")
   .replace(/(\d+)%の確率で/g,"$1%で").replace(/状態にする/g,"")
   .replace(/自分の|相手の|相手を/g,"").replace(/アップ/g,"↑").replace(/ダウン/g,"↓")
@@ -828,7 +838,7 @@ function matchup(d){
     const rows=[];
     D.filter(o=>o!==d).forEach(o=>o.sk.forEach(x=>{const db=(SK[o.sp]||{})[x.n],[v]=bestLv(db&&db.L);
       if(db&&db.at===w&&v&&+v[2]>0)rows.push({o,n:x.n,v})}));
-    rows.sort((a,b)=>b.v[2]-a.v[2]||a.v[1]-b.v[1]);
+    rows.sort((a,b)=>b.o.total-a.o.total||a.o.no-b.o.no||a.v[1]-b.v[1]);
     bad=head("shield",w,"スキル持ち")+(rows.length?`<div class="xtbl"><table class="mutbl"><thead><tr><th>種族</th><th>スキル</th><th class="c">マナ</th><th class="c">命中</th><th class="c">威力</th></tr></thead><tbody>${
       rows.map(r=>`<tr><td class="sp">${esc(spn(r.o.sp))}</td><td class="nm"><b>${esc(r.n)}</b></td><td class="c">${esc(r.v[1])}</td><td class="c">${accTag(r.v[3])}</td><td class="c">${esc(r.v[2])}</td></tr>`).join("")}</tbody></table></div>`
       :`<p class="mu-l"><span class="none">なし</span></p>`);
