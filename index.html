@@ -172,8 +172,8 @@ h2 .n{font-family:var(--f-body);font-size:.82rem;color:var(--mute);font-weight:5
 .card.miss:active{transform:none}
 .card.miss .nk{font-size:1.05rem}
 .miss-l{font-size:.78rem;font-weight:700;color:var(--mute);border:1px dashed var(--line);border-radius:999px;padding:2px 10px;white-space:nowrap}
-.mu-t{gap:6px}
-.mu-t .el{font-family:var(--f-body);font-size:.8rem;padding:0 6px}
+.mu-t{gap:2px}
+.mu-t .el{font:inherit;line-height:inherit}
 .mu-t span:last-child{color:var(--ink)}
 .mu-l{margin:2px 2px 4px;font-size:.88rem;line-height:1.6}
 .mu-l .none{color:var(--mute);font-size:.8rem}
@@ -830,7 +830,7 @@ function atkEls(d){
 const EL_ORDER=["火","水","土","風","光","闇"];
 function matchup(d){
   const mine=EL_ORDER.filter(a=>atkEls(d).has(a));
-  const head=(ic,a,t)=>`<h4 class="d-sec mu-t">${ico(ic)}${elTag(a)}<span>${t}</span></h4>`;
+  const head=(ic,a,t)=>`<h4 class="d-sec mu-t">${elTag(a)}<span>${t}</span></h4>`;
   /* 自分の攻撃属性が弱点の相手：種族名を並べる */
   const good=mine.map(a=>{const os=D.filter(o=>o!==d&&spOf(o).w===a);
     return head("sword",a,"が弱点")+`<p class="mu-l">${os.length?os.map(o=>esc(spn(o.sp))).join("・"):`<span class="none">なし</span>`}</p>`}).join("");
