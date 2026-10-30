@@ -140,7 +140,9 @@ h2 .n{font-family:var(--f-body);font-size:.82rem;color:var(--mute);font-weight:5
 /* カード：上に名前と情報、下にイラストとグラフを同じ高さで横並び */
 .card:not(.miss){grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-areas:"t s" "i r";gap:6px 8px;align-items:stretch}
 .card:not(.miss)>.nk{grid-area:t;align-self:end;font-family:var(--f-head);font-weight:900;font-size:1.3rem;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:-.02em;min-width:0}
-.card:not(.miss)>.nk .no{font-family:var(--f-body);font-size:.72rem;font-weight:700;color:var(--mute);margin-left:6px;letter-spacing:0}
+.card:not(.miss)>.nk{display:flex;align-items:baseline}
+.card:not(.miss)>.nk .nm{overflow:hidden;text-overflow:ellipsis;min-width:0}
+.card:not(.miss)>.nk .no{flex:none;font-family:var(--f-body);font-size:.72rem;font-weight:700;color:var(--mute);margin-left:6px;letter-spacing:0}
 .card:not(.miss)>.shape{grid-area:s;align-self:end;justify-self:center;font-size:.74rem;font-weight:700;color:var(--accent);background:var(--tint);border-radius:99px;padding:1px 10px;white-space:nowrap}
 .card .ct{grid-area:t;display:flex;flex-direction:column;gap:3px;min-width:0}
 .card .ct-a{display:flex;align-items:baseline;gap:8px;min-width:0}
@@ -711,7 +713,7 @@ function viewDragon(){
   const cards=items.map(({d,sp,n})=>!d?`
     <div class="card box miss"><div class="cl"><b class="nk">${esc(sp)}</b><span class="sp">No.${n}・${rarOf(sp)}</span>${SP[sp]?fieldRow({sp}):""}</div><span class="miss-l">未取得</span></div>`:`
     <button class="card box" data-open="${d.no}" aria-label="${esc(d.nk)}をひらく">
-      <b class="nk">${esc(d.nk)}<small class="no">No.${msNo(d.sp)||d.no}</small></b><span class="shape">${esc(shapeOf(d))}</span>
+      <b class="nk"><span class="nm">${esc(d.nk)}</span><small class="no">No.${msNo(d.sp)||d.no}</small></b><span class="shape">${esc(shapeOf(d))}</span>
       <div class="ci">${illust(d)}</div><div class="cr">${radar(d,{sq:true})}</div>
     </button>`).join("");
   return `${gchips}${imgSwitch()}${missBtn}${state.dMiss&&state.dGrp!=="all"?`<p class="hint">未取得の魔石は「すべて」の時に表示します</p>`:""}<div class="grid">${cards}</div>`;
