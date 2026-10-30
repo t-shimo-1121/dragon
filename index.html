@@ -320,7 +320,8 @@ mark{background:hsl(45 95% 62% / .55);color:inherit;border-radius:3px;padding:0 
 .xtbl table{table-layout:auto;font-size:.86rem}
 .xtbl th,.xtbl td{white-space:normal;padding:7px 5px;vertical-align:top;border-left:0}
 .xtbl th{font-size:.7rem;padding-top:4px;padding-bottom:4px}
-.xtbl .c{text-align:center;white-space:nowrap;width:2.3rem}
+.xtbl .c{text-align:center;white-space:nowrap;width:2.1rem;padding-left:2px;padding-right:2px}
+.xtbl td.c .el{font-size:.72rem;padding:0 4px;font-family:var(--f-body)}
 .xtbl td.c{font-family:var(--f-head);font-weight:900;font-size:1rem}
 .xtbl td.nm{font-weight:700;min-width:4.5rem}
 .xtbl td.nm b{display:block;line-height:1.35}
@@ -721,7 +722,7 @@ function imgSwitch(){
 function viewDragon(){
   if(state.detail)return viewDetail(D.find(d=>d.no===state.detail));
   if(state.dGrp!=="all"&&state.dGrp!=="その他"&&!SHAPES.some(([n])=>n===state.dGrp))state.dGrp="all";
-  const grps=["その他",...SHAPES.map(([n])=>n)].map(n=>[n,D.filter(d=>shapeOf(d)===n).length]);
+  const grps=[...SHAPES.map(([n])=>n),"その他"].map(n=>[n,D.filter(d=>shapeOf(d)===n).length]);
   const gchips=`<div class="sorter shp"><button data-dgrp="all" aria-pressed="${state.dGrp==="all"}">すべて<small>${D.length}</small></button>${grps.map(([n,c])=>`<button data-dgrp="${esc(n)}" aria-pressed="${state.dGrp===n}">${esc(n)}<small>${c}</small></button>`).join("")}</div>`;
   const list=dList();
   const have=new Set(D.map(d=>d.sp));
@@ -756,14 +757,14 @@ const durNote=v=>/^\d+$/.test(String(v))?`<span class="dur">持続${v}</span>`:"
 /* スキルの表：スキル・マナ・命中・威力・追加効果 */
 function skillTable(spName,list){
   const rows=list.map(x=>{
-    if(x.none)return `<tr><td class="nm" colspan="5"><span class="none">ー（空き）</span></td></tr>`;
+    if(x.none)return `<tr><td class="nm" colspan="6"><span class="none">ー（空き）</span></td></tr>`;
     const db=(SK[spName]||{})[x.n],[v,lt]=bestLv(db&&db.L);
     const nm=`<td class="nm"><b>${esc(x.n)}</b>${lvNote(lt)}</td>`;
-    if(!v)return `<tr>${nm}<td colspan="4" class="none">値はまだ確かめていません</td></tr>`;
+    if(!v)return `<tr>${nm}<td colspan="5" class="none">値はまだ確かめていません</td></tr>`;
     const eff=(v[4]?esc(v[4]):`<span class="none">なし</span>`)+durNote(v[0]);
-    return `<tr>${nm}<td class="c">${esc(v[1])}</td><td class="c">${accTag(v[3])}</td><td class="c pw">${esc(v[2])}</td><td class="ef">${eff}</td></tr>`;
+    return `<tr>${nm}<td class="c">${db.at?elTag(db.at):"？"}</td><td class="c">${esc(v[1])}</td><td class="c">${accTag(v[3])}</td><td class="c pw">${esc(v[2])}</td><td class="ef">${eff}</td></tr>`;
   }).join("");
-  return `<div class="xtbl"><table class="sktbl"><thead><tr><th>スキル</th><th class="c">マナ</th><th class="c">命中</th><th class="c">威力</th><th>追加効果</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+  return `<div class="xtbl"><table class="sktbl"><thead><tr><th>スキル</th><th class="c">属性</th><th class="c">マナ</th><th class="c">命中</th><th class="c">威力</th><th>追加効果</th></tr></thead><tbody>${rows}</tbody></table></div>`;
 }
 /* アビリティの表：アビリティ・効果。extra(n) で効果の下に足すもの（覚えているドラゴンなど） */
 function abilityTable(list,extra=()=>""){
@@ -783,7 +784,7 @@ function viewDetail(d){
       <button class="btn" data-open="${prev.no}" aria-label="前のドラゴン">‹</button><button class="btn" data-open="${next.no}" aria-label="次のドラゴン">›</button></div>
     <div class="detail">
       <section class="dpanel box">
-        <div class="d-h"><h3>${esc(d.nk)}</h3><span class="sp">${noTag(d)} ${esc(d.sp)}</span><span class="tot">合計<b>${d.total}</b></span></div>${fieldRow(d)}
+        <div class="d-h"><h3>${esc(d.nk)}</h3><span class="sp">No.${msNo(d.sp)||d.no} ${esc(d.sp)}</span></div>${fieldRow(d,true)}
         <div class="d-art"><div class="ci">${illust(d)}</div><div class="cr">${radar(d,{sq:true,icons:false})}</div></div>
       </section>
       <section class="dpanel box">
@@ -812,14 +813,13 @@ function viewStatus(){
   const ranks=rankSel("status",[
     ...GROUPS.map(([ic,t,u,f,sub],i)=>[["total","atk","def","spd"][i],t,card(ic,t,u,f,sub)]),
     ...STATS.map((n,i)=>["s"+i,n,card(ST_IC[i],n,n+"の値",d=>d.st[i].v,d=>`ランク ${esc(d.st[i].r)}・${esc(d.sp)}`)])]);
-  const s=state.ord;
-  const th=(k,n,dd=-1)=>`<th${ariaSort(s,k)}><button data-ssort="${k}" data-dd="${dd}">${n}</button></th>`;
-  const rows=sorted(s).map(d=>`<tr data-open="${d.no}"><td class="nm">${esc(d.nk)}</td>
+  const th=(k,n)=>`<th>${n}</th>`;
+  const rows=sorted({key:"total",dir:-1}).map(d=>`<tr data-open="${d.no}"><td class="nm">${esc(d.nk)}</td>
     ${d.st.map((x,i)=>`<td class="num"><span class="v${x.v>=800?" s":x.v<400?" lo":""}">${x.v}</span></td>`).join("")}
     <td class="num"><span class="v tot">${d.total}</span></td></tr>`).join("");
   return `<h2><span class="tg">${ico("crown")}</span>パラメータランキング</h2>${ranks}
-    <h2><span class="tg">${ico("hex")}</span>パラメータの一覧</h2><p class="hint">見出しを押すと並べ替え。<span style="color:var(--hi);font-weight:900">赤</span>は800以上、<span style="color:var(--lo);font-weight:900">青</span>は400未満</p>
-    <div class="tbl box ptbl"><table><thead><tr><th class="nm"${ariaSort(s,"ms")}><button data-ssort="no" data-dd="1">名前</button></th>
+    <h2><span class="tg">${ico("hex")}</span>パラメータの一覧</h2><p class="hint">合計の大きい順。<span style="color:var(--hi);font-weight:900">赤</span>は800以上、<span style="color:var(--lo);font-weight:900">青</span>は400未満</p>
+    <div class="tbl box ptbl"><table><thead><tr><th class="nm">名前</th>
       ${STATS.map((n,i)=>th("s"+i,n==="素早さ"?"素早":n)).join("")}${th("total","合計")}</tr></thead><tbody>${rows}</tbody></table></div>`;
 }
 
@@ -847,9 +847,9 @@ const rarOf=sp=>{const i=MASEKI.indexOf(sp);return i<0?"":RARITY[Math.floor(i/12
 const ACC_CLS={"◎":"acc-a","○":"acc-b","△":"acc-c","×":"acc-d","✕":"acc-d","✖":"acc-d"};
 const accTag=v=>ACC_CLS[v]?`<span class="acc ${ACC_CLS[v]}">${esc(v)}</span>`:esc(v);
 const noTag=d=>{const n=msNo(d.sp);return n?`No.${n}・${rarOf(d.sp)}`:`No.${d.no}`};
-function fieldRow(d){
+function fieldRow(d,withAttr=false){
   const p=spOf(d);
-  return `<div class="fw"><span class="fw-i"><small>得意</small>${fdTag(p.f)}</span><span class="fw-i"><small>弱点</small>${elTag(p.w)}</span></div>`;
+  return `<div class="fw">${withAttr?`<span class="fw-i"><small>属性</small>${elTag(p.a)}</span><span class="fw-i"><small>弱点</small>${elTag(p.w)}</span><span class="fw-i"><small>得意</small>${fdTag(p.f)||"？"}</span></div>`:""}${withAttr?"":`<span class="fw-i"><small>得意</small>${fdTag(p.f)}</span><span class="fw-i"><small>弱点</small>${elTag(p.w)}</span></div>`}`;
 }
 
 const FIELDS=["持続","マナ","威力","命中"];
@@ -982,7 +982,7 @@ const VIEWS={dragon:viewDragon,status:viewStatus,skill:viewSkill,ability:viewAbi
 const view=document.getElementById("view");
 function render(){
   document.querySelectorAll("nav.views button").forEach(t=>t.setAttribute("aria-selected",t.dataset.tab===state.tab));
-  document.getElementById("ordbar").innerHTML=state.tab==="dragon"?"":ordBar();
+  document.getElementById("ordbar").innerHTML=state.tab==="dragon"||state.tab==="status"?"":ordBar();
   view.innerHTML=VIEWS[state.tab]();
 }
 function go(tab,detail=null){
