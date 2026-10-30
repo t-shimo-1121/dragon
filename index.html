@@ -138,7 +138,9 @@ h2 .n{font-family:var(--f-body);font-size:.82rem;color:var(--mute);font-weight:5
 .flt button[aria-pressed="true"]{background:var(--soft);border-color:var(--accent);color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--accent)}
 .cr{min-width:0}
 /* カード：上に名前と情報、下にイラストとグラフを同じ高さで横並び */
-.card:not(.miss){grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-areas:"t t" "i r";gap:8px 6px;align-items:center}
+.card:not(.miss){grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-areas:"t s" "i r";gap:6px 8px;align-items:stretch}
+.card:not(.miss)>.nk{grid-area:t;align-self:end;font-family:var(--f-head);font-weight:900;font-size:1.3rem;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:-.02em;min-width:0}
+.card:not(.miss)>.shape{grid-area:s;align-self:end;justify-self:center;font-size:.74rem;font-weight:700;color:var(--accent);background:var(--tint);border-radius:99px;padding:1px 10px;white-space:nowrap}
 .card .ct{grid-area:t;display:flex;flex-direction:column;gap:3px;min-width:0}
 .card .ct-a{display:flex;align-items:baseline;gap:8px;min-width:0}
 .card .ct-a .nk{font-family:var(--f-head);font-weight:900;font-size:1.3rem;line-height:1.2;white-space:nowrap;letter-spacing:-.02em}
@@ -149,7 +151,7 @@ h2 .n{font-family:var(--f-body);font-size:.82rem;color:var(--mute);font-weight:5
 .card .ct-b .fw .el,.card .ct-b .fw .fd{font-size:.74rem;padding:0 5px}
 .card .ci{grid-area:i;min-width:0}
 .card .ci .illust{width:100%;border-radius:10px}
-.card .cr{grid-area:r;display:flex;align-items:center;justify-content:center}
+.card .cr{grid-area:r;display:flex;align-items:stretch;justify-content:center;min-width:0}
 .card .cr .radar{width:100%;height:auto;display:block}
 .ordb{margin:-2px 0 12px}
 .ordb button{font-size:.8rem;padding:3px 8px}
@@ -609,9 +611,9 @@ function illust(d){
 
 /* ===== 六角形グラフ：外側にアイコン、内側の角に数値（800以上は赤、400未満は青） ===== */
 const ST_ICON=["heart","sword","shield","bolt","target","wing"];
-function radar(d,{W=240,R=74,total=true}={}){
+function radar(d,{W=240,R=74,total=true,sq=false}={}){
   const IS=17,FV=16,GAP=5;                // アイコンの大きさ・数値の文字サイズ・枠とアイコンの間
-  const H=Math.round(R*2+(IS+GAP+2)*2),cx=W/2,cy=H/2;
+  const H=Math.round(R*2+(IS+GAP+2)*2);if(sq)W=H;const cx=W/2,cy=H/2;
   const pt=(i,f)=>{const a=(-90+60*i)*Math.PI/180;return[cx+Math.cos(a)*R*f,cy+Math.sin(a)*R*f]};
   const poly=f=>[0,1,2,3,4,5].map(i=>pt(i,f).map(n=>n.toFixed(1)).join(",")).join(" ");
   let s=`<svg class="radar" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(d.nk)}の能力：${d.st.map((x,i)=>STATS[i]+x.v).join("、")}、合計${d.total}">`;
@@ -702,9 +704,8 @@ function viewDragon(){
   const cards=items.map(({d,sp,n})=>!d?`
     <div class="card box miss"><div class="cl"><b class="nk">${esc(sp)}</b><span class="sp">No.${n}・${rarOf(sp)}</span>${SP[sp]?fieldRow({sp}):""}</div><span class="miss-l">未取得</span></div>`:`
     <button class="card box" data-open="${d.no}" aria-label="${esc(d.nk)}をひらく">
-      <div class="ct"><div class="ct-a"><b class="nk">${esc(d.nk)}</b><span class="sp">${noTag(d)}・${esc(d.sp)}</span></div>
-        <div class="ct-b"><span class="shape">${esc(shapeOf(d))}</span>${fieldRow(d)}</div></div>
-      <div class="ci">${illust(d)}</div><div class="cr">${radar(d)}</div>
+      <b class="nk">${esc(d.nk)}</b><span class="shape">${esc(shapeOf(d))}</span>
+      <div class="ci">${illust(d)}</div><div class="cr">${radar(d,{sq:true})}</div>
     </button>`).join("");
   return `${gchips}${imgSwitch()}${missBtn}${state.dMiss&&state.dGrp!=="all"?`<p class="hint">未取得の魔石は「すべて」の時に表示します</p>`:""}<div class="grid">${cards}</div>`;
 }
