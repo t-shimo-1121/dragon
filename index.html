@@ -141,7 +141,8 @@ h2 .n{font-family:var(--f-body);font-size:.82rem;color:var(--mute);font-weight:5
 .card.fold{display:block;padding:0}
 .card.fold:active{transform:none}
 .card-h{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-areas:"t s" "i r";gap:6px 8px;align-items:stretch;width:100%;padding:10px;border:0;background:none;text-align:left}
-.card-h:active{opacity:.85}
+.card.fold{position:relative;cursor:pointer}
+.card.fold:active .card-h{opacity:.85}
 .card-h>.nk{grid-area:t;align-self:end;font-family:var(--f-head);font-weight:900;font-size:1.3rem;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:-.02em;min-width:0}
 .card-h>.nk{display:flex;align-items:baseline}
 .card-h>.nk.long{font-size:1.05rem;letter-spacing:-.04em}
@@ -171,9 +172,17 @@ h2 .n{font-family:var(--f-body);font-size:.82rem;color:var(--mute);font-weight:5
 .card.miss:active{transform:none}
 .card.miss .nk{font-size:1.05rem}
 .miss-l{font-size:.78rem;font-weight:700;color:var(--mute);border:1px dashed var(--line);border-radius:999px;padding:2px 10px;white-space:nowrap}
-.card-h>.shape .chev{display:inline-block;margin-left:5px;transition:transform .2s;font-size:.7em}
-.card.open .card-h>.shape .chev{transform:rotate(180deg)}
-.fold-b{display:none;padding:2px 12px 12px;border-top:1px dashed var(--line)}
+.mu-r{display:flex;align-items:baseline;gap:8px;padding:5px 2px;border-bottom:1px solid var(--line);font-size:.86rem;line-height:1.5}
+.mu-r .el{flex:none;font-size:.74rem;padding:0 5px}
+.mu-r .none{color:var(--mute);font-size:.8rem}
+.mu-n{margin-left:6px;font-family:var(--f-body);font-size:.7rem;color:var(--mute);font-weight:700}
+.mu.cmp{margin-top:8px}
+.mu-h{display:block;margin:8px 0 2px;font-size:.82rem;color:var(--accent)}
+.mu-h small{margin-left:6px;font-size:.68rem;color:var(--mute)}
+.card.fold .chev{position:absolute;right:5px;bottom:5px;width:24px;height:24px;border-radius:50%;background:var(--accent);color:var(--sheet);display:grid;place-items:center;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:transform .2s}
+.card.fold .chev .ic{width:14px;height:14px}
+.card.open .chev{transform:rotate(180deg)}
+.fold-b{display:none;padding:2px 12px 40px;border-top:1px dashed var(--line)}
 .card.open .fold-b{display:block}
 .fold-b .fw{margin:10px 0 2px}
 .fold-b .d-sec{margin:14px 0 4px}
@@ -240,6 +249,13 @@ h2 .n{font-family:var(--f-body);font-size:.82rem;color:var(--mute);font-weight:5
 .rank li.noimg{grid-template-columns:1.9rem minmax(0,1fr) auto}
 .rank li.hasx .rn{white-space:nowrap}
 .rank li.nopos{grid-template-columns:2.6rem minmax(0,1fr) auto}
+.sl{display:flex;flex-wrap:wrap;gap:0 6px;font-family:var(--f-head);font-weight:900;font-size:.84rem;color:var(--ink);font-variant-numeric:tabular-nums}
+.sl b{font-weight:900;margin-right:2px}
+.sl i{font-style:normal}.sl i.s{color:var(--hi)}.sl i.lo{color:var(--lo)}
+.rxl{grid-column:3/-1;margin-top:1px}
+.rmore{display:none;grid-column:1/-1;margin-top:8px;cursor:default}
+.rx-li.open .rmore{display:block}
+.rx-li .rmore .xtbl{margin:0}
 .rx{display:flex;flex-wrap:wrap;align-items:baseline;gap:0 8px;line-height:1.4;font-size:.7rem;color:var(--mute);font-weight:700;white-space:nowrap}
 .rx b{font-size:.78rem;color:var(--ink)}
 .rx i{font-style:normal;color:var(--ink);font-weight:900;margin:0 5px 0 1px}
@@ -379,6 +395,7 @@ mark{background:hsl(45 95% 62% / .55);color:inherit;border-radius:3px;padding:0 
   <symbol id="i-sword" viewBox="0 0 24 24"><path d="M20.8 2.2 21 7.4 11.6 16.8 7.2 12.4 16.6 3Zm-15 11.6 4.4 4.4-1.6 1.6-1.3-1.3-2.8 2.8a1.4 1.4 0 0 1-2-2l2.8-2.8-1.3-1.3Z"/></symbol>
   <symbol id="i-wing" viewBox="0 0 24 24"><path d="M2.5 5.5c6 0 11 1.6 14.5 5.6 1.8 2 3 4.6 4.5 7.9-3.3-1.7-6.4-2.3-9.5-2.2 1.2 1 2 2.2 2.6 3.7-4.6-1.2-8-4-10-7.6 1.5.4 3 .5 4.4.3C6 11.6 3.8 9 2.5 5.5Z"/></symbol>
   <symbol id="i-book" viewBox="0 0 24 24"><path d="M3 4.5C5.8 3.6 8.9 3.9 11 5.6v15c-2.1-1.5-5.2-1.8-8-.9Zm18 0c-2.8-.9-5.9-.6-8 1.1v15c2.1-1.5 5.2-1.8 8-.9Z"/></symbol>
+  <symbol id="i-chev" viewBox="0 0 24 24"><path d="M5.6 8.4 12 14.8l6.4-6.4 2 2L12 18.8 3.6 10.4Z"/></symbol>
   <symbol id="i-img" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M5 3h14a3 3 0 0 1 3 3v12a3 3 0 0 1-3 3H5a3 3 0 0 1-3-3V6a3 3 0 0 1 3-3Zm0 2a1 1 0 0 0-1 1v9.6l4.3-4.3 5 5 2.7-2.7 4 4V6a1 1 0 0 0-1-1Zm11 2.5a2 2 0 1 1 0 4 2 2 0 0 1 0-4Z"/></symbol>
 </svg>
 
@@ -700,7 +717,7 @@ function topN(items,n){
 const top5=items=>topN(items,5);
 function rankCard(icon,title,unit,rows,nopos=false){
   return `<section class="rank box"><div class="rank-h"><span class="tg">${ico(icon)}</span><span class="rank-t">${title}</span><span class="rank-u">${unit}</span></div><ol>${
-    rows.map(r=>`<li class="${r.d?"go":"noimg"}${r.x?" hasx":""}${nopos?" nopos":""}"${r.d?` data-open="${r.d.no}"`:""}>${nopos?"":`<span class="pos ${r.pos<=3?"r"+r.pos:""}">${r.pos}</span>`}${r.d?illust(r.d):""}<span class="rn">${esc(r.name)}<span class="rs">${r.x||r.sub}</span></span><span class="rv">${r.v}<small>${r.u||""}</small></span></li>`).join("")
+    rows.map(r=>`<li class="${r.d?"go":"noimg"}${r.x?" hasx":""}${nopos?" nopos":""}${r.more?" rx-li":""}"${r.more?` data-rx="1" role="button" aria-expanded="false"`:r.d?` data-open="${r.d.no}"`:""}>${nopos?"":`<span class="pos ${r.pos<=3?"r"+r.pos:""}">${r.pos}</span>`}${r.d?illust(r.d):""}<span class="rn">${esc(r.name)}${r.x?"":`<span class="rs">${r.sub}</span>`}</span><span class="rv">${r.v}<small>${r.u||""}</small></span>${r.x?`<span class="rxl">${r.x}</span>`:""}${r.more?`<div class="rmore">${r.more()}</div>`:""}</li>`).join("")
   }</ol></section>`;
 }
 
@@ -742,13 +759,14 @@ function viewDragon(){
   const missBtn=`<label class="miss-t"><input type="checkbox" data-dmiss ${state.dMiss?"checked":""}>未取得の魔石も表示<small>${missN}</small></label>`;
   const cards=items.map(({d,sp,n})=>!d?`
     <div class="card box miss"><div class="cl"><b class="nk">${esc(sp)}</b><span class="sp">No.${n}・${rarOf(sp)}</span>${SP[sp]?fieldRow({sp}):""}</div><span class="miss-l">未取得</span></div>`:`
-    <div class="card box fold${state.dOpen.includes(d.no)?" open":""}">
-      <button class="card-h" data-acc="${d.no}" aria-expanded="${state.dOpen.includes(d.no)}" aria-label="${esc(d.nk)}のくわしい情報">
-        <b class="nk${[...d.nk].length>=6?" long":""}"><span class="nm">${esc(d.nk)}</span><small class="no">No.${msNo(d.sp)||d.no}</small></b><span class="shape">${esc(shapeOf(d))}<span class="chev">▼</span></span>
+    <div class="card box fold${state.dOpen.includes(d.no)?" open":""}" data-acc="${d.no}" role="button" tabindex="0" aria-expanded="${state.dOpen.includes(d.no)}" aria-label="${esc(d.nk)}のくわしい情報">
+      <div class="card-h">
+        <b class="nk${[...d.nk].length>=6?" long":""}"><span class="nm">${esc(d.nk)}</span><small class="no">No.${msNo(d.sp)||d.no}</small></b><span class="shape">${esc(shapeOf(d))}</span>
         <div class="ci">${illust(d)}</div><div class="cr">${radar(d,{sq:true,icons:false})}</div>
-      </button>
+      </div><span class="chev" aria-hidden="true">${ico("chev")}</span>
       <div class="fold-b">${fieldRow(d,true)}
         <h4 class="d-sec">${ico("bolt")}スキル</h4>${skillTable(d.sp,d.sk)}
+        ${matchup(d)}
         <h4 class="d-sec">${ico("shield")}アビリティ</h4>${abilityTable(d.ab)}</div>
     </div>`).join("");
   return `${gchips}${missBtn}${state.dMiss&&state.dGrp!=="all"?`<p class="hint">未取得の魔石は「すべて」の時に表示します</p>`:""}<div class="grid">${cards}</div>`;
@@ -766,6 +784,24 @@ function bestLv(L){
   return k?[L[k],"Lv"+k]:[null,""];
 }
 const lvNote=t=>t?`<span class="lvb">${t}</span>`:"";
+/* ===== 得意な相手・苦手な相手 =====
+   攻撃属性＝威力のあるスキルの属性。得意＝自分の攻撃属性が弱点の相手、苦手＝自分の弱点の属性で攻撃してくる相手 */
+function atkEls(d){
+  const set=new Set();
+  d.sk.forEach(x=>{const db=(SK[d.sp]||{})[x.n],[v]=bestLv(db&&db.L);if(db&&db.at&&v&&+v[2]>0)set.add(db.at)});
+  return set;
+}
+const EL_ORDER=["火","水","土","風","光","闇"];
+function matchup(d,compact=false){
+  const names=ds=>ds.length?ds.map(o=>esc(o.nk)).join("・"):`<span class="none">なし</span>`;
+  const mine=EL_ORDER.filter(a=>atkEls(d).has(a));
+  const good=mine.map(a=>`<div class="mu-r">${elTag(a)}<span>${names(D.filter(o=>o!==d&&spOf(o).w===a))}</span></div>`).join("")
+    ||`<div class="mu-r"><span class="none">攻撃属性のデータがありません</span></div>`;
+  const w=spOf(d).w;
+  const bad=w?`<div class="mu-r">${elTag(w)}<span>${names(D.filter(o=>o!==d&&atkEls(o).has(w)))}</span></div>`:`<div class="mu-r"><span class="none">弱点のデータがありません</span></div>`;
+  const h=(t,n)=>compact?`<b class="mu-h">${t}<small>${n}</small></b>`:`<h4 class="d-sec">${t}<small class="mu-n">${n}</small></h4>`;
+  return `<div class="mu${compact?" cmp":""}">${h("得意な相手","自分の攻撃属性が弱点")}${good}${h("苦手な相手","自分の弱点の属性で攻撃してくる")}${bad}</div>`;
+}
 /* 持続：数値の時だけ効果の後ろに付ける */
 const durNote=v=>/^\d+$/.test(String(v))?`<span class="dur">持続${v}</span>`:"";
 /* スキルの表：スキル・マナ・命中・威力・追加効果 */
@@ -809,6 +845,8 @@ function viewDetail(d){
 }
 
 /* ===== 能力値 ===== */
+/* 合計と6つのパラメータを数字と色だけで（800以上は赤、400未満は青） */
+const statLine=d=>`<span class="sl"><b>${d.total}</b>${d.st.map(x=>`<i class="${x.v>=800?"s":x.v<400?"lo":""}">${x.v}</i>`).join("")}</span>`;
 /* そのドラゴンの一番威力の高いスキル（同じ威力ならマナの少ない方） */
 function topSkill(d){
   const t=skillRows().filter(r=>r.d===d&&r.pow>0).sort((a,b)=>b.pow-a.pow||a.mana-b.mana)[0];
@@ -822,7 +860,7 @@ const GROUPS=[
   ["wing","スピード系","素早さ＋回避",d=>d.st[3].v+d.st[5].v,d=>`素早さ ${d.st[3].v}・回避 ${d.st[5].v}`],
 ];
 function viewStatus(){
-  const card=(ic,t,u,f,sub)=>()=>rankCard(ic,t+"ベスト10",u,topN(D.map(d=>({d,name:d.nk,v:f(d),sub:sub(d),x:topSkill(d),tie:d.no})),10));
+  const card=(ic,t,u,f,sub)=>()=>rankCard(ic,t+"ベスト10",u,topN(D.map(d=>({d,name:d.nk,v:f(d),sub:sub(d),x:statLine(d),more:()=>`${skillTable(d.sp,d.sk)}${matchup(d,true)}`,tie:d.no})),10));
   const ST_IC=ST_ICON;
   const ranks=rankSel("status",[
     ...GROUPS.map(([ic,t,u,f,sub],i)=>[["total","atk","def","spd"][i],t,card(ic,t,u,f,sub)]),
@@ -831,7 +869,7 @@ function viewStatus(){
   const rows=sorted({key:"total",dir:-1}).map(d=>`<tr data-open="${d.no}"><td class="nm">${esc(d.nk)}</td>
     ${d.st.map((x,i)=>`<td class="num"><span class="v${x.v>=800?" s":x.v<400?" lo":""}">${x.v}</span></td>`).join("")}
     <td class="num"><span class="v tot">${d.total}</span></td></tr>`).join("");
-  return `<h2><span class="tg">${ico("crown")}</span>パラメータランキング</h2>${ranks}
+  return `<h2><span class="tg">${ico("crown")}</span>ランキング</h2>${ranks}
     <h2><span class="tg">${ico("hex")}</span>パラメータの一覧</h2><p class="hint">合計の大きい順。<span style="color:var(--hi);font-weight:900">赤</span>は800以上、<span style="color:var(--lo);font-weight:900">青</span>は400未満</p>
     <div class="tbl box ptbl"><table><thead><tr><th class="nm">名前</th>
       ${STATS.map((n,i)=>th("s"+i,n==="素早さ"?"素早":n)).join("")}${th("total","合計")}</tr></thead><tbody>${rows}</tbody></table></div>`;
@@ -1010,10 +1048,11 @@ document.addEventListener("change",e=>{
   if(e.target.matches("[data-dmiss]")){state.dMiss=e.target.checked;save();render()}
 });
 document.addEventListener("click",e=>{
-  const t=e.target.closest("[data-tab],[data-open],[data-back],[data-dsort],[data-ssort],[data-skdr],[data-indr],[data-abcat],[data-dgrp],[data-inel],[data-infd],[data-img],[data-rk],[data-skmana],[data-skcat],[data-ord],[data-acc]");
+  const t=e.target.closest("[data-tab],[data-open],[data-back],[data-dsort],[data-ssort],[data-skdr],[data-indr],[data-abcat],[data-dgrp],[data-inel],[data-infd],[data-img],[data-rk],[data-skmana],[data-skcat],[data-ord],[data-acc],[data-rx]");
   if(!t)return;const ds=t.dataset;
   /* アコーディオン：その場で開け閉めする（描き直さない） */
-  if(ds.acc){const n=+ds.acc,card=t.closest(".card"),on=!card.classList.contains("open");
+  if(ds.rx){const on=!t.classList.contains("open");t.classList.toggle("open",on);t.setAttribute("aria-expanded",on);return}
+  if(ds.acc){const n=+ds.acc,card=t,on=!card.classList.contains("open");
     card.classList.toggle("open",on);t.setAttribute("aria-expanded",on);
     state.dOpen=on?[...state.dOpen,n]:state.dOpen.filter(x=>x!==n);return}
   if(ds.tab)return go(ds.tab);
