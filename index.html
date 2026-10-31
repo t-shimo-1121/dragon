@@ -34,9 +34,9 @@
   --f-head:"BIZ UDPGothic",sans-serif;
   --f-body:"BIZ UDPGothic",sans-serif;
   /* 文字の大きさは4段階だけ。強調は太字（700）、補足は細字（400）と色で */
-  --fs-s:.88rem;   /* 補足・表の見出し・単位 */
-  --fs-m:.94rem;   /* 本文・表・ボタン */
-  --fs-l:1.18rem;  /* 見出し・名前 */
+  --fs-s:.94rem;   /* 補足・表の見出し・単位 */
+  --fs-m:1.04rem;  /* 本文・表・ボタン */
+  --fs-l:1.24rem;  /* 見出し・名前 */
   --fs-xl:1.7rem;  /* ページの題・詳しい画面の名前 */
   /* ランク色（ゲームの配色） */
   --rS:hsl(278 70% 60%);--rA:hsl(44 95% 46%);--rB:hsl(207 78% 56%);--rC:hsl(24 88% 56%);
@@ -124,16 +124,17 @@ h2 .n{font-family:var(--f-body);font-size:var(--fs-m);color:var(--mute);font-wei
 .ranks.one{grid-template-columns:minmax(0,560px)}
 /* パラメータ一覧：iPhone SEの幅でも1行に全部 */
 .ptbl{overflow-x:visible}
-.ptbl table{table-layout:fixed;font-size:var(--fs-m)}
+.ptbl table{table-layout:fixed;font-size:var(--fs-s)}
 .ptbl th,.ptbl td{padding:7px 2px;border-left:1px solid var(--line)}
 .ptbl th:first-child,.ptbl td:first-child{border-left:0}
-.ptbl th.nm,.ptbl td.nm{width:4.6rem;position:static;box-shadow:none;padding-left:6px}
-.ptbl td.nm{font-size:var(--fs-s);line-height:1.25;white-space:normal;word-break:break-all}
+.ptbl th.nm,.ptbl td.nm{width:2.3rem;position:static;box-shadow:none;text-align:center!important;padding-inline:2px}
+.ptbl td.nm{color:var(--mute);white-space:nowrap}
 .ptbl th{font-size:var(--fs-s);text-align:center!important}
 .ptbl th button{justify-content:center!important;width:100%}
 .ptbl th button::after{display:none}
 .ptbl th[aria-sort] button{color:var(--accent)}
 .ptbl td.num{text-align:center;padding-right:2px}
+.ptbl th:last-child{width:3.1rem}
 .detail .sk:first-of-type{border-top:0}
 .detail .d-sec+.sk{border-top:0;padding-top:4px}
 .flt{align-items:center;margin-bottom:8px}
@@ -341,8 +342,8 @@ td .lvn{font-size:var(--fs-s);color:var(--accent);font-weight:700;margin-left:4p
 [aria-pressed="true"] .el,[aria-pressed="true"] .fd{color:inherit}
 /* ドラゴンを選ぶ帯 */
 .pick{display:flex;gap:6px;overflow-x:auto;padding:2px 2px 8px;margin:0 -2px 8px;scrollbar-width:thin}
-.pick button{flex:none;width:4.6rem;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 4px;border:1px solid var(--line);border-radius:12px;background:var(--sheet);font-size:var(--fs-s);font-weight:700;line-height:1.2}
-.pick button span{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pick button{flex:none;min-width:4.6rem;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 4px;border:1px solid var(--line);border-radius:12px;background:var(--sheet);font-size:var(--fs-s);font-weight:700;line-height:1.2}
+.pick button span{white-space:nowrap}
 .pick .illust{width:3rem;border-radius:8px}
 .pick .illust .ph{display:none!important}
 .pick button[aria-pressed="true"]{border-color:var(--accent);background:var(--soft);box-shadow:inset 0 0 0 2px var(--accent)}
@@ -716,7 +717,7 @@ function illust(d){
 /* ===== 六角形グラフ：外側にアイコン、内側の角に数値（800以上は赤、400未満は青） ===== */
 const ST_ICON=["heart","sword","shield","bolt","target","wing"];
 function radar(d,{W=240,R=74,total=true,sq=false,icons=true}={}){
-  const IS=17,GAP=5,FV=icons?15:13.5,TV=icons?17:14.5;              // アイコンの大きさ・数値の文字サイズ（画面上で本文の段階に合わせる：数値＝小、合計＝中）・枠とアイコンの間
+  const IS=17,GAP=5,FV=icons?16:14.4,TV=icons?18:16;              // アイコンの大きさ・数値の文字サイズ（画面上で本文の段階に合わせる：数値＝小、合計＝中）・枠とアイコンの間
   const H=Math.round(R*2+(icons?(IS+GAP+2)*2:4));if(sq)W=H;const cx=W/2,cy=H/2;
   const pt=(i,f)=>{const a=(-90+60*i)*Math.PI/180;return[cx+Math.cos(a)*R*f,cy+Math.sin(a)*R*f]};
   const poly=f=>[0,1,2,3,4,5].map(i=>pt(i,f).map(n=>n.toFixed(1)).join(",")).join(" ");
@@ -930,12 +931,12 @@ function viewStatus(){
     ...GROUPS.map(([ic,t,u,f,sub],i)=>[["total","atk","def","spd"][i],t,card(ic,t,u,f,sub)]),
     ...STATS.map((n,i)=>["s"+i,n,card(ST_IC[i],n,n+"の値",d=>d.st[i].v,d=>`ランク ${esc(d.st[i].r)}・${esc(spn(d.sp))}`)])]);
   const th=(k,n)=>`<th>${n}</th>`;
-  const rows=sorted({key:"total",dir:-1}).map(d=>`<tr data-open="${d.no}"><td class="nm">${esc(d.nk)}</td>
+  const rows=sorted({key:"total",dir:-1}).map(d=>`<tr data-open="${d.no}"><td class="nm" title="${esc(d.nk)}">${msNo(d.sp)||d.no}</td>
     ${d.st.map((x,i)=>`<td class="num"><span class="v${x.v>=800?" s":x.v<400?" lo":""}">${x.v}</span></td>`).join("")}
     <td class="num"><span class="v tot">${d.total}</span></td></tr>`).join("");
   return `<h2><span class="tg">${ico("crown")}</span>ランキング</h2>${ranks}
     <h2><span class="tg">${ico("hex")}</span>パラメータの一覧</h2><p class="hint">合計の大きい順。<span style="color:var(--hi);font-weight:700">赤</span>は800以上、<span style="color:var(--lo);font-weight:700">青</span>は400未満</p>
-    <div class="tbl box ptbl"><table><thead><tr><th class="nm">名前</th>
+    <div class="tbl box ptbl"><table><thead><tr><th class="nm">No.</th>
       ${STATS.map((n,i)=>th("s"+i,n==="素早さ"?"素早":n)).join("")}${th("total","合計")}</tr></thead><tbody>${rows}</tbody></table></div>`;
 }
 
