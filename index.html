@@ -34,7 +34,7 @@
   --f-head:"BIZ UDPGothic",sans-serif;
   --f-body:"BIZ UDPGothic",sans-serif;
   /* 文字の大きさは4段階だけ。強調は太字（700）、補足は細字（400）と色で */
-  --fs-s:.82rem;   /* 補足・表の見出し・単位 */
+  --fs-s:.88rem;   /* 補足・表の見出し・単位 */
   --fs-m:.94rem;   /* 本文・表・ボタン */
   --fs-l:1.18rem;  /* 見出し・名前 */
   --fs-xl:1.7rem;  /* ページの題・詳しい画面の名前 */
@@ -77,9 +77,9 @@ h1{font-family:var(--f-head);font-weight:700;font-size:var(--fs-xl);line-height:
 
 /* タブ（アイコン＋文字の札） */
 nav.views{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:linear-gradient(var(--paper) 86%,transparent);
-  display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px;padding-block:8px 12px;margin-bottom:6px}
+  display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:3px;padding-block:8px 12px;margin-bottom:6px}
 nav.views button{display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 0 7px;border:1px solid var(--line);border-radius:12px;
-  background:var(--sheet);color:var(--mute);font-weight:700;font-size:var(--fs-s);line-height:1.15;min-width:0;letter-spacing:-.02em}
+  background:var(--sheet);color:var(--mute);font-weight:700;font-size:var(--fs-s);line-height:1.15;min-width:0;letter-spacing:-.06em;white-space:nowrap;overflow:hidden}
 nav.views button .ic{font-size:1.4em}
 nav.views button[aria-selected="true"]{background:var(--accent);border-color:transparent;color:var(--sheet);box-shadow:0 4px 12px hsla(40,30%,25%,.22)}
 
@@ -716,7 +716,7 @@ function illust(d){
 /* ===== 六角形グラフ：外側にアイコン、内側の角に数値（800以上は赤、400未満は青） ===== */
 const ST_ICON=["heart","sword","shield","bolt","target","wing"];
 function radar(d,{W=240,R=74,total=true,sq=false,icons=true}={}){
-  const IS=17,GAP=5,FV=icons?14:12.6,TV=icons?17:14.5;              // アイコンの大きさ・数値の文字サイズ（画面上で本文の段階に合わせる：数値＝小、合計＝中）・枠とアイコンの間
+  const IS=17,GAP=5,FV=icons?15:13.5,TV=icons?17:14.5;              // アイコンの大きさ・数値の文字サイズ（画面上で本文の段階に合わせる：数値＝小、合計＝中）・枠とアイコンの間
   const H=Math.round(R*2+(icons?(IS+GAP+2)*2:4));if(sq)W=H;const cx=W/2,cy=H/2;
   const pt=(i,f)=>{const a=(-90+60*i)*Math.PI/180;return[cx+Math.cos(a)*R*f,cy+Math.sin(a)*R*f]};
   const poly=f=>[0,1,2,3,4,5].map(i=>pt(i,f).map(n=>n.toFixed(1)).join(",")).join(" ");
