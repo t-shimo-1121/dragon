@@ -156,8 +156,6 @@ h2 .n{font-family:var(--f-body);font-size:var(--fs-m);color:var(--mute);font-wei
 .card .ci .illust{width:100%;border-radius:10px}
 .card .cr{grid-area:r;display:flex;align-items:stretch;justify-content:center;min-width:0}
 .card .cr .radar{width:100%;height:auto;display:block}
-.ordb{margin:-2px 0 12px}
-.ordb button{font-size:var(--fs-s);padding:3px 8px}
 .acc{font-weight:700}
 .acc-a{color:#d62839}.acc-b{color:#1f9d55}.acc-c{color:#2b6fd6}.acc-d{color:var(--mute)}
 .miss-t{display:inline-flex;align-items:center;gap:6px;font-size:var(--fs-m);font-weight:700;margin:-4px 0 12px;cursor:pointer}
@@ -193,7 +191,7 @@ h2 .n{font-family:var(--f-body);font-size:var(--fs-m);color:var(--mute);font-wei
 /* 六角形グラフ */
 .radar{display:block;width:100%;height:auto}
 .radar .lb{fill:var(--mute);font-family:var(--f-body);font-weight:700}
-.radar .vl{fill:var(--ink);font-family:var(--f-head);font-weight:700;stroke:var(--tint);stroke-width:3.5px;paint-order:stroke;stroke-linejoin:round}
+.radar .vl{fill:var(--ink);font-family:var(--f-head);font-weight:400;stroke:var(--tint);stroke-width:3.5px;paint-order:stroke;stroke-linejoin:round}
 .radar .vl.s{fill:var(--hi)}.radar .vl.lo{fill:var(--lo)}
 .radar .si{fill:var(--mute);opacity:.75}
 .radar .ti{fill:var(--mute)}
@@ -336,11 +334,6 @@ td .lvn{font-size:var(--fs-s);color:var(--accent);font-weight:700;margin-left:4p
 .pick .illust .ph{display:none!important}
 .pick button[aria-pressed="true"]{border-color:var(--accent);background:var(--soft);box-shadow:inset 0 0 0 2px var(--accent)}
 /* スキル */
-.skp{padding:12px}
-.skp-h{display:flex;align-items:center;gap:10px;margin-bottom:8px}
-.skp-h .illust{width:3.2rem;flex:none}
-.skp-h b{display:block;font-family:var(--f-head);font-weight:700;font-size:var(--fs-l);line-height:1.2}
-.skp-h small{color:var(--mute);font-size:var(--fs-m);font-weight:700}
 .sk{border-top:1px dashed var(--line);padding:10px 0 8px}
 .sk-h{display:flex;align-items:center;justify-content:space-between;gap:8px}
 .sk-h b{font-size:var(--fs-l)}
@@ -371,9 +364,10 @@ mark{background:hsl(45 95% 62% / .55);color:inherit;border-radius:3px;padding:0 
 .xtbl td.nm .cnt{display:block;color:var(--mute);font-size:var(--fs-s);font-weight:400}
 .xtbl td.ef{font-size:var(--fs-m);line-height:1.45}
 /* スキルの表：効果は下の行に横いっぱいで */
-.sktbl .c{width:3rem}
+.sktbl .c,.mutbl .c{width:3.4rem}
 .sktbl tr:has(+tr.sk-e) td{border-bottom:0;padding-bottom:0}
-.sktbl tr.sk-e td{padding-top:2px}
+.sktbl tr.sk-e td{padding:4px 0 10px}
+.sktbl .efb{background:var(--tint);border-radius:8px;padding:5px 10px;line-height:1.5}
 /* アビリティタブ：名前の下に効果と覚えているドラゴンを横いっぱいで */
 .abtbl.stack td{display:block}
 .abtbl.stack td.nm{border-bottom:0;padding-bottom:0;position:static;box-shadow:none}
@@ -426,7 +420,6 @@ mark{background:hsl(45 95% 62% / .55);color:inherit;border-radius:3px;padding:0 
   <button role="tab" data-tab="skill"><svg class="ic"><use href="#i-bolt"/></svg>スキル</button>
   <button role="tab" data-tab="ability"><svg class="ic"><use href="#i-shield"/></svg>アビリティ</button>
 </nav>
-<div id="ordbar"></div>
 
 <main id="view"></main>
 </div>
@@ -682,9 +675,9 @@ const AB={
 
 /* ===== 状態（並べ替えと画像の種類は端末に保存） ===== */
 const state={tab:"dragon",detail:null,img:"illust",
-  dSort:{key:"no",dir:1},sSort:{key:"total",dir:-1},kSort:{key:"no",dir:1},aSort:{key:"no",dir:1},ord:{key:"ms",dir:1},skDr:1,abCat:"all",dGrp:"all",skMana:"all",skCat:"all",dMiss:false,dOpen:[],
+  dSort:{key:"no",dir:1},sSort:{key:"total",dir:-1},kSort:{key:"no",dir:1},aSort:{key:"no",dir:1},abCat:"all",dGrp:"all",skMana:"all",skCat:"all",dMiss:false,dOpen:[],
   rk:{status:"total",skill:"pow",ability:"all"}};
-const KEEP=["dSort","sSort","img","skDr","abCat","dGrp","rk","skMana","skCat","dMiss","ord"];
+const KEEP=["dSort","sSort","img","abCat","dGrp","rk","skMana","skCat","dMiss"];
 try{const s=JSON.parse(localStorage.getItem("dragon-maseki-v2")||"{}");KEEP.forEach(k=>{if(s[k])state[k]=s[k]})}catch(e){}
 state.img="illust";  // 画像はイラストに固定
 const save=()=>{try{localStorage.setItem("dragon-maseki-v2",JSON.stringify(Object.fromEntries(KEEP.map(k=>[k,state[k]]))))}catch(e){}};
@@ -700,7 +693,7 @@ function illust(d){
 /* ===== 六角形グラフ：外側にアイコン、内側の角に数値（800以上は赤、400未満は青） ===== */
 const ST_ICON=["heart","sword","shield","bolt","target","wing"];
 function radar(d,{W=240,R=74,total=true,sq=false,icons=true}={}){
-  const IS=17,GAP=5,FV=icons?18:16.2,TV=icons?20:17.8;              // アイコンの大きさ・数値の文字サイズ（画面上で本文の段階に合わせる：数値＝小、合計＝中）・枠とアイコンの間
+  const IS=17,GAP=5,FV=icons?18:16.2,TV=icons?18:16.2;              // アイコンの大きさ・数値の文字サイズ（画面上で本文の段階に合わせる：数値＝小、合計＝中）・枠とアイコンの間
   const H=Math.round(R*2+(icons?(IS+GAP+2)*2:4));if(sq)W=H;const cx=W/2,cy=H/2;
   const pt=(i,f)=>{const a=(-90+60*i)*Math.PI/180;return[cx+Math.cos(a)*R*f,cy+Math.sin(a)*R*f]};
   const poly=f=>[0,1,2,3,4,5].map(i=>pt(i,f).map(n=>n.toFixed(1)).join(",")).join(" ");
@@ -729,12 +722,7 @@ function valOf(d,key){
   if(key[0]==="a")return d.ab[i].n;
 }
 /* 全体の並び順（No.・合計・各パラメータ）。No.は小さい順、パラメータは大きい順から */
-const ORD_KEYS=[["ms","No."],["total","合計"],...STATS.map((n,i)=>["s"+i,n])];
-const orderD=(list=D)=>sorted(state.ord,list);
-function ordBar(){
-  const dt=state.tab==="dragon",o=dt?dOrd():state.ord;
-  return `<div class="sorter ordb"><span class="flt-l">並び順</span>${(dt?ORD_KEYS.slice(0,2):ORD_KEYS).map(([k,n])=>`<button data-ord="${k}" aria-pressed="${o.key===k}">${n}${o.key===k?(o.dir>0?" ↑":" ↓"):""}</button>`).join("")}</div>`;
-}
+const orderD=(list=D)=>sorted({key:"total",dir:-1},list);  /* ドラゴンはパラメータ（合計）の高い順で固定 */
 function sorted(s,list=D){
   return [...list].sort((a,b)=>{const x=valOf(a,s.key),y=valOf(b,s.key);
     const c=typeof x==="string"?x.localeCompare(y,"ja"):x-y;return (c||a.no-b.no)*s.dir});
@@ -839,8 +827,8 @@ function matchup(d){
     D.filter(o=>o!==d).forEach(o=>o.sk.forEach(x=>{const db=(SK[o.sp]||{})[x.n],[v,lt]=bestLv(db&&db.L);
       if(db&&db.at===w&&v&&+v[2]>0)rows.push({o,n:x.n,v,lt,at:db.at})}));
     rows.sort((a,b)=>b.o.total-a.o.total||a.o.no-b.o.no||a.v[1]-b.v[1]);
-    bad=head("shield",w,"スキル持ち")+(rows.length?`<div class="xtbl"><table class="mutbl"><thead><tr><th>種族</th><th>スキル</th><th class="c">マナ</th><th class="c">命中</th><th class="c">威力</th></tr></thead><tbody>${
-      rows.map(r=>`<tr><td class="sp">${esc(spn(r.o.sp))}</td><td class="nm"><b${r.lt?' class="nomax"':""}>${esc(skn(r.n))}</b></td><td class="c">${esc(r.v[1])}</td><td class="c">${accTag(r.v[3])}</td><td class="c">${esc(r.v[2])}</td></tr>`).join("")}</tbody></table>${rows.some(r=>r.lt)?'<p class="tnote"><span class="nomax">青字</span>はLvMaxではない</p>':""}</div>`
+    bad=head("shield",w,"スキル持ち")+(rows.length?`<div class="xtbl"><table class="mutbl"><thead><tr><th>スキル・種族</th><th class="c">マナ</th><th class="c">命中</th><th class="c">威力</th></tr></thead><tbody>${
+      rows.map(r=>`<tr><td class="nm"><b${r.lt?' class="nomax"':""}>${esc(skn(r.n))}</b><small class="cnt">${esc(spn(r.o.sp))}</small></td><td class="c">${esc(r.v[1])}</td><td class="c">${accTag(r.v[3])}</td><td class="c">${esc(r.v[2])}</td></tr>`).join("")}</tbody></table>${rows.some(r=>r.lt)?'<p class="tnote"><span class="nomax">青字</span>はLvMaxではない</p>':""}</div>`
       :`<p class="mu-l"><span class="none">なし</span></p>`);
   }
   return `<div class="mu">${good}${bad}</div>`;
@@ -857,7 +845,7 @@ function skillTable(spName,list){
     const nm=`<td class="nm"><b${lt?' class="nomax"':""}>${esc(skn(x.n))}</b></td>`;
     if(!v)return `<tr>${nm}<td colspan="4" class="none">値はまだ確かめていません</td></tr>`;
     const eff=(v[4]?esc(fx(v[4])):`<span class="none">なし</span>`)+durNote(v[0]);
-    return `<tr>${nm}<td class="c">${db.at?elTag(db.at):"？"}</td><td class="c">${esc(v[1])}</td><td class="c">${accTag(v[3])}</td><td class="c pw">${esc(v[2])}</td></tr><tr class="sk-e"><td colspan="5" class="ef">${eff}</td></tr>`;
+    return `<tr>${nm}<td class="c">${db.at?elTag(db.at):"？"}</td><td class="c">${esc(v[1])}</td><td class="c">${accTag(v[3])}</td><td class="c pw">${esc(v[2])}</td></tr><tr class="sk-e"><td colspan="5" class="ef"><div class="efb">${eff}</div></td></tr>`;
   }).join("");
   return `<div class="xtbl"><table class="sktbl"><thead><tr><th>スキル</th><th class="c">属性</th><th class="c">マナ</th><th class="c">命中</th><th class="c">威力</th></tr></thead><tbody>${rows}</tbody></table>${low?'<p class="tnote"><span class="nomax">青字</span>はLvMaxではない</p>':""}</div>`;
 }
@@ -993,7 +981,7 @@ function skillList(){
   const m=state.skMana,c=state.skCat;
   const byM=m==="all"||!manas.includes(+m)?all:all.filter(r=>r.mana===+m);
   const okC=SK_CATS.includes(c);
-  const rows=(okC?byM.filter(r=>skCat(r)===c):byM).sort((a,b)=>b.pow-a.pow||a.mana-b.mana||a.d.no-b.d.no);
+  const rows=(okC?byM.filter(r=>skCat(r)===c):byM).sort((a,b)=>b.pow-a.pow||a.mana-b.mana||b.d.total-a.d.total);
   const mchips=`<div class="sorter flt"><span class="flt-l">マナ</span><button data-skmana="all" aria-pressed="${!manas.includes(+m)}">すべて</button>${manas.map(v=>`<button data-skmana="${v}" aria-pressed="${+m===v&&m!=="all"}">${v}<small>${all.filter(r=>r.mana===v).length}</small></button>`).join("")}</div>`;
   const cchips=`<div class="sorter flt"><span class="flt-l">効果</span><button data-skcat="all" aria-pressed="${!okC}">すべて<small>${byM.length}</small></button>${SK_CATS.map(k=>{const n=byM.filter(r=>skCat(r)===k).length;return n||c===k?`<button data-skcat="${esc(k)}" aria-pressed="${c===k}">${esc(k)}<small>${n}</small></button>`:""}).join("")}</div>`;
   const who=r=>esc(r.d.nk)+(r.lt?"・"+r.lt:"");
@@ -1002,13 +990,8 @@ function skillList(){
   return mchips+cchips+`<div class="ranks one">${list}</div>`;
 }
 function viewSkill(){
-  const d=D.find(x=>x.no===state.skDr)||D[0];
   const missing=D.filter(x=>!SK[x.sp]).map(x=>esc(x.nk)).join("・");
   return `<h2><span class="tg">${ico("bolt")}</span>スキル一覧</h2><p class="hint">威力の高い順。値はMaxです（Maxが分からないものはLvを表示）</p>${skillList()}
-    <h2><span class="tg">${ico("bolt")}</span>ドラゴンごとのスキル</h2>
-    ${pickStrip("skdr",d.no)}
-    <section class="box skp"><div class="skp-h">${illust(d)}<div><b>${esc(d.nk)}</b><small>${esc(spn(d.sp))}</small></div></div>
-      ${skillTable(d.sp,d.sk)}</section>
     ${missing?`<p class="hint" style="margin-top:10px">まだデータがないドラゴン：${missing}</p>`:""}`;
 }
 
@@ -1043,7 +1026,7 @@ const VIEWS={dragon:viewDragon,status:viewStatus,skill:viewSkill,ability:viewAbi
 const view=document.getElementById("view");
 function render(){
   document.querySelectorAll("nav.views button").forEach(t=>t.setAttribute("aria-selected",t.dataset.tab===state.tab));
-  document.getElementById("ordbar").innerHTML=state.tab==="dragon"||state.tab==="status"?"":ordBar();
+  
   view.innerHTML=VIEWS[state.tab]();
 }
 function go(tab,detail=null){
@@ -1057,7 +1040,7 @@ document.addEventListener("change",e=>{
   if(e.target.matches("[data-dmiss]")){state.dMiss=e.target.checked;save();render()}
 });
 document.addEventListener("click",e=>{
-  const t=e.target.closest("[data-tab],[data-open],[data-back],[data-dsort],[data-ssort],[data-skdr],[data-abcat],[data-dgrp],[data-img],[data-rk],[data-skmana],[data-skcat],[data-ord],[data-acc],[data-rx]");
+  const t=e.target.closest("[data-tab],[data-open],[data-back],[data-dsort],[data-abcat],[data-dgrp],[data-img],[data-rk],[data-skmana],[data-skcat],[data-acc],[data-rx]");
   if(!t)return;const ds=t.dataset;
   /* アコーディオン：その場で開け閉めする（描き直さない） */
   if(ds.rx){const on=!t.classList.contains("open");t.classList.toggle("open",on);t.setAttribute("aria-expanded",on);return}
@@ -1072,10 +1055,6 @@ document.addEventListener("click",e=>{
   if(ds.rk){const [tb,k]=ds.rk.split("|");state.rk={...state.rk,[tb]:k};save();return render()}
   if(ds.img){state.img=ds.img;save();return render()}
   if(ds.dsort)return toggle(state.dSort,ds.dsort,ds.dsort==="no"?1:-1);
-  if(ds.ord){if(state.tab==="dragon"&&ds.ord==="total"&&dOrd()!==state.ord){state.ord={key:"total",dir:1};save();return render()}
-    return toggle(state.ord,ds.ord,ds.ord==="ms"?1:-1)}
-  if(ds.ssort)return toggle(state.ord,ds.ssort==="no"?"ms":ds.ssort,ds.ssort==="no"?1:-1);
-  if(ds.skdr){state.skDr=+ds.skdr;save();return render()}
   if(ds.abcat){state.abCat=ds.abcat;save();return render()}
   if(ds.dgrp){state.dGrp=ds.dgrp;save();return render()}
 });
