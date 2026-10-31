@@ -143,11 +143,11 @@ h2 .n{font-family:var(--f-body);font-size:.82rem;color:var(--mute);font-weight:5
 .card-h{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-areas:"t s" "i r";gap:6px 8px;align-items:stretch;width:100%;padding:10px;border:0;background:none;text-align:left}
 .card.fold{position:relative;cursor:pointer}
 .card.fold:active .card-h{opacity:.85}
-.card-h>.nk{grid-area:t;align-self:end;font-family:var(--f-head);font-weight:900;font-size:1.3rem;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:-.02em;min-width:0}
+.card-h>.nk{grid-area:t;align-self:end;font-family:var(--f-head);font-weight:700;font-size:1.12rem;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:-.02em;min-width:0}
 .card-h>.nk{display:flex;align-items:baseline}
-.card-h>.nk.long{font-size:1.05rem;letter-spacing:-.04em}
+.card-h>.nk.long{font-size:.98rem;letter-spacing:-.03em}
 .card-h>.nk .nm{overflow:hidden;text-overflow:ellipsis;min-width:0}
-.card-h>.nk .no{flex:none;font-family:var(--f-body);font-size:.72rem;font-weight:700;color:var(--mute);margin-left:6px;letter-spacing:0}
+.card-h>.nk .no{flex:none;font-family:var(--f-body);font-size:.72rem;font-weight:400;color:var(--mute);margin-left:6px;letter-spacing:0}
 .card-h>.shape{grid-area:s;align-self:end;justify-self:center;font-size:.74rem;font-weight:700;color:var(--accent);background:var(--tint);border-radius:99px;padding:1px 10px;white-space:nowrap}
 .card .ct{grid-area:t;display:flex;flex-direction:column;gap:3px;min-width:0}
 .card .ct-a{display:flex;align-items:baseline;gap:8px;min-width:0}
@@ -175,7 +175,7 @@ h2 .n{font-family:var(--f-body);font-size:.82rem;color:var(--mute);font-weight:5
 .mu-t{gap:2px}
 .mu-t .el{font:inherit;line-height:inherit}
 .mu-t span:last-child{color:var(--ink)}
-.mu-l{margin:2px 2px 4px;font-size:.88rem;line-height:1.6}
+.mu-l{margin:2px 2px 4px;font-size:.86rem;line-height:1.6}
 .mu-l .none{color:var(--mute);font-size:.8rem}
 .mu-r{display:flex;align-items:baseline;gap:8px;padding:5px 2px;border-bottom:1px solid var(--line);font-size:.86rem;line-height:1.5}
 .mu-r .el{flex:none;font-size:.74rem;padding:0 5px}
@@ -190,7 +190,8 @@ h2 .n{font-family:var(--f-body);font-size:.82rem;color:var(--mute);font-weight:5
 .card-h{position:relative}
 .fold-b{display:none;padding:2px 12px 14px;border-top:1px dashed var(--line)}
 .card.open .fold-b{display:block}
-.fold-b .fw{margin:10px 0 2px}
+.fold-b .fw{margin:10px 0 2px;gap:12px}
+.fold-b .fw .el,.fold-b .fw .fd{font-size:.88rem;font-weight:700}
 .fold-b .d-sec{margin:14px 0 4px}
 .card .sortv{color:var(--accent);font-weight:700}
 
@@ -229,7 +230,7 @@ h2 .n{font-family:var(--f-body);font-size:.82rem;color:var(--mute);font-weight:5
 .d-art .illust{width:100%;border-radius:10px}
 .d-art .cr{display:flex;align-items:stretch;justify-content:center;min-width:0}
 .d-art .radar{width:100%;height:auto}
-.d-sec{font-family:var(--f-head);font-weight:700;font-size:1.05rem;margin:14px 0 6px;display:flex;align-items:center;gap:6px;color:var(--accent)}
+.d-sec{font-family:var(--f-head);font-weight:700;font-size:.95rem;margin:16px 0 4px;display:flex;align-items:center;gap:6px;color:var(--accent)}
 .d-sec:first-child{margin-top:0}
 .kv{list-style:none;margin:0;padding:0;display:grid;gap:6px}
 .kv li{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:9px 12px;background:var(--tint);border-radius:10px;font-weight:700;font-size:1.05rem}
@@ -264,7 +265,7 @@ h2 .n{font-family:var(--f-body);font-size:.82rem;color:var(--mute);font-weight:5
 .rank li.rx-li .chev .ic{width:14px;height:14px}
 .rank li.rx-li.open .chev{transform:rotate(180deg)}
 .pmtbl{table-layout:fixed}
-.pmtbl td.c{font-size:.92rem}
+.pmtbl td.c{font-size:.9rem}
 .pmtbl .s{color:var(--hi)}.pmtbl .lo{color:var(--lo)}
 .rmore .pmtbl{margin-bottom:4px}
 .rmore{display:none;grid-column:1/-1;margin-top:8px;cursor:default}
@@ -274,13 +275,13 @@ h2 .n{font-family:var(--f-body);font-size:.82rem;color:var(--mute);font-weight:5
 .rx b{font-size:.78rem;color:var(--ink)}
 .rx i{font-style:normal;color:var(--ink);font-weight:900;margin:0 5px 0 1px}
 .rx i:last-child{margin-right:0}
-.rn{font-weight:700;font-size:1.02rem;min-width:0;line-height:1.35}
+.rn{font-weight:700;font-size:.98rem;min-width:0;line-height:1.35}
 .rs{display:block;font-size:.76rem;color:var(--mute);font-weight:500;line-height:1.4}
 .rs .skw{display:block}
 .rs .ski{margin-right:6px;white-space:nowrap}
 .rs .ski b{color:var(--ink);font-weight:700;margin:0 4px 0 1px}
 .rs .ske{color:var(--ink)}
-.rv{text-align:right;font-family:var(--f-head);font-weight:900;font-size:1.2rem;font-variant-numeric:tabular-nums;white-space:nowrap}
+.rv{text-align:right;font-family:var(--f-head);font-weight:700;font-size:1.08rem;font-variant-numeric:tabular-nums;white-space:nowrap}
 .rv small{font-family:var(--f-body);font-weight:500;font-size:.72rem;color:var(--mute);margin-left:2px}
 
 /* 一覧表 */
@@ -320,7 +321,7 @@ td .lvn{font-size:.78rem;color:var(--accent);font-weight:700;margin-left:4px}
 .fw{display:flex;gap:8px;flex:none}
 .d-h+.fw{margin-top:6px}
 .fw-i{display:inline-flex;align-items:center;gap:3px}
-.fw-i small{font-size:.7rem;color:var(--mute);font-weight:700}
+.fw-i small{font-size:.74rem;color:var(--mute);font-weight:400}
 /* 属性・得意フィールドは文字色で見分ける（下地なし） */
 .el,.fd{display:inline-block;font-size:.8rem;font-weight:900;line-height:1.5;padding:0!important;background:none;color:var(--mute);white-space:nowrap}
 .e-fire{color:hsl(8 75% 46%)}.e-water{color:hsl(208 75% 42%)}.e-earth{color:hsl(28 55% 36%)}
@@ -364,22 +365,22 @@ mark{background:hsl(45 95% 62% / .55);color:inherit;border-radius:3px;padding:0 
 .nodata{margin:6px 0 0;font-size:.85rem;color:var(--mute);border:1px dashed var(--line);border-radius:9px;padding:6px 10px}
 /* アビリティ */
 .xtbl{margin:0 -4px}
-.xtbl table{table-layout:auto;font-size:.9rem;line-height:1.4}
+.xtbl table{table-layout:auto;font-size:.86rem;line-height:1.4}
 .xtbl th,.xtbl td{white-space:normal;padding:6px 4px;vertical-align:middle;border-left:0}
-.xtbl th{font-size:.7rem;padding-top:3px;padding-bottom:3px;white-space:nowrap}
+.xtbl th{font-size:.72rem;font-weight:400;padding-top:3px;padding-bottom:3px;white-space:nowrap}
 .xtbl .c{text-align:center;white-space:nowrap;width:1.9rem;padding-left:1px;padding-right:1px}
-.xtbl td.c{font-family:var(--f-head);font-weight:900;font-size:1rem}
-.xtbl td.c .el{font-size:.9rem;font-family:var(--f-body)}
-.xtbl td.c .acc{font-size:.95rem}
+.xtbl td.c{font-family:var(--f-head);font-weight:700;font-size:.88rem}
+.xtbl td.c .el{font-size:.86rem;font-weight:700;font-family:var(--f-body)}
+.xtbl td.c .acc{font-size:.88rem}
 .xtbl td.nm{font-weight:700;white-space:nowrap}
-.xtbl td.nm b{display:block}
-.xtbl td.nm .cnt{display:block;color:var(--mute);font-size:.7rem}
-.xtbl td.ef{font-size:.86rem;line-height:1.45}
-.xtbl td.sp{white-space:nowrap;font-size:.86rem}
-.xtbl .dur{margin-left:2px;font-size:.78rem;color:var(--mute);white-space:nowrap}
-.xtbl .none{color:var(--mute);font-size:.8rem;font-weight:500}
+.xtbl td.nm b{display:block;font-weight:700}
+.xtbl td.nm .cnt{display:block;color:var(--mute);font-size:.72rem;font-weight:400}
+.xtbl td.ef{font-size:.84rem;line-height:1.45}
+.xtbl td.sp{white-space:nowrap;font-size:.84rem}
+.xtbl .dur{margin-left:2px;font-size:.76rem;color:var(--mute);white-space:nowrap}
+.xtbl .none{color:var(--mute);font-size:.78rem;font-weight:400}
 .xtbl .nomax{color:var(--lo)}
-.xtbl .tnote{margin:4px 4px 8px;font-size:.7rem;color:var(--mute)}
+.xtbl .tnote{margin:4px 4px 8px;font-size:.72rem;color:var(--mute)}
 .abtbl td.nm{width:1%}
 .xtbl .holds{margin-top:6px}
 .abgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,340px),1fr));gap:10px}
@@ -710,7 +711,7 @@ function illust(d){
 /* ===== 六角形グラフ：外側にアイコン、内側の角に数値（800以上は赤、400未満は青） ===== */
 const ST_ICON=["heart","sword","shield","bolt","target","wing"];
 function radar(d,{W=240,R=74,total=true,sq=false,icons=true}={}){
-  const IS=17,GAP=5,FV=icons?16:17,TV=icons?20:22;                // アイコンの大きさ・数値の文字サイズ・枠とアイコンの間
+  const IS=17,GAP=5,FV=icons?16:14.5,TV=icons?20:19;                // アイコンの大きさ・数値の文字サイズ・枠とアイコンの間
   const H=Math.round(R*2+(icons?(IS+GAP+2)*2:4));if(sq)W=H;const cx=W/2,cy=H/2;
   const pt=(i,f)=>{const a=(-90+60*i)*Math.PI/180;return[cx+Math.cos(a)*R*f,cy+Math.sin(a)*R*f]};
   const poly=f=>[0,1,2,3,4,5].map(i=>pt(i,f).map(n=>n.toFixed(1)).join(",")).join(" ");
