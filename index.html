@@ -175,6 +175,7 @@ h2 .n{font-family:var(--f-body);font-size:var(--fs-m);color:var(--mute);font-wei
 .mu-r .none{color:var(--mute);font-size:var(--fs-s)}
 .mu-n{margin-left:6px;font-family:var(--f-body);font-size:var(--fs-s);color:var(--mute);font-weight:700}
 .mu.cmp{margin-top:8px}
+.mu-go{margin:2px 0 6px;border:1px solid var(--line);background:var(--sheet);border-radius:11px;padding:5px 12px;font-size:var(--fs-s);font-weight:700;color:var(--accent)}
 .mu-h{display:block;margin:8px 0 2px;font-size:var(--fs-m);color:var(--accent)}
 .mu-h small{margin-left:6px;font-size:var(--fs-s);color:var(--mute)}
 .card.fold .chev{position:absolute;right:5px;bottom:5px;width:24px;height:24px;border-radius:50%;background:var(--accent);color:var(--sheet);display:grid;place-items:center;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:transform .2s}
@@ -364,7 +365,7 @@ mark{background:hsl(45 95% 62% / .55);color:inherit;border-radius:3px;padding:0 
 .xtbl td.nm .cnt{display:block;color:var(--mute);font-size:var(--fs-s);font-weight:400}
 .xtbl td.ef{font-size:var(--fs-m);line-height:1.45}
 /* スキルの表：効果は下の行に横いっぱいで */
-.sktbl .c,.mutbl .c{width:3.4rem}
+.sktbl .c{width:3.4rem}
 .sktbl tr:has(+tr.sk-e) td{border-bottom:0;padding-bottom:0}
 .sktbl tr.sk-e td{padding:4px 0 10px}
 .sktbl .efb{background:var(--tint);border-radius:8px;padding:5px 10px;line-height:1.5}
@@ -676,9 +677,9 @@ const AB={
 
 /* ===== 状態（並べ替えと画像の種類は端末に保存） ===== */
 const state={tab:"dragon",detail:null,img:"illust",
-  dSort:{key:"no",dir:1},sSort:{key:"total",dir:-1},kSort:{key:"no",dir:1},aSort:{key:"no",dir:1},abCat:"all",dGrp:"all",skMana:"all",skCat:"all",dMiss:false,dOpen:[],
+  dSort:{key:"no",dir:1},sSort:{key:"total",dir:-1},kSort:{key:"no",dir:1},aSort:{key:"no",dir:1},abCat:"all",dGrp:"all",skMana:"all",skCat:"all",skEl:"all",dScroll:0,dMiss:false,dOpen:[],
   rk:{status:"total",skill:"pow",ability:"all"}};
-const KEEP=["dSort","sSort","img","abCat","dGrp","rk","skMana","skCat","dMiss"];
+const KEEP=["dSort","sSort","img","abCat","dGrp","rk","skMana","skCat","skEl","dMiss"];
 try{const s=JSON.parse(localStorage.getItem("dragon-maseki-v2")||"{}");KEEP.forEach(k=>{if(s[k])state[k]=s[k]})}catch(e){}
 state.img="illust";  // 画像はイラストに固定
 const save=()=>{try{localStorage.setItem("dragon-maseki-v2",JSON.stringify(Object.fromEntries(KEEP.map(k=>[k,state[k]]))))}catch(e){}};
@@ -827,10 +828,10 @@ function matchup(d){
     const rows=[];
     D.filter(o=>o!==d).forEach(o=>o.sk.forEach(x=>{const db=(SK[o.sp]||{})[x.n],[v,lt]=bestLv(db&&db.L);
       if(db&&db.at===w&&v&&+v[2]>0)rows.push({o,n:x.n,v,lt,at:db.at})}));
-    rows.sort((a,b)=>b.o.total-a.o.total||a.o.no-b.o.no||a.v[1]-b.v[1]);
-    bad=head("shield",w,"スキル持ち")+(rows.length?`<div class="xtbl"><table class="mutbl"><thead><tr><th>スキル・種族</th><th class="c">マナ</th><th class="c">命中</th><th class="c">威力</th></tr></thead><tbody>${
-      rows.map(r=>`<tr><td class="nm"><b>${esc(skn(r.n))}${r.lt?`<span class="lvt">${r.lt}</span>`:""}</b><small class="cnt">${esc(spn(r.o.sp))}</small></td><td class="c">${esc(r.v[1])}</td><td class="c">${accTag(r.v[3])}</td><td class="c">${esc(r.v[2])}</td></tr>`).join("")}</tbody></table></div>`
-      :`<p class="mu-l"><span class="none">なし</span></p>`);
+    /* 種族名だけを1回ずつ、合計の高い順に。スキルの中身はスキルタブで */
+    const os=[...new Set(rows.sort((a,b)=>b.o.total-a.o.total||a.o.no-b.o.no).map(r=>r.o))];
+    bad=head("shield",w,"スキル持ち")+`<p class="mu-l">${os.length?os.map(o=>esc(spn(o.sp))).join("・"):`<span class="none">なし</span>`}</p>`
+      +`<button class="mu-go" data-skel="${esc(w)}">${esc(w)}スキル一覧へ ›</button>`;
   }
   return `<div class="mu">${good}${bad}</div>`;
 }
@@ -983,7 +984,11 @@ function skCat(r){
   return "その他";
 }
 function skillList(){
-  const all=skillRows();
+  const allR=skillRows();
+  const els=EL_ORDER.filter(a=>allR.some(r=>r.at===a));
+  const el=els.includes(state.skEl)?state.skEl:"all";
+  const echips=`<div class="sorter flt"><span class="flt-l">属性</span><button data-skel="all" aria-pressed="${el==="all"}">すべて<small>${allR.length}</small></button>${els.map(a=>`<button data-skel="${a}" aria-pressed="${el===a}">${elTag(a)}<small>${allR.filter(r=>r.at===a).length}</small></button>`).join("")}</div>`;
+  const all=el==="all"?allR:allR.filter(r=>r.at===el);
   const manas=[...new Set(all.map(r=>r.mana))].sort((a,b)=>a-b);
   const m=state.skMana,c=state.skCat;
   const byM=m==="all"||!manas.includes(+m)?all:all.filter(r=>r.mana===+m);
@@ -994,7 +999,7 @@ function skillList(){
   const who=r=>esc(r.d.nk);
   const list=rows.length?rankCard("bolt","スキル一覧","威力の高い順",rows.map(r=>({d:r.d,name:skn(r.n),nameHtml:`${esc(skn(r.n))} ${r.at?elTag(r.at):""}${r.lt?`<span class="lvt">${r.lt}</span>`:""}`,v:r.pow,u:"",sub:`<span class="skw">${who(r)}</span>${skInfo(r,["pow"])}`})),true)
     :`<p class="nodata">当てはまるスキルはありません</p>`;
-  return mchips+cchips+`<div class="ranks one">${list}</div>`;
+  return echips+mchips+cchips+`<div class="ranks one">${list}</div>`;
 }
 function viewSkill(){
   const missing=D.filter(x=>!SK[x.sp]).map(x=>esc(x.nk)).join("・");
@@ -1038,16 +1043,18 @@ function render(){
 }
 function go(tab,detail=null){
   const same=state.tab===tab&&!detail&&!state.detail;
+  if(state.tab==="dragon"&&!same)state.dScroll=window.scrollY;  /* ドラゴンタブの位置を覚えておく */
   state.tab=tab;state.detail=detail;
   try{history.replaceState(null,"","#"+(detail?"d"+detail:tab))}catch(e){}
   render();
-  if(!same){const top=document.querySelector("nav.views").offsetTop-4;if(window.scrollY>top)window.scrollTo({top})}
+  if(tab==="dragon"&&!detail&&!same&&state.dScroll){window.scrollTo({top:state.dScroll});return}
+  if(!same){const nav=document.querySelector("nav.views"),top=Math.max(0,view.getBoundingClientRect().top+window.scrollY-nav.offsetHeight-8);if(window.scrollY>top)window.scrollTo({top})}
 }
 document.addEventListener("change",e=>{
   if(e.target.matches("[data-dmiss]")){state.dMiss=e.target.checked;save();render()}
 });
 document.addEventListener("click",e=>{
-  const t=e.target.closest("[data-tab],[data-open],[data-back],[data-dsort],[data-abcat],[data-dgrp],[data-img],[data-rk],[data-skmana],[data-skcat],[data-acc],[data-rx]");
+  const t=e.target.closest("[data-tab],[data-open],[data-back],[data-dsort],[data-abcat],[data-dgrp],[data-img],[data-rk],[data-skmana],[data-skel],[data-skcat],[data-acc],[data-rx]");
   if(!t)return;const ds=t.dataset;
   /* アコーディオン：その場で開け閉めする（描き直さない） */
   if(ds.rx){const on=!t.classList.contains("open");t.classList.toggle("open",on);t.setAttribute("aria-expanded",on);return}
@@ -1057,6 +1064,9 @@ document.addEventListener("click",e=>{
   if(ds.tab)return go(ds.tab);
   if(ds.open)return go("dragon",+ds.open);
   if("back" in ds)return go("dragon");
+  if(ds.skel){state.skEl=ds.skel;
+    if(state.tab!=="skill"){state.skMana="all";state.skCat="all";save();return go("skill")}  /* カードから来た時は属性だけで絞る */
+    save();return render()}
   if(ds.skmana){state.skMana=ds.skmana;save();return render()}
   if(ds.skcat){state.skCat=ds.skcat;save();return render()}
   if(ds.rk){const [tb,k]=ds.rk.split("|");state.rk={...state.rk,[tb]:k};save();return render()}
