@@ -375,7 +375,8 @@ mark{background:hsl(45 95% 62% / .55);color:inherit;border-radius:3px;padding:0 
 .xtbl td.sp{white-space:nowrap;font-size:var(--fs-m)}
 .xtbl .dur{margin-left:2px;font-size:var(--fs-s);color:var(--mute);white-space:nowrap}
 .xtbl .none{color:var(--mute);font-size:var(--fs-s);font-weight:400}
-.xtbl .nomax{color:var(--lo)}
+.up{color:var(--hi);font-weight:700}.dn{color:var(--lo);font-weight:700}
+.lvt{margin-left:6px;font-size:var(--fs-s);font-weight:400;color:var(--mute)}
 .xtbl .tnote{margin:4px 4px 8px;font-size:var(--fs-s);color:var(--mute)}
 .abtbl td.nm{width:1%}
 .xtbl .holds{margin-top:6px}
@@ -739,7 +740,7 @@ function topN(items,n){
 const top5=items=>topN(items,5);
 function rankCard(icon,title,unit,rows,nopos=false){
   return `<section class="rank box"><div class="rank-h"><span class="tg">${ico(icon)}</span><span class="rank-t">${title}</span><span class="rank-u">${unit}</span></div><ol>${
-    rows.map(r=>`<li class="${r.d?"go":"noimg"}${r.x?" hasx":""}${nopos?" nopos":""}${r.more?" rx-li":""}"${r.more?` data-rx="1" role="button" aria-expanded="false"`:r.d?` data-open="${r.d.no}"`:""}>${nopos?"":`<span class="pos ${r.pos<=3?"r"+r.pos:""}">${r.pos}</span>`}${r.d?illust(r.d):""}<span class="rn">${esc(r.name)}${r.x||r.more?"":`<span class="rs">${r.sub}</span>`}</span><span class="rv">${r.v}<small>${r.u||""}</small></span>${r.more?`<span class="chev" aria-hidden="true">${ico("chev")}</span>`:""}${r.more?`<div class="rmore">${r.more()}</div>`:""}</li>`).join("")
+    rows.map(r=>`<li class="${r.d?"go":"noimg"}${r.x?" hasx":""}${nopos?" nopos":""}${r.more?" rx-li":""}"${r.more?` data-rx="1" role="button" aria-expanded="false"`:r.d?` data-open="${r.d.no}"`:""}>${nopos?"":`<span class="pos ${r.pos<=3?"r"+r.pos:""}">${r.pos}</span>`}${r.d?illust(r.d):""}<span class="rn">${r.nameHtml||esc(r.name)}${r.x||r.more?"":`<span class="rs">${r.sub}</span>`}</span><span class="rv">${r.v}<small>${r.u||""}</small></span>${r.more?`<span class="chev" aria-hidden="true">${ico("chev")}</span>`:""}${r.more?`<div class="rmore">${r.more()}</div>`:""}</li>`).join("")
   }</ol></section>`;
 }
 
@@ -828,13 +829,20 @@ function matchup(d){
       if(db&&db.at===w&&v&&+v[2]>0)rows.push({o,n:x.n,v,lt,at:db.at})}));
     rows.sort((a,b)=>b.o.total-a.o.total||a.o.no-b.o.no||a.v[1]-b.v[1]);
     bad=head("shield",w,"スキル持ち")+(rows.length?`<div class="xtbl"><table class="mutbl"><thead><tr><th>スキル・種族</th><th class="c">マナ</th><th class="c">命中</th><th class="c">威力</th></tr></thead><tbody>${
-      rows.map(r=>`<tr><td class="nm"><b${r.lt?' class="nomax"':""}>${esc(skn(r.n))}</b><small class="cnt">${esc(spn(r.o.sp))}</small></td><td class="c">${esc(r.v[1])}</td><td class="c">${accTag(r.v[3])}</td><td class="c">${esc(r.v[2])}</td></tr>`).join("")}</tbody></table>${rows.some(r=>r.lt)?'<p class="tnote"><span class="nomax">青字</span>はLvMaxではない</p>':""}</div>`
+      rows.map(r=>`<tr><td class="nm"><b>${esc(skn(r.n))}${r.lt?`<span class="lvt">${r.lt}</span>`:""}</b><small class="cnt">${esc(spn(r.o.sp))}</small></td><td class="c">${esc(r.v[1])}</td><td class="c">${accTag(r.v[3])}</td><td class="c">${esc(r.v[2])}</td></tr>`).join("")}</tbody></table></div>`
       :`<p class="mu-l"><span class="none">なし</span></p>`);
   }
   return `<div class="mu">${good}${bad}</div>`;
 }
 /* 持続：数値の時だけ効果の後ろに付ける */
-const durNote=v=>/^\d+$/.test(String(v))?`<span class="dur">(持続${v})</span>`:"";
+const durNote=v=>/^\d+$/.test(String(v))?`<span class="dur">(${v})</span>`:"";
+/* 追加効果の表示（カード・スキル一覧・アビリティで共通）。短く言い換え、↑は赤・↓は青（よい効果＝赤、わるい効果＝青） */
+const fxShort=t=>fx(t).replace(/。$/,"")
+  .replace(/一度だけ状態異常無効化/g,"異常無効×1").replace(/体力(\d+)%以下だと0マナ/g,"体力$1%以下 0マナ")
+  .replace(/防御↑が多いほど威力↑/g,"防御↑で威力↑").replace(/発動ターンダメージ0/g,"1ターン無敵")
+  .replace(/スタンさせる/g,"スタン").replace(/素早さ/g,"素早");
+const arrows=h=>h.replace(/((?:体力|攻撃|防御|素早|命中|回避|マナ|会心率|異常付与率|威力)?(?:[小中大]|\d+)?)([↑↓])/g,(m,a,b)=>`<span class="${b==="↑"?"up":"dn"}">${a}${b}</span>`);
+const effHTML=(raw,dur)=>raw?arrows(esc(fxShort(raw)))+durNote(dur):"";
 /* スキルの表：スキル・マナ・命中・威力・追加効果 */
 function skillTable(spName,list){
   let low=false;
@@ -842,19 +850,19 @@ function skillTable(spName,list){
     if(x.none)return `<tr><td class="nm" colspan="5"><span class="none">ー（空き）</span></td></tr>`;
     const db=(SK[spName]||{})[x.n],[v,lt]=bestLv(db&&db.L);
     if(lt)low=true;
-    const nm=`<td class="nm"><b${lt?' class="nomax"':""}>${esc(skn(x.n))}</b></td>`;
+    const nm=`<td class="nm"><b>${esc(skn(x.n))}${lt?`<span class="lvt">${lt}</span>`:""}</b></td>`;
     if(!v)return `<tr>${nm}<td colspan="4" class="none">値はまだ確かめていません</td></tr>`;
-    const eff=(v[4]?esc(fx(v[4])):`<span class="none">なし</span>`)+durNote(v[0]);
+    const eff=v[4]?effHTML(v[4],v[0]):`<span class="none">なし</span>`;
     return `<tr>${nm}<td class="c">${db.at?elTag(db.at):"？"}</td><td class="c">${esc(v[1])}</td><td class="c">${accTag(v[3])}</td><td class="c pw">${esc(v[2])}</td></tr><tr class="sk-e"><td colspan="5" class="ef"><div class="efb">${eff}</div></td></tr>`;
   }).join("");
-  return `<div class="xtbl"><table class="sktbl"><thead><tr><th>スキル</th><th class="c">属性</th><th class="c">マナ</th><th class="c">命中</th><th class="c">威力</th></tr></thead><tbody>${rows}</tbody></table>${low?'<p class="tnote"><span class="nomax">青字</span>はLvMaxではない</p>':""}</div>`;
+  return `<div class="xtbl"><table class="sktbl"><thead><tr><th>スキル</th><th class="c">属性</th><th class="c">マナ</th><th class="c">命中</th><th class="c">威力</th></tr></thead><tbody>${rows}</tbody></table></div>`;
 }
 /* アビリティの表：アビリティ・効果。extra(n) で効果の下に足すもの（覚えているドラゴンなど） */
 function abilityTable(list,extra=abilityTable.none){
   const rows=list.map(x=>{
     if(x.none)return `<tr><td class="nm" colspan="2"><span class="none">ー（空き）</span></td></tr>`;
     const [v,lt]=bestLv((AB[x.n]||{}).L);
-    const eff=v?esc(fx(v[1]))+durNote(v[0])+(lt?`<span class="dur">${lt}の効果</span>`:""):`<span class="none">効果はまだ確かめていません</span>`;
+    const eff=v?effHTML(v[1],v[0])+(lt?`<span class="dur">${lt}の効果</span>`:""):`<span class="none">効果はまだ確かめていません</span>`;
     return `<tr><td class="nm"><b>${esc(abn(x.n))}</b>${x.cnt?`<small class="cnt">${x.cnt}体</small>`:""}</td><td class="ef">${eff}${extra(x.n)}</td></tr>`;
   }).join("");
   const wide=extra!==abilityTable.none;
@@ -951,16 +959,15 @@ function skillRows(){
     const db=(SK[d.sp]||{})[x.n];if(!db)return;
     const [v,lt]=bestLv(db.L);if(!v)return;
     const pct=(v[4].match(/(\d+)%の確率/)||[])[1];
-    out.push({d,n:x.n,lt,mana:+v[1]||0,pow:+v[2]||0,acc:v[3],pct:pct?+pct:null,eff:v[4]});
+    out.push({d,n:x.n,lt,at:db.at,dur:v[0],mana:+v[1]||0,pow:+v[2]||0,acc:v[3],pct:pct?+pct:null,eff:v[4]});
   }));
   return out;
 }
 /* 補足の1行：ランキングの値以外の「威力・マナ・命中」と追加効果を短く */
 function skInfo(r,skip){
   const parts=[["威力","pow",r.pow],["マナ","mana",r.mana],["命中","acc",r.acc]].filter(([,k])=>!skip.includes(k)).map(([n,k,v])=>`${n}<b>${k==="acc"?accTag(v):esc(v)}</b>`);
-  let e=(r.eff||"").replace(/。$/,"");
-  e=skip.includes("pct")?e.replace(/^\d+%の確率で、/,""):e.replace(/の確率で、/," ");
-  return `<span class="ski">${parts.join(" ")}</span>${e?`<span class="ske">${esc(fx(e))}</span>`:""}`;
+  const e=effHTML(r.eff,r.dur);
+  return `<span class="ski">${parts.join(" ")}</span>${e?`<span class="ske">${e}</span>`:""}`;
 }
 /* 追加効果での分類。上から順に当てはめる */
 const SK_CATS=["通常","異常","マナ↑","マナ↓","パラ↑","パラ↓","回復","その他"];
@@ -984,8 +991,8 @@ function skillList(){
   const rows=(okC?byM.filter(r=>skCat(r)===c):byM).sort((a,b)=>b.pow-a.pow||a.mana-b.mana||b.d.total-a.d.total);
   const mchips=`<div class="sorter flt"><span class="flt-l">マナ</span><button data-skmana="all" aria-pressed="${!manas.includes(+m)}">すべて</button>${manas.map(v=>`<button data-skmana="${v}" aria-pressed="${+m===v&&m!=="all"}">${v}<small>${all.filter(r=>r.mana===v).length}</small></button>`).join("")}</div>`;
   const cchips=`<div class="sorter flt"><span class="flt-l">効果</span><button data-skcat="all" aria-pressed="${!okC}">すべて<small>${byM.length}</small></button>${SK_CATS.map(k=>{const n=byM.filter(r=>skCat(r)===k).length;return n||c===k?`<button data-skcat="${esc(k)}" aria-pressed="${c===k}">${esc(k)}<small>${n}</small></button>`:""}).join("")}</div>`;
-  const who=r=>esc(r.d.nk)+(r.lt?"・"+r.lt:"");
-  const list=rows.length?rankCard("bolt","スキル一覧","威力の高い順",rows.map(r=>({d:r.d,name:skn(r.n),v:r.pow,u:"",sub:`<span class="skw">${who(r)}</span>${skInfo(r,["pow"])}`})),true)
+  const who=r=>esc(r.d.nk);
+  const list=rows.length?rankCard("bolt","スキル一覧","威力の高い順",rows.map(r=>({d:r.d,name:skn(r.n),nameHtml:`${esc(skn(r.n))} ${r.at?elTag(r.at):""}${r.lt?`<span class="lvt">${r.lt}</span>`:""}`,v:r.pow,u:"",sub:`<span class="skw">${who(r)}</span>${skInfo(r,["pow"])}`})),true)
     :`<p class="nodata">当てはまるスキルはありません</p>`;
   return mchips+cchips+`<div class="ranks one">${list}</div>`;
 }
