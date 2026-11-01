@@ -77,8 +77,8 @@ h1{font-family:var(--f-head);font-weight:700;font-size:var(--fs-xl);line-height:
 
 /* タブ（アイコン＋文字の札） */
 nav.views{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:linear-gradient(var(--paper) 86%,transparent);
-  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:3px;padding-block:8px 12px;margin-bottom:6px}
-nav.views button{display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 0 7px;border:1px solid var(--line);border-radius:12px;
+  display:flex;gap:3px;padding-block:8px 12px;margin-bottom:6px}
+nav.views button{flex:1 1 auto;padding-inline:3px!important;display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 0 7px;border:1px solid var(--line);border-radius:12px;
   background:var(--sheet);color:var(--mute);font-weight:700;font-size:var(--fs-s);line-height:1.15;min-width:0;letter-spacing:-.06em;white-space:nowrap;overflow:hidden}
 nav.views button .ic{font-size:1.4em}
 nav.views button[aria-selected="true"]{background:var(--accent);border-color:transparent;color:var(--sheet);box-shadow:0 4px 12px hsla(40,30%,25%,.22)}
@@ -371,6 +371,10 @@ mark{background:hsl(45 95% 62% / .55);color:inherit;border-radius:3px;padding:0 
 .sklist{padding:4px 10px}
 .sktbl tr.unown{cursor:default}
 .extbl .c{width:4.4rem}
+.cd-g{margin:16px 2px 6px;font-size:var(--fs-m);color:var(--accent)}
+.cdtbl tbody tr{cursor:default}
+.cdtbl td.nm{white-space:normal}
+.cdtbl td.ef{text-align:right;font-weight:700;white-space:nowrap;width:1%}
 .extbl td.c small{font-size:var(--fs-s);font-weight:400;color:var(--mute);margin-left:2px}
 .extbl tbody tr{cursor:default}
 .sktbl td.nm .cnt{white-space:normal}
@@ -431,6 +435,7 @@ mark{background:hsl(45 95% 62% / .55);color:inherit;border-radius:3px;padding:0 
   <button role="tab" data-tab="status"><svg class="ic"><use href="#i-hex"/></svg>パラメータ</button>
   <button role="tab" data-tab="skill"><svg class="ic"><use href="#i-bolt"/></svg>スキル</button>
   <button role="tab" data-tab="ability"><svg class="ic"><use href="#i-shield"/></svg>アビリティ</button>
+  <button role="tab" data-tab="card"><svg class="ic"><use href="#i-book"/></svg>カード</button>
 </nav>
 
 <main id="view"></main>
@@ -1240,7 +1245,21 @@ function abExpect(){
 
 /* ===== 情報 ===== */
 /* ===== 描画・操作 ===== */
-const VIEWS={dragon:viewDragon,status:viewStatus,skill:viewSkill,ability:viewAbility};
+/* ===== サポートカード：[名前, 効果（ゲームの文）, 短い効果] 枠の色ごと ===== */
+const CARDS=[
+  ["ブロンズ",[["百獣の王","自分の攻撃を大アップ。","攻撃大↑"],["河の猛獣","自分の防御を大アップ。","防御大↑"],["俊敏な脚力","自分の素早さを大アップ。","素早大↑"],["氷の皇帝","自分の命中を大アップ。","命中大↑"],["森の悪魔","自分の回避を大アップ。","回避大↑"],["破壊の化身","自分の体力を大回復。","体力大回復"]]],
+  ["シルバー",[["密林の重戦車","自分のマナを3アップ。","マナ3↑"],["攻防の要","相手のマナを3ダウン。","マナ3↓"],["危険な毒針","相手を毒状態にする。","毒"],["大アゴ格闘王","相手を傷状態にする。","傷"],["ガス攻撃","相手をやけど状態にする。","やけど"],["密林の暴君","相手を麻痺状態にする。","麻痺"]]],
+  ["ゴールド",[["自慢の牙","自分の攻撃と命中を中アップ。","攻撃中↑ 命中中↑"],["顎の怪物","自分の回避と素早さを中アップ。","回避中↑ 素早中↑"],["マンモスの帝王","自分の攻撃と防御を中アップ。","攻撃中↑ 防御中↑"],["アマゾンの怪獣","自分の攻撃と素早さを中アップ。","攻撃中↑ 素早中↑"],["恐るべき大蛇","自分の状態異常を回復する。","治癒"],["史上最大の巨神","自分のクリティカル率が大アップ。","会心率大↑"]]],
+  ["レインボー",[["メガトンボディ","自分のマナを4アップ。","マナ4↑"],["川辺の王者","相手のマナを4ダウン。","マナ4↓"],["暴君竜","自分のアビリティ発動確率が2倍になる。","アビリティ発動率×2"],["トゲの要塞","自分の全パラメータが小アップ。","全パラ小↑"],["3本角の戦士","自分のパラメータがランダムに大アップ。","ランダムなパラ大↑"],["ハンマー使い","相手のバフを全てリセットする。","相手のバフ全解除"]]],
+];
+function viewCard(){
+  const n=CARDS.reduce((a,[,l])=>a+l.length,0);
+  return `<h2><span class="tg">${ico("book")}</span>サポートカード<span class="n">${n}枚</span></h2><p class="hint">枠の色ごとに並べています。↑は自分によい効果、↓は相手をよわくする効果</p>
+    ${CARDS.map(([g,l])=>`<h3 class="cd-g">${g}</h3><div class="box" style="padding:4px 10px"><div class="xtbl"><table class="cdtbl"><tbody>${
+      l.map(([nm,full,sh])=>`<tr><td class="nm"><b>${esc(nm)}</b><small class="cnt">${esc(full)}</small></td><td class="ef">${arrows(esc(sh))}</td></tr>`).join("")
+    }</tbody></table></div></div>`).join("")}`;
+}
+const VIEWS={dragon:viewDragon,status:viewStatus,skill:viewSkill,ability:viewAbility,card:viewCard};
 const view=document.getElementById("view");
 function render(){
   document.querySelectorAll("nav.views button").forEach(t=>t.setAttribute("aria-selected",t.dataset.tab===state.tab));
