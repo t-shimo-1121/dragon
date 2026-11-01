@@ -1138,7 +1138,7 @@ function skillList(){
   const el=els.includes(state.skEl)?state.skEl:"all";
   const echips=`<div class="sorter flt"><span class="flt-l">属性</span><button data-skel="all" aria-pressed="${el==="all"}">すべて<small>${allR.length}</small></button>${els.map(a=>`<button data-skel="${a}" aria-pressed="${el===a}">${elTag(a)}<small>${allR.filter(r=>r.at===a).length}</small></button>`).join("")}</div>`;
   const all=el==="all"?allR:allR.filter(r=>r.at===el);
-  /* 絞り込みは 属性→マナ→威力→命中→効果 の順に重ねる。選んだ値が無くなった時は「すべて」に戻す */
+  /* 絞り込みは表の列と同じ 属性→マナ→命中→威力→効果 の順に重ねる。選んだ値が無くなった時は「すべて」に戻す */
   const ACC_ORD=["◎","○","△","×","-"];
   const step=(list,label,attr,cur,get,vals,fmt=v=>esc(v))=>{
     const ok=vals.some(v=>String(v)===String(cur));
@@ -1147,10 +1147,10 @@ function skillList(){
     return [out,chips];
   };
   const uniq=(list,get,sort)=>[...new Set(list.map(get))].sort(sort);
-  const [byM,mchips]=step(all,"マナ","skmana",state.skMana,r=>r.mana,uniq(all,r=>r.mana,(a,b)=>a-b));
-  const [byP,pchips]=step(byM,"威力","skpow",state.skPow,r=>r.pow,uniq(byM,r=>r.pow,(a,b)=>b-a));
-  const [byA,achips]=step(byP,"命中","skacc",state.skAcc,r=>r.acc,uniq(byP,r=>r.acc,(a,b)=>ACC_ORD.indexOf(a)-ACC_ORD.indexOf(b)),v=>v==="-"?"なし":accTag(v));
-  const [rows,cchips]=step(byA,"効果","skcat",state.skCat,skCat,SK_CATS.filter(k=>byA.some(r=>skCat(r)===k)));
+  const [byM,mchips]=step(all,"マナ","skmana",state.skMana,r=>r.mana,uniq(all,r=>r.mana,(a,b)=>b-a));
+  const [byA,achips]=step(byM,"命中","skacc",state.skAcc,r=>r.acc,uniq(byM,r=>r.acc,(a,b)=>ACC_ORD.indexOf(a)-ACC_ORD.indexOf(b)),v=>v==="-"?"なし":accTag(v));
+  const [byP,pchips]=step(byA,"威力","skpow",state.skPow,r=>r.pow,uniq(byA,r=>r.pow,(a,b)=>b-a));
+  const [rows,cchips]=step(byP,"効果","skcat",state.skCat,skCat,SK_CATS.filter(k=>byP.some(r=>skCat(r)===k)));
   /* 見出し（属性・マナ・命中・威力）を押すと並べ替え。同じ値の時は威力→マナ→合計の順 */
   const ACC_N={"◎":4,"○":3,"△":2,"×":1,"✕":1,"✖":1};
   const key={at:r=>{const i=EL_ORDER.indexOf(r.at);return i<0?99:i},mana:r=>r.mana,acc:r=>ACC_N[r.acc]||0,pow:r=>r.pow};
@@ -1163,7 +1163,7 @@ function skillList(){
       const op=r.d?` data-open="${r.d.no}"`:` class="unown"`;
       return `<tr${op}><td class="nm"><b>${esc(skn(r.n))}${r.lt&&r.d?`<span class="lvt">${r.lt}</span>`:""}</b><small class="cnt">${r.d?esc(r.d.nk):`<span class="nw">${esc(spn(r.sp))}</span> <span class="nw">未習得${r.lt?" "+r.lt:""}</span>`}</small></td><td class="c">${r.at?elTag(r.at):"？"}</td><td class="c">${r.mana}</td><td class="c">${accTag(r.acc)}</td><td class="c pw">${r.pow}</td></tr>${e?`<tr class="sk-e${r.d?"":" unown"}"${r.d?` data-open="${r.d.no}"`:""}><td colspan="5" class="ef"><div class="efb">${e}</div></td></tr>`:""}`}).join("")
   }</tbody></table></div></div>`:`<p class="nodata">当てはまるスキルはありません</p>`;
-  return echips+mchips+pchips+achips+cchips+list;
+  return echips+mchips+achips+pchips+cchips+list;
 
 }
 function viewSkill(){
