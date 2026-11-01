@@ -1043,13 +1043,15 @@ function abCat(n){
 }
 function viewAbility(){
   const {m}=learnRank("ab","shield","アビリティ");
-  const all=Object.entries(m).sort((a,b)=>b[1].length-a[1].length||a[0].localeCompare(b[0],"ja"));
+  /* 発動確率の高い順。確率の書いていないもの（フクツ系など、条件を満たせば必ず発動）を最初に。同じ確率なら覚えている数の多い順 */
+  const pct=n=>{const v=bestLv((AB[n]||{}).L)[0];if(!v)return -1;const m=String(v[1]).match(/(\d+)%の確率/);return m?+m[1]:100.5};
+  const all=Object.entries(m).sort((a,b)=>pct(b[0])-pct(a[0])||b[1].length-a[1].length||a[0].localeCompare(b[0],"ja"));
   const cnt=c=>all.filter(([n])=>abCat(n)===c).length;
   const cats=[["all","すべて",all.length],...AB_CATS.map(c=>[c,c,cnt(c)]).filter(x=>x[2]>0||state.abCat===x[0])];
   const names=state.abCat==="all"?all:all.filter(([n])=>abCat(n)===state.abCat);
   const holders=n=>`<div class="holds">${orderD(m[n]).map(d=>`<button class="hold" data-open="${d.no}">${esc(d.nk)}</button>`).join("")}</div>`;
   const table=abilityTable(names.map(([n,ds])=>({n,cnt:ds.length})),holders);
-  return `<h2><span class="tg">${ico("shield")}</span>アビリティの効果</h2><p class="hint">効果はMaxの値です（Maxが分からないものは、分かっている一番高いレベルの効果）。覚えているドラゴンを押すと、そのドラゴンのページが開きます</p>
+  return `<h2><span class="tg">${ico("shield")}</span>アビリティの効果</h2><p class="hint">発動確率の高い順（条件を満たせば必ず発動するものが先）。効果はMaxの値です（Maxが分からないものは、分かっている一番高いレベルの効果）。覚えているドラゴンを押すと、そのドラゴンのページが開きます</p>
     <div class="sorter">${cats.map(([k,n,c])=>`<button data-abcat="${k}" aria-pressed="${state.abCat===k}">${n}<small>${c}</small></button>`).join("")}</div>
     <div class="box" style="padding:4px 10px">${table}</div>`;
 }
