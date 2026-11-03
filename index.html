@@ -1547,7 +1547,6 @@ function viewDmg(){
    GROW：種族ごとの伸び率。T＝6種類の特訓それぞれの [主に上がる量, ペアが一緒に上がる量]（アイテムなし・育成1週目の画面の数値）
    順番は 体力・攻撃・防御・素早さ・命中・回避。init＝初期値（分からなければ null） */
 const GROW=[
-  {nm:"ケツァルコアトル変異種",note:"カオガコワイの3月2週（絶好調）の2回の平均。攻撃は鈍化前の推定値",init:null,T:[[24,5],[25,10],[13,10],[24,9],[26,10],[25,10]]},
   {nm:"蜃変異種",note:"シンゴジラの育成2週目（4月2週・絶好調）の数値",init:[78,120,93,140,97,152],T:[[17,11],[12,9],[25,6],[33,12],[27,5],[32,14]]},
 ];
 const PAIR=[2,4,0,5,1,3];   /* 体力↔防御・攻撃↔命中・素早さ↔回避 */
@@ -1626,19 +1625,19 @@ function cupView(){
     <p class="note">★は出る大会。月の右上の点は、予定がある月。左の線の色はゲームの枠の色。🔒は鍵つき、（鎖）は名前が読めないもの。「強敵」「記録」と書いてある大会は、押すと出てくるドラゴンや、出たドラゴンの上がったパラメータが見られます</p>
   </div>`;
 }
-const SIM_KEY="dragon-sim-v2";
+const SIM_KEY="dragon-sim-v3";
 const SIM_G0=GROW.findIndex(x=>x.init);
-const sim=(()=>{const g=GROW[SIM_G0];const d={cm:4,cy:0,g:SIM_G0,init:[...g.init],T:g.T.map(x=>[...x]),rest:"i",snackT:1,cupT:11,cupWin:11,cupGain:20,item:"w",cnt:[0,0,0,0,0,0],want:[1,1,1,1,1,1]};
+const sim=(()=>{const g=GROW[SIM_G0];const d={cm:4,cy:0,g:SIM_G0,init:[...g.init],T:g.T.map(x=>[...x]),snackT:1,cupT:11,cupWin:11,cupGain:20,cnt:[0,0,0,0,0,0],want:[1,1,1,1,1,1]};
   try{const s=JSON.parse(localStorage.getItem(SIM_KEY)||"{}");Object.keys(d).forEach(k=>{if(s[k]!=null)d[k]=s[k]})}catch(e){}if(!GROW[d.g])d.g=SIM_G0;return d})();
 const simSave=()=>{try{localStorage.setItem(SIM_KEY,JSON.stringify(sim))}catch(e){}};
 const SIM_WEEK=48,SIM_YEAR=2,ITEM=1.25;
 function simWeeks(){
   const A=SIM_YEAR*SIM_WEEK-sim.snackT-sim.cupT;
-  const [t,r]=sim.rest==="n"?[5,2]:[3,1],c=t+r;
+  const [t,r]=[5,2],c=t+r;   /* まったり育成：特訓5回ごとに休み2回 */
   const n=Math.floor(A/c)*t+Math.min(A%c,t);
   return {A,n,r:A-n,lb:`特訓${t}回ごとに${r}回休み`};
 }
-const simGain=t=>[sim.T[t][0]*ITEM,sim.T[t][1]*(sim.item==="w"?ITEM:1)];
+const simGain=t=>[sim.T[t][0]*ITEM,sim.T[t][1]];   /* 単体アイテム：主に上がる方だけ×1.25 */
 const simCupAdd=()=>sim.cupWin*sim.cupGain;
 function simRun(cnt){
   const v=sim.init.map(x=>Number(x)+simCupAdd());
@@ -1681,7 +1680,7 @@ function simPlan(){
       <table class="sim-out"><thead><tr><th>パラメータ</th><th>はじめ</th><th>予想</th><th>ふえる</th></tr></thead><tbody>${
         res.map((v,t)=>`<tr><td class="nm">${STATS[t]}</td><td>${init[t]}</td><td class="pv">${v}${rk(rankOfV(v))}</td><td class="${v>init[t]?"up":""}">${v>init[t]?"+"+(v-init[t]):"0"}</td></tr>`).join("")
       }<tr class="tot"><td class="nm">合計</td><td>${tot0}</td><td class="pv">${tot}</td><td class="up">+${tot-tot0}</td></tr></tbody></table></div>
-      <p class="note">アイテムを毎週使う前提（×1.25、鈍化はアイテムで消える）。大会の優勝で上がる分（各+${simCupAdd()}）を含む。999で頭打ち。極限集中（3週間、約2倍）とスペシャル特訓（+2）は入れていないので、そのぶん上ぶれします。ランクの境目は魔石表の数値からの目安</p></div>`;
+      <p class="note">まったり育成で、単体アイテムを毎週使う前提（主に上がる方だけ×1.25、鈍化はアイテムで消える）。大会の優勝で上がる分（各+${simCupAdd()}）を含む。999で頭打ち。極限集中（3週間、約2倍）とスペシャル特訓（+2）は入れていないので、そのぶん上ぶれします。ランクの境目は魔石表の数値からの目安</p></div>`;
 }
 function viewSim(){
   const w=simWeeks(),g=GROW[sim.g];
@@ -1695,20 +1694,18 @@ function viewSim(){
   <p class="hint">はじめのパラメータと、育成1週目の上がる量（アイテムなし）から、2年後のパラメータを予想します。<b>ずっと絶好調で育てる前提</b>なので、上がる量は絶好調の時の画面の数値を入れてください（普通の時の数値だと約1.2倍低く出ます）</p>
   <h2><span class="tg">${ico("list")}</span>ドラゴン</h2>
   <div class="box sim-b">
-    <div class="sorter">${GROW.map((x,i)=>`<button data-simg="${i}" aria-pressed="${sim.g===i}">${esc(x.nm)}</button>`).join("")}</div>
+    ${GROW.length>1?`<div class="sorter">${GROW.map((x,i)=>`<button data-simg="${i}" aria-pressed="${sim.g===i}">${esc(x.nm)}</button>`).join("")}</div>`:`<p style="margin:0 0 4px"><b>${esc(g.nm)}</b></p>`}
     <p class="note" style="margin:-4px 0 8px">${esc(g.note)}${g.init?"":"。初期値は分からないので入れてください"}</p>
     <table class="sim-in"><thead><tr><th>パラメータ</th><th>はじめ</th><th>特訓で<br>上がる</th><th colspan="2">一緒に<br>上がる</th></tr></thead><tbody>${inRows}</tbody></table>
     <p class="note">数値は書きかえられます。「一緒に上がる」は、その特訓でペアのパラメータが上がる量</p>
   </div>
   <h2><span class="tg">${ico("book")}</span>2年間の予定</h2>
   <div class="box sim-b">
-    <div class="sorter" style="margin-bottom:6px"><button data-simr="i" aria-pressed="${sim.rest!=="n"}">ガチ育成</button><button data-simr="n" aria-pressed="${sim.rest==="n"}">まったり育成</button></div>
     ${step("snackT","おやつ","2年間の週",0,10)}
     ${step("cupT","大会","2年間の週",0,40)}
     ${step("cupWin","パラメータが上がる大会","優勝した大会の回数",0,sim.cupT)}
     ${step("cupGain","大会1回で上がる量","6つのパラメータそれぞれ",0,40)}
     <p class="note">育成カレンダーの予定どおりなら、大会11回（どれも優勝で各パラメータ約+20）、おやつ1回。途中で999を超えないように、カレンダーの「〜まで」の値に気をつけてください</p>
-    <div class="sorter" style="margin:8px 0 0"><button data-simit="w" aria-pressed="${sim.item==="w"}">複合アイテム</button><button data-simit="s" aria-pressed="${sim.item==="s"}">単体アイテム</button></div>
     <div class="sim-sum">行動 ${SIM_YEAR*SIM_WEEK}週 − おやつ ${sim.snackT}週 − 大会 ${sim.cupT}週 ＝ ${w.A}週<br><b>特訓 ${w.n}回</b>・休み ${w.r}回（${w.lb}）<br><b>大会で各パラメータ +${simCupAdd()}</b>（+${sim.cupGain}×${sim.cupWin}回）</div>
   </div>
   <div id="simplan">${simPlan()}</div>
@@ -1716,22 +1713,8 @@ function viewSim(){
   <h2><span class="tg">${ico("bolt")}</span>育て方</h2>
   <div class="box sim-b">
     <div class="way"><b>まったり育成</b><p>パラメータアップアイテムⅡを使って特訓。元気が減ったら休む。これをくり返す</p><p class="note">7週で1回り：特訓5回・休み2回。アイテムⅡ（6週）×1</p></div>
-    <div class="way"><b>ガチ育成</b><p>パラメータアップアイテムⅠを使って特訓。元気が減ったら、元気アップのアイテムで上書きして休む。これをくり返す</p><p class="note">4週で1回り：特訓3回・休み1回。アイテムⅠ（4週）×1、元気アップ×1</p></div>
-    <div class="way"><b>元気</b><p>特訓1回で約20へる。休むと50、元気アップのアイテムを使って休むと60もどる。<b>40</b>を下回ると特訓に失敗することがある</p></div>
-    <div class="way"><b>守ること</b><ul class="way-l"><li>育成は<b>1年生と2年生のドラゴンを1週ごとに交互に</b>進める（1年生4月1週→2年生4月1週→1年生4月2週…）</li><li>1体のドラゴンは<b>2年間ずっと同じ育て方</b>。ガチ育成のドラゴンは2年間ガチ、まったり育成のドラゴンは2年間まったり</li><li>アイテムのバランスを保つため、ガチ育成とまったり育成のドラゴンを代わりばんこに育てる（同じ時期の1年生と2年生が、ガチとまったりの組み合わせになる）</li><li>必要なアイテムは<b>大会の賞金で買う</b></li></ul></div>
-    <div class="way"><b>1年間に必要なアイテム</b>
-      <div class="xtbl"><table class="lab-t"><thead><tr><th></th><th class="c">週</th><th class="c">Ⅰ</th><th class="c">Ⅱ</th><th class="c">元気アップ</th></tr></thead><tbody>
-        <tr><td class="nm">ガチ 1年生</td><td class="c">45</td><td class="c">12</td><td class="c">-</td><td class="c">11</td></tr>
-        <tr><td class="nm">ガチ 2年生</td><td class="c">39</td><td class="c">10</td><td class="c">-</td><td class="c">9</td></tr>
-        <tr><td class="nm">まったり 1年生</td><td class="c">45</td><td class="c">-</td><td class="c">7</td><td class="c">-</td></tr>
-        <tr><td class="nm">まったり 2年生</td><td class="c">39</td><td class="c">-</td><td class="c">6</td><td class="c">-</td></tr>
-      </tbody></table></div>
-      <p class="note">1年間に2体を育てるので、実際に買うのは2行分の合計</p>
-      <div class="xtbl"><table class="lab-t"><thead><tr><th>1年間（2体分）</th><th class="c">Ⅰ</th><th class="c">Ⅱ</th><th class="c">元気アップ</th></tr></thead><tbody>
-        <tr><td class="nm">ガチ1年生＋まったり2年生</td><td class="c"><b>12</b></td><td class="c"><b>6</b></td><td class="c"><b>11</b></td></tr>
-        <tr><td class="nm">まったり1年生＋ガチ2年生</td><td class="c"><b>10</b></td><td class="c"><b>7</b></td><td class="c"><b>9</b></td></tr>
-      </tbody></table></div>
-      <p class="note">Ⅰ・Ⅱはパラメータアップアイテム。週は、育成カレンダーの予定（1年生：おやつ1週・大会2週、2年生：大会9週）をのぞいた特訓と休みの週。大会の週もアイテムの期間は進むので、区切りによっては1〜2個多めに用意する。1年生4月1週の調子アップのアイテムは別</p></div>
+    <div class="way"><b>元気</b><p>特訓1回で約20へる。休むと50もどる。<b>40</b>を下回ると特訓に失敗することがある</p></div>
+    <div class="way"><b>守ること</b><ul class="way-l"><li>育成は<b>1年生と2年生のドラゴンを1週ごとに交互に</b>進める（1年生4月1週→2年生4月1週→1年生4月2週…）</li><li>必要なアイテムは<b>大会の賞金で買う</b></li></ul></div>
   </div>`;
 }
 const simRe=()=>{simSave();const el=document.getElementById("simplan");if(el)el.innerHTML=simPlan()};
@@ -1744,10 +1727,8 @@ document.addEventListener("input",e=>{
 document.addEventListener("click",e=>{
   const c=e.target.closest("[data-cupm],[data-cupy],[data-cupgo]");
   if(c){if(c.dataset.cupgo){const [yy,mm]=c.dataset.cupgo.split("|");sim.cy=+yy;sim.cm=+mm}else if(c.dataset.cupm)sim.cm=+c.dataset.cupm;else sim.cy=+c.dataset.cupy;simSave();const el=document.getElementById("cupcal");if(el)el.innerHTML=cupView();return}
-  const t=e.target.closest("[data-simg],[data-simr],[data-sims],[data-simit],[data-simc],[data-simw],[data-simauto],[data-simclr]");if(!t)return;const ds=t.dataset;
+  const t=e.target.closest("[data-simg],[data-sims],[data-simc],[data-simw],[data-simauto],[data-simclr]");if(!t)return;const ds=t.dataset;
   if(ds.simg){const g=GROW[+ds.simg];sim.g=+ds.simg;sim.T=g.T.map(x=>[...x]);if(g.init)sim.init=[...g.init];simSave();return render()}
-  if(ds.simr){sim.rest=ds.simr;simSave();return render()}
-  if(ds.simit){sim.item=ds.simit;simSave();return render()}
   if(ds.sims){const [k,d]=ds.sims.split("|");sim[k]=Math.max(0,sim[k]+ +d);if(sim.cupWin>sim.cupT)sim.cupWin=sim.cupT;simSave();return render()}
   if(ds.simc){const [i,d]=ds.simc.split("|");sim.cnt[+i]=Math.max(0,sim.cnt[+i]+ +d);return simRe()}
   if(ds.simw){const i=+ds.simw;sim.want[i]=sim.want[i]?0:1;return simRe()}
