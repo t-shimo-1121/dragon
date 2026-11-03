@@ -473,6 +473,8 @@ mark{background:hsl(45 95% 62% / .55);color:inherit;border-radius:3px;padding:0 
 .way:last-child{border-bottom:0;padding-bottom:0}
 .way b{font-size:var(--fs-l)}
 .way p{margin:2px 0 0}
+.way-l{margin:2px 0 0;padding-left:1.2em}
+.way .xtbl{margin:4px -4px 0}
 /* 大会カレンダー */
 .cup-wk{display:grid;grid-template-columns:2.6rem minmax(0,1fr);gap:8px;padding:8px 0;border-bottom:1px solid var(--line);align-items:start}
 .cup-wk:last-child{border-bottom:0}
@@ -1544,14 +1546,16 @@ function cupView(){
   </div>`;
 }
 const SIM_KEY="dragon-sim-v1";
-const sim=(()=>{const g=GROW[0];const d={cm:4,cy:0,g:0,init:[...g.init],T:g.T.map(x=>[...x]),rest:"n",snackT:1,cupT:11,cupWin:11,cupGain:20,item:"w",cnt:[0,0,0,0,0,0],want:[1,1,1,1,1,1]};
+const sim=(()=>{const g=GROW[0];const d={cm:4,cy:0,g:0,init:[...g.init],T:g.T.map(x=>[...x]),rest:"a",snackT:1,cupT:11,cupWin:11,cupGain:20,item:"w",cnt:[0,0,0,0,0,0],want:[1,1,1,1,1,1]};
   try{const s=JSON.parse(localStorage.getItem(SIM_KEY)||"{}");Object.keys(d).forEach(k=>{if(s[k]!=null)d[k]=s[k]})}catch(e){}return d})();
 const simSave=()=>{try{localStorage.setItem(SIM_KEY,JSON.stringify(sim))}catch(e){}};
 const SIM_WEEK=48,SIM_YEAR=2,ITEM=1.25;
 function simWeeks(){
-  const A=SIM_YEAR*SIM_WEEK-sim.snackT-sim.cupT,[t,r]=sim.rest==="n"?[5,2]:[3,1],c=t+r;
+  const A=SIM_YEAR*SIM_WEEK-sim.snackT-sim.cupT;
+  if(sim.rest==="a"){const q=A%11,n=Math.floor(A/11)*8+Math.min(q,5)+Math.max(0,Math.min(q-7,3));return {A,n,r:A-n,lb:"まったり7週（特訓5・休み2）とガチ4週（特訓3・休み1）を交互"}}
+  const [t,r]=sim.rest==="n"?[5,2]:[3,1],c=t+r;
   const n=Math.floor(A/c)*t+Math.min(A%c,t);
-  return {A,n,r:A-n,t,rr:r};
+  return {A,n,r:A-n,lb:`特訓${t}回ごとに${r}回休み`};
 }
 const simGain=t=>[sim.T[t][0]*ITEM,sim.T[t][1]*(sim.item==="w"?ITEM:1)];
 const simCupAdd=()=>sim.cupWin*sim.cupGain;
@@ -1617,21 +1621,30 @@ function viewSim(){
   </div>
   <h2><span class="tg">${ico("book")}</span>2年間の予定</h2>
   <div class="box sim-b">
-    <div class="sorter" style="margin-bottom:6px"><button data-simr="n" aria-pressed="${sim.rest==="n"}">特訓5回に休み2回</button><button data-simr="i" aria-pressed="${sim.rest==="i"}">休みアイテムで3回に1回</button></div>
+    <div class="sorter" style="margin-bottom:6px"><button data-simr="a" aria-pressed="${sim.rest==="a"}">交互</button><button data-simr="n" aria-pressed="${sim.rest==="n"}">まったり育成</button><button data-simr="i" aria-pressed="${sim.rest==="i"}">ガチ育成</button></div>
     ${step("snackT","おやつ","2年間の週",0,10)}
     ${step("cupT","大会","2年間の週",0,40)}
     ${step("cupWin","パラメータが上がる大会","優勝した大会の回数",0,sim.cupT)}
     ${step("cupGain","大会1回で上がる量","6つのパラメータそれぞれ",0,40)}
     <p class="note">育成カレンダーの予定どおりなら、大会11回（どれも優勝で各パラメータ約+20）、おやつ1回。途中で999を超えないように、カレンダーの「〜まで」の値に気をつけてください</p>
     <div class="sorter" style="margin:8px 0 0"><button data-simit="w" aria-pressed="${sim.item==="w"}">複合アイテム</button><button data-simit="s" aria-pressed="${sim.item==="s"}">単体アイテム</button></div>
-    <div class="sim-sum">行動 ${SIM_YEAR*SIM_WEEK}週 − おやつ ${sim.snackT}週 − 大会 ${sim.cupT}週 ＝ ${w.A}週<br><b>特訓 ${w.n}回</b>・休み ${w.r}回（${w.t}回ごとに${w.rr}回休み）<br><b>大会で各パラメータ +${simCupAdd()}</b>（+${sim.cupGain}×${sim.cupWin}回）</div>
+    <div class="sim-sum">行動 ${SIM_YEAR*SIM_WEEK}週 − おやつ ${sim.snackT}週 − 大会 ${sim.cupT}週 ＝ ${w.A}週<br><b>特訓 ${w.n}回</b>・休み ${w.r}回（${w.lb}）<br><b>大会で各パラメータ +${simCupAdd()}</b>（+${sim.cupGain}×${sim.cupWin}回）</div>
   </div>
   <div id="simplan">${simPlan()}</div>
   <div id="cupcal">${cupView()}</div>
   <h2><span class="tg">${ico("bolt")}</span>育て方</h2>
   <div class="box sim-b">
-    <div class="way"><b>まったり育成</b><p>パラメータアップアイテムⅡを使って特訓。元気が減ったら休む。これをくり返す</p></div>
-    <div class="way"><b>ガチ育成</b><p>パラメータアップアイテムⅠを使って特訓。元気が減ったら、元気アップのアイテムで上書きして休む。これをくり返す</p></div>
+    <div class="way"><b>まったり育成</b><p>パラメータアップアイテムⅡを使って特訓。元気が減ったら休む。これをくり返す</p><p class="note">7週で1回り：特訓5回・休み2回。アイテムⅡ（6週）×1</p></div>
+    <div class="way"><b>ガチ育成</b><p>パラメータアップアイテムⅠを使って特訓。元気が減ったら、元気アップのアイテムで上書きして休む。これをくり返す</p><p class="note">4週で1回り：特訓3回・休み1回。アイテムⅠ（4週）×1、元気アップ×1</p></div>
+    <div class="way"><b>元気</b><p>特訓1回で約20へる。休むと50、元気アップのアイテムを使って休むと60もどる。<b>40</b>を下回ると特訓に失敗することがある</p></div>
+    <div class="way"><b>守ること</b><ul class="way-l"><li>アイテムのバランスを保つため、<b>まったり育成とガチ育成は交互に</b>行う（11週で特訓8回）</li><li>必要なアイテムは<b>大会の賞金で買う</b></li></ul></div>
+    <div class="way"><b>1年間に必要なアイテム</b>
+      <div class="xtbl"><table class="lab-t"><thead><tr><th></th><th class="c">特訓と休みの週</th><th class="c">Ⅰ</th><th class="c">Ⅱ</th><th class="c">元気アップ</th></tr></thead><tbody>
+        <tr><td class="nm">1年生</td><td class="c">45週</td><td class="c">4</td><td class="c">5</td><td class="c">4</td></tr>
+        <tr><td class="nm">2年生</td><td class="c">39週</td><td class="c">3</td><td class="c">4</td><td class="c">3</td></tr>
+        <tr><td class="nm">2年間</td><td class="c">84週</td><td class="c"><b>7</b></td><td class="c"><b>9</b></td><td class="c"><b>7</b></td></tr>
+      </tbody></table></div>
+      <p class="note">Ⅰ・Ⅱはパラメータアップアイテム。育成カレンダーの予定（1年生：おやつ1週・大会2週、2年生：大会9週）をのぞいた週で、まったりとガチを交互にくり返した数。大会の週もアイテムの期間は進むので、区切りによっては1〜2個多めに用意する。1年生4月1週の調子アップのアイテムは別</p></div>
   </div>`;
 }
 const simRe=()=>{simSave();const el=document.getElementById("simplan");if(el)el.innerHTML=simPlan()};
