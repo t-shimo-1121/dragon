@@ -467,6 +467,12 @@ mark{background:hsl(45 95% 62% / .55);color:inherit;border-radius:3px;padding:0 
 .sim-out td.pv{font-family:var(--f-head);font-weight:700;font-size:var(--fs-l)}
 .sim-out td .rk{font-size:var(--fs-s);vertical-align:2px;margin-left:4px}
 .sim-out tr.tot td{font-weight:700}
+/* 育て方 */
+.way{padding:8px 0;border-bottom:1px solid var(--line)}
+.way:first-child{padding-top:0}
+.way:last-child{border-bottom:0;padding-bottom:0}
+.way b{font-size:var(--fs-l)}
+.way p{margin:2px 0 0}
 /* 大会カレンダー */
 .cup-wk{display:grid;grid-template-columns:2.6rem minmax(0,1fr);gap:8px;padding:8px 0;border-bottom:1px solid var(--line);align-items:start}
 .cup-wk:last-child{border-bottom:0}
@@ -1621,7 +1627,12 @@ function viewSim(){
     <div class="sim-sum">行動 ${SIM_YEAR*SIM_WEEK}週 − おやつ ${sim.snackT}週 − 大会 ${sim.cupT}週 ＝ ${w.A}週<br><b>特訓 ${w.n}回</b>・休み ${w.r}回（${w.t}回ごとに${w.rr}回休み）<br><b>大会で各パラメータ +${simCupAdd()}</b>（+${sim.cupGain}×${sim.cupWin}回）</div>
   </div>
   <div id="simplan">${simPlan()}</div>
-  <div id="cupcal">${cupView()}</div>`;
+  <div id="cupcal">${cupView()}</div>
+  <h2><span class="tg">${ico("bolt")}</span>育て方</h2>
+  <div class="box sim-b">
+    <div class="way"><b>まったり育成</b><p>パラメータアップアイテムⅡを使って特訓。元気が減ったら休む。これをくり返す</p></div>
+    <div class="way"><b>ガチ育成</b><p>パラメータアップアイテムⅠを使って特訓。元気が減ったら、元気アップのアイテムで上書きして休む。これをくり返す</p></div>
+  </div>`;
 }
 const simRe=()=>{simSave();const el=document.getElementById("simplan");if(el)el.innerHTML=simPlan()};
 document.addEventListener("input",e=>{
