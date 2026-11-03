@@ -1582,43 +1582,52 @@ function cupDetail(rv,up){
   if(up)h+=`<p class="cup-sh">上がったパラメータ</p>`+up.map(r=>`<div class="rv"><div class="rv-h"><b>${esc(r.nk)}</b><span class="rv-sp">${esc(r.sp)}</span><span class="rv-t">合計 +${sum(r.up)}</span></div>${sixTbl(r.up,v=>v?`<span class="up">+${v}</span>`:`<span class="none">–</span>`)}${r.note?`<p class="note" style="margin:2px 0 0">${esc(r.note)}</p>`:""}</div>`).join("");
   return h;
 }
+/* 大会の優勝で上がる量（検証タブ「大会で上がるパラメータ」）。体力・攻撃・防御・素早さ・命中・回避。
+   決定戦（新人王・最強王）は6つ全部が約+17、自慢大会は名前に合ったペアが約+28。up:null は自慢大会のどれかを選ぶ週 */
+const UP_ALL=[17,17,17,17,17,17],UP_A=[0,28,0,0,28,0],UP_D=[28,0,28,0,0,0],UP_S=[0,0,0,28,0,28],UP_PICK=28;
 /* 決まっている育成の予定。y＝0:1年生 1:2年生。k＝must（出る）・opt（属性が合えば出る）・plan（予定）。cups＝出る大会の候補 */
 const PLAN=[
   {y:0,m:4,w:1,k:"plan",t:"おやつ",d:"調子アップのアイテムを使ってから、おやつ"},
   {y:0,m:4,w:2,k:"plan",t:"伸び率を記録",d:"絶好調で6種類の特訓画面を撮り、魔石表に記録する"},
-  {y:0,m:1,w:4,k:"must",t:"新人王",cups:["森林 新人王決定戦","荒野 新人王決定戦"],d:"どちらかに出る"},
-  {y:0,m:2,w:4,k:"must",t:"新人王",cups:["岩場 新人王決定戦","水辺 新人王決定戦"],d:"優勝でゴールドに上がる"},
-  {y:1,m:7,w:4,k:"must",t:"大会",d:"パラメータが上がり、元気が減らない"},
-  {y:1,m:8,w:4,k:"must",t:"大会",d:"パラメータが上がり、元気が減らない"},
-  {y:1,m:9,w:2,k:"must",t:"大会",d:"パラメータが上がり、元気が減らない"},
-  {y:1,m:10,w:4,k:"must",t:"大会",d:"パラメータが上がり、元気が減らない"},
-  {y:1,m:11,w:4,k:"must",t:"自慢大会",cups:["アタック自慢大会","ディフェンス自慢大会","スピード自慢大会"],d:"アタック・ディフェンス・スピードのどれか"},
-  {y:1,m:1,w:4,k:"must",t:"地形の最強王",cups:["森林 最強王決定戦","荒野 最強王決定戦"],d:"優勝で各パラメータ約+20"},
-  {y:1,m:2,w:4,k:"must",t:"地形の最強王",cups:["岩場 最強王決定戦","水辺 最強王決定戦"],d:"優勝で各パラメータ約+20"},
-  {y:1,m:3,w:1,k:"opt",t:"火vs土 最強王",cups:["火vs土 最強王決定戦"],d:"火・土のドラゴンなら出る（優勝で各パラメータ約+20、元気が減らない）。違えば特訓か休み"},
-  {y:1,m:3,w:2,k:"opt",t:"水vs風 最強王",cups:["水vs風 最強王決定戦"],d:"水・風のドラゴンなら出る（優勝で各パラメータ約+20、元気が減らない）。違えば特訓か休み"},
-  {y:1,m:3,w:3,k:"opt",t:"光vs闇 最強王",cups:["光vs闇 最強王決定戦"],d:"光・闇のドラゴンなら出る（優勝で各パラメータ約+20、元気が減らない）。違えば特訓か休み"},
-  {y:1,m:3,w:4,k:"must",t:"ドラゴン最強王",cups:["ドラゴン最強王決定戦"],d:"優勝で各パラメータ約+20。必ず出る"},
+  {y:0,m:1,w:4,k:"must",t:"新人王",cups:["森林 新人王決定戦","荒野 新人王決定戦"],up:UP_ALL,d:"どちらかに出る"},
+  {y:0,m:2,w:4,k:"must",t:"新人王",cups:["岩場 新人王決定戦","水辺 新人王決定戦"],up:UP_ALL,d:"優勝でゴールドに上がる"},
+  {y:1,m:7,w:4,k:"must",t:"アタック自慢",cups:["アタック自慢大会"],up:UP_A,d:"優勝で攻撃・命中が約+28。元気が減らない"},
+  {y:1,m:8,w:4,k:"must",t:"自慢大会",cups:["アタック自慢大会","ディフェンス自慢大会","スピード自慢大会"],up:null,d:"アタック・ディフェンス・スピードのどれか。優勝で名前に合った2つが約+28。元気が減らない"},
+  {y:1,m:9,w:2,k:"must",t:"ディフェンス自慢",cups:["ディフェンス自慢大会"],up:UP_D,d:"優勝で体力・防御が約+28。元気が減らない"},
+  {y:1,m:10,w:4,k:"must",t:"スピード自慢",cups:["スピード自慢大会"],up:UP_S,d:"優勝で素早さ・回避が約+28（たぶん）。元気が減らない"},
+  {y:1,m:11,w:4,k:"must",t:"自慢大会",cups:["アタック自慢大会","ディフェンス自慢大会","スピード自慢大会"],up:null,d:"アタック・ディフェンス・スピードのどれか。優勝で名前に合った2つが約+28"},
+  {y:1,m:1,w:4,k:"must",t:"地形の最強王",cups:["森林 最強王決定戦","荒野 最強王決定戦"],up:UP_ALL,d:"優勝で6つのパラメータ全部が約+17"},
+  {y:1,m:2,w:4,k:"must",t:"地形の最強王",cups:["岩場 最強王決定戦","水辺 最強王決定戦"],up:UP_ALL,d:"優勝で6つのパラメータ全部が約+17"},
+  {y:1,m:3,w:1,k:"opt",t:"火vs土 最強王",cups:["火vs土 最強王決定戦"],up:UP_ALL,d:"火・土のドラゴンなら出る（優勝で6つ全部が約+17、元気が減らない）。違えば特訓か休み"},
+  {y:1,m:3,w:2,k:"opt",t:"水vs風 最強王",cups:["水vs風 最強王決定戦"],up:UP_ALL,d:"水・風のドラゴンなら出る（優勝で6つ全部が約+17、元気が減らない）。違えば特訓か休み"},
+  {y:1,m:3,w:3,k:"opt",t:"光vs闇 最強王",cups:["光vs闇 最強王決定戦"],up:UP_ALL,d:"光・闇のドラゴンなら出る（優勝で6つ全部が約+17、元気が減らない）。違えば特訓か休み"},
+  {y:1,m:3,w:4,k:"must",t:"ドラゴン最強王",cups:["ドラゴン最強王決定戦"],up:UP_ALL,d:"優勝で6つのパラメータ全部が約+17。必ず出る"},
 ];
 const PL_LB={must:"マスト",opt:"属性しだい",plan:"予定"};
 /* 999から逆算した、その大会の前の上限。大会の数は、属性の最強王（3つのうち1つ）を1回と数える */
 const PL_EV=(()=>{const ev=[];PLAN.forEach(p=>{if(p.k==="must")ev.push([p]);else if(p.k==="opt"){const last=ev[ev.length-1];if(last&&last[0].k==="opt")last.push(p);else ev.push([p])}});return ev})();
-const plLeft=p=>{const i=PL_EV.findIndex(e=>e.includes(p));return i<0?0:PL_EV.length-i};
-const plCap=p=>{const n=plLeft(p);return n?999-n*(sim.cupGain||20):null};
+/* その大会から最後までに上がる量の合計（6つ）と、どれかを選ぶ自慢大会の数 */
+const plRest=p=>{const i=PL_EV.findIndex(e=>e.includes(p));if(i<0)return null;const v=[0,0,0,0,0,0];let pick=0;
+  PL_EV.slice(i).forEach(e=>{const u=e[0].up;if(u)u.forEach((x,t)=>v[t]+=x);else pick++});return {v,pick}};
+const PL_PAIRS=[[0,2,"体力・防御"],[1,4,"攻撃・命中"],[3,5,"素早さ・回避"]];
+const plCaps=p=>{const r=plRest(p);return r&&PL_PAIRS.map(([a,b,n])=>({n,c:999-Math.max(r.v[a],r.v[b]),add:Math.max(r.v[a],r.v[b])}))};
+const plCapS=p=>{const c=plCaps(p);if(!c)return "";const xs=c.map(x=>x.c),lo=Math.min(...xs),hi=Math.max(...xs);return lo===hi?`${lo}まで`:`${lo}〜${hi}`};
+const plCapD=p=>{const c=plCaps(p),r=plRest(p);if(!c)return "";
+  return `<span class="pl-cap">この大会の前は、${c.map(x=>`${x.n}<b>${x.c}まで</b>`).join("、")}（このあとの大会で上がる量から逆算）${r.pick?`。ほかに自慢大会が${r.pick}回あり、選んだペアはさらに${r.pick*UP_PICK}下げる`:""}</span>`};
 const PHASE=(y,m)=>y===0&&m>=4&&m<=11?"4月2週〜11月ごろは、体力・防御など耐久を中心に育てる。ダメージはサポートカードの状態異常に頼る":"";
 function cupView(){
   const m=sim.cm||4,y=sim.cy||0,wk=CUPS[m][y];
   const plan=w=>PLAN.find(p=>p.y===y&&p.m===m&&p.w===w);
   const has=k=>PLAN.some(p=>p.y===y&&p.m===k);
-  const list=PLAN.map(p=>`<button class="plan-i ${p.k}${p.y===y&&p.m===m?" on":""}" data-cupgo="${p.y}|${p.m}"><span>${p.y+1}年 ${p.m}月${p.w}週</span><b>${esc(p.t)}</b><small>${plCap(p)?`${plCap(p)}まで`:PL_LB[p.k]}</small></button>`).join("");
+  const list=PLAN.map(p=>`<button class="plan-i ${p.k}${p.y===y&&p.m===m?" on":""}" data-cupgo="${p.y}|${p.m}"><span>${p.y+1}年 ${p.m}月${p.w}週</span><b>${esc(p.t)}</b><small>${plCapS(p)||PL_LB[p.k]}</small></button>`).join("");
   const ph=PHASE(y,m);
   return `<h2><span class="tg">${ico("crown")}</span>育成カレンダー</h2>
   <div class="box sim-b">
-    <details class="plan-box" open><summary>決まっている予定<small>${PLAN.length}</small></summary><div class="plan-l">${list}</div><p class="note">赤い線はマスト、青い線は予定・属性しだい。大会は優勝するたびに各パラメータが+${sim.cupGain||20}上がります。999を超えた分はむだになるので、それぞれの大会の前に「〜まで」の値を超えないように育てます（999 − このあとの大会の回数×${sim.cupGain||20}）</p></details>
+    <details class="plan-box" open><summary>決まっている予定<small>${PLAN.length}</small></summary><div class="plan-l">${list}</div><p class="note">赤い線はマスト、青い線は予定・属性しだい。大会の優勝で上がるのは、新人王・最強王は6つ全部が約+17、自慢大会は名前に合った2つが約+28（検証タブ）。999を超えた分はむだになるので、それぞれの大会の前に「〜まで」の値を超えないように育てます（999 − このあとの大会で上がる量の合計）。新人王は最強王と同じと仮定</p></details>
     <div class="sorter">${["1年生","2年生"].map((n,i)=>`<button data-cupy="${i}" aria-pressed="${y===i}">${n}</button>`).join("")}</div>
     <div class="sorter mo">${CUP_MO.map(k=>`<button data-cupm="${k}" aria-pressed="${m===k}"${has(k)?' class="has"':""}>${k}月</button>`).join("")}</div>
     ${ph?`<p class="pl-phase">${ph}</p>`:""}
-    ${wk.map((l,i)=>{const p=plan(i+1);return `<div class="cup-wk"><b>${i+1}週</b><div class="cup-l">${p?`<div class="pl ${p.k}"><span class="pl-k">${PL_LB[p.k]}</span><b>${esc(p.t)}</b><span class="pl-d">${esc(p.d)}</span>${plCap(p)?`<span class="pl-cap">この大会の前は、各パラメータ<b>${plCap(p)}まで</b>（このあと大会${plLeft(p)}回で+${plLeft(p)*(sim.cupGain||20)}）</span>`:""}</div>`:""}${l.map(([n,t,c,f])=>{const k=`${y}-${m}-${i+1}-${n}`,rv=RIVALS[k],up=CUP_UP[k],tg=p&&p.cups&&p.cups.includes(n);
+    ${wk.map((l,i)=>{const p=plan(i+1);return `<div class="cup-wk"><b>${i+1}週</b><div class="cup-l">${p?`<div class="pl ${p.k}"><span class="pl-k">${PL_LB[p.k]}</span><b>${esc(p.t)}</b><span class="pl-d">${esc(p.d)}</span>${plCapD(p)}</div>`:""}${l.map(([n,t,c,f])=>{const k=`${y}-${m}-${i+1}-${n}`,rv=RIVALS[k],up=CUP_UP[k],tg=p&&p.cups&&p.cups.includes(n);
       const tag=[rv&&`強敵${rv.length}体`,up&&`記録${up.length}件`].filter(Boolean).join("・");
       const head=`<b>${tg?"★ ":""}${esc(n)}${f==="!"?" 🔒":f==="?"?"（鎖）":""}</b><small>${esc(t)}${tag?`・${tag}`:""}</small>`;
       return rv||up?`<details class="cup ${c} rvd${tg?" tgt":""}"><summary>${head}</summary>${cupDetail(rv,up)}</details>`:`<div class="cup ${c}${f==="!"||f==="?"?" lock":""}${tg?" tgt":""}">${head}</div>`}).join("")}</div></div>`}).join("")}
