@@ -1539,7 +1539,6 @@ function viewDmg(){
    GROW：種族ごとの伸び率。T＝6種類の特訓それぞれの [主に上がる量, ペアが一緒に上がる量]（アイテムなし・育成1週目の画面の数値）
    順番は 体力・攻撃・防御・素早さ・命中・回避。init＝初期値（分からなければ null） */
 const GROW=[
-  {nm:"クエレブレ変異種",note:"ゴツオの育成1週目（4月1週）の数値。調子が好調の時なので、絶好調より少し低めに出ます",init:[125,80,120,75,100,105],T:[[29,10],[23,9],[28,10],[11,5],[19,8],[10,4]]},
   {nm:"ケツァルコアトル変異種",note:"カオガコワイの3月2週（絶好調）の2回の平均。攻撃は鈍化前の推定値",init:null,T:[[24,5],[25,10],[13,10],[24,9],[26,10],[25,10]]},
   {nm:"蜃変異種",note:"シンゴジラの育成2週目（4月2週・絶好調）の数値",init:[78,120,93,140,97,152],T:[[17,11],[12,9],[25,6],[33,12],[27,5],[32,14]]},
 ];
@@ -1619,9 +1618,10 @@ function cupView(){
     <p class="note">★は出る大会。月の右上の点は、予定がある月。左の線の色はゲームの枠の色。🔒は鍵つき、（鎖）は名前が読めないもの。「強敵」「記録」と書いてある大会は、押すと出てくるドラゴンや、出たドラゴンの上がったパラメータが見られます</p>
   </div>`;
 }
-const SIM_KEY="dragon-sim-v1";
-const sim=(()=>{const g=GROW[0];const d={cm:4,cy:0,g:0,init:[...g.init],T:g.T.map(x=>[...x]),rest:"i",snackT:1,cupT:11,cupWin:11,cupGain:20,item:"w",cnt:[0,0,0,0,0,0],want:[1,1,1,1,1,1]};
-  try{const s=JSON.parse(localStorage.getItem(SIM_KEY)||"{}");Object.keys(d).forEach(k=>{if(s[k]!=null)d[k]=s[k]})}catch(e){}return d})();
+const SIM_KEY="dragon-sim-v2";
+const SIM_G0=GROW.findIndex(x=>x.init);
+const sim=(()=>{const g=GROW[SIM_G0];const d={cm:4,cy:0,g:SIM_G0,init:[...g.init],T:g.T.map(x=>[...x]),rest:"i",snackT:1,cupT:11,cupWin:11,cupGain:20,item:"w",cnt:[0,0,0,0,0,0],want:[1,1,1,1,1,1]};
+  try{const s=JSON.parse(localStorage.getItem(SIM_KEY)||"{}");Object.keys(d).forEach(k=>{if(s[k]!=null)d[k]=s[k]})}catch(e){}if(!GROW[d.g])d.g=SIM_G0;return d})();
 const simSave=()=>{try{localStorage.setItem(SIM_KEY,JSON.stringify(sim))}catch(e){}};
 const SIM_WEEK=48,SIM_YEAR=2,ITEM=1.25;
 function simWeeks(){
