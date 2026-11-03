@@ -1494,13 +1494,16 @@ const CUP_UP={
   "1-2-4-岩場 最強王決定戦":[
     {nk:"カオガコワイ",sp:"ケツァルコアトル変異種",up:[19,17,18,17,18,15]},
   ],
+  "1-7-4-アタック自慢大会":[
+    {nk:"ゴツオ",sp:"クエレブレ変異種",up:[0,26,0,0,33,0]},
+  ],
 };
 const sixTbl=(vals,f=v=>v)=>`<div class="xtbl"><table class="pmtbl"><thead><tr>${STATS.map(n=>`<th class="c">${n==="素早さ"?"素早":n}</th>`).join("")}</tr></thead><tbody><tr>${vals.map(v=>`<td class="c">${f(v)}</td>`).join("")}</tr></tbody></table></div>`;
 const sum=a=>a.reduce((x,y)=>x+y,0);
 function cupDetail(rv,up){
   let h="";
   if(rv)h+=`<p class="cup-sh">強敵</p>`+rv.map(r=>`<div class="rv"><div class="rv-h"><b>${esc(r.sp)}</b><span>「${esc(r.nk)}」</span><span class="rv-t">合計 ${sum(r.st)}</span></div>${sixTbl(r.st,v=>`<span class="${v>=800?"s":v<400?"lo":""}">${v}</span>`)}</div>`).join("");
-  if(up)h+=`<p class="cup-sh">上がったパラメータ</p>`+up.map(r=>`<div class="rv"><div class="rv-h"><b>${esc(r.nk)}</b><span class="rv-sp">${esc(r.sp)}</span><span class="rv-t">合計 +${sum(r.up)}</span></div>${sixTbl(r.up,v=>`<span class="up">+${v}</span>`)}</div>`).join("");
+  if(up)h+=`<p class="cup-sh">上がったパラメータ</p>`+up.map(r=>`<div class="rv"><div class="rv-h"><b>${esc(r.nk)}</b><span class="rv-sp">${esc(r.sp)}</span><span class="rv-t">合計 +${sum(r.up)}</span></div>${sixTbl(r.up,v=>v?`<span class="up">+${v}</span>`:`<span class="none">–</span>`)}</div>`).join("");
   return h;
 }
 /* 決まっている育成の予定。y＝0:1年生 1:2年生。k＝must（出る）・opt（属性が合えば出る）・plan（予定）。cups＝出る大会の候補 */
