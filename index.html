@@ -503,7 +503,7 @@ details.cup{display:block}
 .plan-box summary{font-weight:700;cursor:pointer;padding:2px 0 6px}
 .plan-box summary small{font-weight:400;color:var(--mute);margin-left:6px;font-size:var(--fs-s)}
 .plan-l{display:flex;flex-direction:column;gap:3px}
-.plan-i{display:grid;grid-template-columns:6.6em minmax(0,1fr) auto;gap:6px;align-items:baseline;text-align:left;border:0;border-left:4px solid var(--accent);background:var(--tint);border-radius:4px 8px 8px 4px;padding:4px 8px}
+.plan-i{display:grid;grid-template-columns:5.9em minmax(0,1fr) auto;gap:6px;align-items:baseline;text-align:left;border:0;border-left:4px solid var(--accent);background:var(--tint);border-radius:4px 8px 8px 4px;padding:4px 8px}
 .plan-i span{font-size:var(--fs-s);color:var(--mute);white-space:nowrap}
 .plan-i b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .plan-i small{font-size:var(--fs-s);color:var(--mute);white-space:nowrap}
@@ -514,6 +514,8 @@ details.cup{display:block}
 .pl-k{display:inline-block;font-size:var(--fs-s);font-weight:700;color:var(--sheet);background:var(--accent);border-radius:6px;padding:0 6px;margin-right:6px}
 .pl.must .pl-k{background:var(--hi)}
 .pl-d{display:block;font-size:var(--fs-s);color:var(--mute)}
+.pl-cap{display:block;font-size:var(--fs-s);margin-top:2px}
+.pl-cap b{color:var(--hi)}
 .pl-phase{margin:0 0 6px;font-size:var(--fs-s);font-weight:700;color:var(--accent);background:var(--soft);border-radius:9px;padding:6px 10px}
 .cup.tgt{box-shadow:inset 0 0 0 2px var(--hi)}
 .sim-b .sorter.mo button{padding:4px 0;text-align:center;letter-spacing:-.04em}
@@ -1496,35 +1498,39 @@ function cupDetail(rv,up){
 const PLAN=[
   {y:0,m:4,w:1,k:"plan",t:"おやつ",d:"調子アップのアイテムを使ってから、おやつ"},
   {y:0,m:4,w:2,k:"plan",t:"伸び率を記録",d:"絶好調で6種類の特訓画面を撮り、魔石表に記録する"},
-  {y:0,m:1,w:4,k:"must",t:"新人王決定戦",cups:["森林 新人王決定戦","荒野 新人王決定戦"],d:"どちらかに出る"},
-  {y:0,m:2,w:4,k:"must",t:"新人王決定戦",cups:["岩場 新人王決定戦","水辺 新人王決定戦"],d:"優勝でゴールドに上がる"},
+  {y:0,m:1,w:4,k:"must",t:"新人王",cups:["森林 新人王決定戦","荒野 新人王決定戦"],d:"どちらかに出る"},
+  {y:0,m:2,w:4,k:"must",t:"新人王",cups:["岩場 新人王決定戦","水辺 新人王決定戦"],d:"優勝でゴールドに上がる"},
   {y:1,m:7,w:4,k:"must",t:"大会",d:"パラメータが上がり、元気が減らない"},
   {y:1,m:8,w:4,k:"must",t:"大会",d:"パラメータが上がり、元気が減らない"},
   {y:1,m:9,w:2,k:"must",t:"大会",d:"パラメータが上がり、元気が減らない"},
   {y:1,m:10,w:4,k:"must",t:"大会",d:"パラメータが上がり、元気が減らない"},
   {y:1,m:11,w:4,k:"must",t:"自慢大会",cups:["アタック自慢大会","ディフェンス自慢大会","スピード自慢大会"],d:"アタック・ディフェンス・スピードのどれか"},
-  {y:1,m:1,w:4,k:"must",t:"最強王決定戦",cups:["森林 最強王決定戦","荒野 最強王決定戦"],d:"優勝で各パラメータ約+20"},
-  {y:1,m:2,w:4,k:"must",t:"最強王決定戦",cups:["岩場 最強王決定戦","水辺 最強王決定戦"],d:"優勝で各パラメータ約+20"},
+  {y:1,m:1,w:4,k:"must",t:"地形の最強王",cups:["森林 最強王決定戦","荒野 最強王決定戦"],d:"優勝で各パラメータ約+20"},
+  {y:1,m:2,w:4,k:"must",t:"地形の最強王",cups:["岩場 最強王決定戦","水辺 最強王決定戦"],d:"優勝で各パラメータ約+20"},
   {y:1,m:3,w:1,k:"opt",t:"火vs土 最強王",cups:["火vs土 最強王決定戦"],d:"火・土のドラゴンなら出る（優勝で各パラメータ約+20、元気が減らない）。違えば特訓か休み"},
   {y:1,m:3,w:2,k:"opt",t:"水vs風 最強王",cups:["水vs風 最強王決定戦"],d:"水・風のドラゴンなら出る（優勝で各パラメータ約+20、元気が減らない）。違えば特訓か休み"},
   {y:1,m:3,w:3,k:"opt",t:"光vs闇 最強王",cups:["光vs闇 最強王決定戦"],d:"光・闇のドラゴンなら出る（優勝で各パラメータ約+20、元気が減らない）。違えば特訓か休み"},
   {y:1,m:3,w:4,k:"must",t:"ドラゴン最強王",cups:["ドラゴン最強王決定戦"],d:"優勝で各パラメータ約+20。必ず出る"},
 ];
 const PL_LB={must:"マスト",opt:"属性しだい",plan:"予定"};
+/* 999から逆算した、その大会の前の上限。大会の数は、属性の最強王（3つのうち1つ）を1回と数える */
+const PL_EV=(()=>{const ev=[];PLAN.forEach(p=>{if(p.k==="must")ev.push([p]);else if(p.k==="opt"){const last=ev[ev.length-1];if(last&&last[0].k==="opt")last.push(p);else ev.push([p])}});return ev})();
+const plLeft=p=>{const i=PL_EV.findIndex(e=>e.includes(p));return i<0?0:PL_EV.length-i};
+const plCap=p=>{const n=plLeft(p);return n?999-n*(sim.cupGain||20):null};
 const PHASE=(y,m)=>y===0&&m>=4&&m<=11?"4月2週〜11月ごろは、体力・防御など耐久を中心に育てる。ダメージはサポートカードの状態異常に頼る":"";
 function cupView(){
   const m=sim.cm||4,y=sim.cy||0,wk=CUPS[m][y];
   const plan=w=>PLAN.find(p=>p.y===y&&p.m===m&&p.w===w);
   const has=k=>PLAN.some(p=>p.y===y&&p.m===k);
-  const list=PLAN.map(p=>`<button class="plan-i ${p.k}${p.y===y&&p.m===m?" on":""}" data-cupgo="${p.y}|${p.m}"><span>${p.y+1}年 ${p.m}月${p.w}週</span><b>${esc(p.t)}</b><small>${PL_LB[p.k]}</small></button>`).join("");
+  const list=PLAN.map(p=>`<button class="plan-i ${p.k}${p.y===y&&p.m===m?" on":""}" data-cupgo="${p.y}|${p.m}"><span>${p.y+1}年 ${p.m}月${p.w}週</span><b>${esc(p.t)}</b><small>${plCap(p)?`${plCap(p)}まで`:PL_LB[p.k]}</small></button>`).join("");
   const ph=PHASE(y,m);
   return `<h2><span class="tg">${ico("crown")}</span>育成カレンダー</h2>
   <div class="box sim-b">
-    <details class="plan-box" open><summary>決まっている予定<small>${PLAN.length}</small></summary><div class="plan-l">${list}</div></details>
+    <details class="plan-box" open><summary>決まっている予定<small>${PLAN.length}</small></summary><div class="plan-l">${list}</div><p class="note">赤い線はマスト、青い線は予定・属性しだい。大会は優勝するたびに各パラメータが+${sim.cupGain||20}上がります。999を超えた分はむだになるので、それぞれの大会の前に「〜まで」の値を超えないように育てます（999 − このあとの大会の回数×${sim.cupGain||20}）</p></details>
     <div class="sorter">${["1年生","2年生"].map((n,i)=>`<button data-cupy="${i}" aria-pressed="${y===i}">${n}</button>`).join("")}</div>
     <div class="sorter mo">${CUP_MO.map(k=>`<button data-cupm="${k}" aria-pressed="${m===k}"${has(k)?' class="has"':""}>${k}月</button>`).join("")}</div>
     ${ph?`<p class="pl-phase">${ph}</p>`:""}
-    ${wk.map((l,i)=>{const p=plan(i+1);return `<div class="cup-wk"><b>${i+1}週</b><div class="cup-l">${p?`<div class="pl ${p.k}"><span class="pl-k">${PL_LB[p.k]}</span><b>${esc(p.t)}</b><span class="pl-d">${esc(p.d)}</span></div>`:""}${l.map(([n,t,c,f])=>{const k=`${y}-${m}-${i+1}-${n}`,rv=RIVALS[k],up=CUP_UP[k],tg=p&&p.cups&&p.cups.includes(n);
+    ${wk.map((l,i)=>{const p=plan(i+1);return `<div class="cup-wk"><b>${i+1}週</b><div class="cup-l">${p?`<div class="pl ${p.k}"><span class="pl-k">${PL_LB[p.k]}</span><b>${esc(p.t)}</b><span class="pl-d">${esc(p.d)}</span>${plCap(p)?`<span class="pl-cap">この大会の前は、各パラメータ<b>${plCap(p)}まで</b>（このあと大会${plLeft(p)}回で+${plLeft(p)*(sim.cupGain||20)}）</span>`:""}</div>`:""}${l.map(([n,t,c,f])=>{const k=`${y}-${m}-${i+1}-${n}`,rv=RIVALS[k],up=CUP_UP[k],tg=p&&p.cups&&p.cups.includes(n);
       const tag=[rv&&`強敵${rv.length}体`,up&&`記録${up.length}件`].filter(Boolean).join("・");
       const head=`<b>${tg?"★ ":""}${esc(n)}${f==="!"?" 🔒":f==="?"?"（鎖）":""}</b><small>${esc(t)}${tag?`・${tag}`:""}</small>`;
       return rv||up?`<details class="cup ${c} rvd${tg?" tgt":""}"><summary>${head}</summary>${cupDetail(rv,up)}</details>`:`<div class="cup ${c}${f==="!"||f==="?"?" lock":""}${tg?" tgt":""}">${head}</div>`}).join("")}</div></div>`}).join("")}
@@ -1532,7 +1538,7 @@ function cupView(){
   </div>`;
 }
 const SIM_KEY="dragon-sim-v1";
-const sim=(()=>{const g=GROW[0];const d={cm:4,cy:0,g:0,init:[...g.init],T:g.T.map(x=>[...x]),rest:"n",snackT:1,cupT:11,cupUp:8,cupGain:20,item:"w",cnt:[0,0,0,0,0,0],want:[1,1,1,1,1,1]};
+const sim=(()=>{const g=GROW[0];const d={cm:4,cy:0,g:0,init:[...g.init],T:g.T.map(x=>[...x]),rest:"n",snackT:1,cupT:11,cupWin:11,cupGain:20,item:"w",cnt:[0,0,0,0,0,0],want:[1,1,1,1,1,1]};
   try{const s=JSON.parse(localStorage.getItem(SIM_KEY)||"{}");Object.keys(d).forEach(k=>{if(s[k]!=null)d[k]=s[k]})}catch(e){}return d})();
 const simSave=()=>{try{localStorage.setItem(SIM_KEY,JSON.stringify(sim))}catch(e){}};
 const SIM_WEEK=48,SIM_YEAR=2,ITEM=1.25;
@@ -1542,7 +1548,7 @@ function simWeeks(){
   return {A,n,r:A-n,t,rr:r};
 }
 const simGain=t=>[sim.T[t][0]*ITEM,sim.T[t][1]*(sim.item==="w"?ITEM:1)];
-const simCupAdd=()=>sim.cupUp*sim.cupGain;
+const simCupAdd=()=>sim.cupWin*sim.cupGain;
 function simRun(cnt){
   const v=sim.init.map(x=>Number(x)+simCupAdd());
   cnt.forEach((k,t)=>{const [m,sb]=simGain(t);v[t]+=k*m;v[PAIR[t]]+=k*sb});
@@ -1608,11 +1614,11 @@ function viewSim(){
     <div class="sorter" style="margin-bottom:6px"><button data-simr="n" aria-pressed="${sim.rest==="n"}">特訓5回に休み2回</button><button data-simr="i" aria-pressed="${sim.rest==="i"}">休みアイテムで3回に1回</button></div>
     ${step("snackT","おやつ","2年間の週",0,10)}
     ${step("cupT","大会","2年間の週",0,40)}
-    ${step("cupUp","パラメータが上がる大会","優勝した大会の回数",0,sim.cupT)}
+    ${step("cupWin","パラメータが上がる大会","優勝した大会の回数",0,sim.cupT)}
     ${step("cupGain","大会1回で上がる量","6つのパラメータそれぞれ",0,40)}
-    <p class="note">育成カレンダーの予定どおりなら、大会11回（そのうちパラメータが上がるのは2年生7〜10月・1〜3月の8回）、おやつ1回</p>
+    <p class="note">育成カレンダーの予定どおりなら、大会11回（どれも優勝で各パラメータ約+20）、おやつ1回。途中で999を超えないように、カレンダーの「〜まで」の値に気をつけてください</p>
     <div class="sorter" style="margin:8px 0 0"><button data-simit="w" aria-pressed="${sim.item==="w"}">複合アイテム</button><button data-simit="s" aria-pressed="${sim.item==="s"}">単体アイテム</button></div>
-    <div class="sim-sum">行動 ${SIM_YEAR*SIM_WEEK}週 − おやつ ${sim.snackT}週 − 大会 ${sim.cupT}週 ＝ ${w.A}週<br><b>特訓 ${w.n}回</b>・休み ${w.r}回（${w.t}回ごとに${w.rr}回休み）<br><b>大会で各パラメータ +${simCupAdd()}</b>（+${sim.cupGain}×${sim.cupUp}回）</div>
+    <div class="sim-sum">行動 ${SIM_YEAR*SIM_WEEK}週 − おやつ ${sim.snackT}週 − 大会 ${sim.cupT}週 ＝ ${w.A}週<br><b>特訓 ${w.n}回</b>・休み ${w.r}回（${w.t}回ごとに${w.rr}回休み）<br><b>大会で各パラメータ +${simCupAdd()}</b>（+${sim.cupGain}×${sim.cupWin}回）</div>
   </div>
   <div id="simplan">${simPlan()}</div>
   <div id="cupcal">${cupView()}</div>`;
@@ -1631,7 +1637,7 @@ document.addEventListener("click",e=>{
   if(ds.simg){const g=GROW[+ds.simg];sim.g=+ds.simg;sim.T=g.T.map(x=>[...x]);if(g.init)sim.init=[...g.init];simSave();return render()}
   if(ds.simr){sim.rest=ds.simr;simSave();return render()}
   if(ds.simit){sim.item=ds.simit;simSave();return render()}
-  if(ds.sims){const [k,d]=ds.sims.split("|");sim[k]=Math.max(0,sim[k]+ +d);if(sim.cupUp>sim.cupT)sim.cupUp=sim.cupT;simSave();return render()}
+  if(ds.sims){const [k,d]=ds.sims.split("|");sim[k]=Math.max(0,sim[k]+ +d);if(sim.cupWin>sim.cupT)sim.cupWin=sim.cupT;simSave();return render()}
   if(ds.simc){const [i,d]=ds.simc.split("|");sim.cnt[+i]=Math.max(0,sim.cnt[+i]+ +d);return simRe()}
   if(ds.simw){const i=+ds.simw;sim.want[i]=sim.want[i]?0:1;return simRe()}
   if("simauto" in ds){simAuto();return simRe()}
