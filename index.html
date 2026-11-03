@@ -1532,24 +1532,25 @@ function cupView(){
   </div>`;
 }
 const SIM_KEY="dragon-sim-v1";
-const sim=(()=>{const g=GROW[0];const d={cm:4,cy:0,g:0,init:[...g.init],T:g.T.map(x=>[...x]),rest:"n",snack:1,cup:6,item:"w",cnt:[0,0,0,0,0,0],want:[1,1,1,1,1,1]};
+const sim=(()=>{const g=GROW[0];const d={cm:4,cy:0,g:0,init:[...g.init],T:g.T.map(x=>[...x]),rest:"n",snackT:1,cupT:11,cupUp:8,cupGain:20,item:"w",cnt:[0,0,0,0,0,0],want:[1,1,1,1,1,1]};
   try{const s=JSON.parse(localStorage.getItem(SIM_KEY)||"{}");Object.keys(d).forEach(k=>{if(s[k]!=null)d[k]=s[k]})}catch(e){}return d})();
 const simSave=()=>{try{localStorage.setItem(SIM_KEY,JSON.stringify(sim))}catch(e){}};
 const SIM_WEEK=48,SIM_YEAR=2,ITEM=1.25;
 function simWeeks(){
-  const A=SIM_YEAR*(SIM_WEEK-sim.snack-sim.cup),[t,r]=sim.rest==="n"?[5,2]:[3,1],c=t+r;
+  const A=SIM_YEAR*SIM_WEEK-sim.snackT-sim.cupT,[t,r]=sim.rest==="n"?[5,2]:[3,1],c=t+r;
   const n=Math.floor(A/c)*t+Math.min(A%c,t);
   return {A,n,r:A-n,t,rr:r};
 }
 const simGain=t=>[sim.T[t][0]*ITEM,sim.T[t][1]*(sim.item==="w"?ITEM:1)];
+const simCupAdd=()=>sim.cupUp*sim.cupGain;
 function simRun(cnt){
-  const v=sim.init.map(Number);
+  const v=sim.init.map(x=>Number(x)+simCupAdd());
   cnt.forEach((k,t)=>{const [m,sb]=simGain(t);v[t]+=k*m;v[PAIR[t]]+=k*sb});
   return v.map(x=>Math.min(999,Math.round(x)));
 }
 /* おまかせ：伸ばしたいパラメータの上がる量（999で頭打ち）がいちばん多い特訓を、1回ずつ選んでいく */
 function simAuto(){
-  const {n}=simWeeks(),v=sim.init.map(Number),cnt=[0,0,0,0,0,0];
+  const {n}=simWeeks(),v=sim.init.map(x=>Number(x)+simCupAdd()),cnt=[0,0,0,0,0,0];
   const want=sim.want.some(Boolean)?sim.want:[1,1,1,1,1,1];
   for(let k=0;k<n;k++){
     let best=-1,bv=0;
@@ -1583,7 +1584,7 @@ function simPlan(){
       <table class="sim-out"><thead><tr><th>パラメータ</th><th>はじめ</th><th>予想</th><th>ふえる</th></tr></thead><tbody>${
         res.map((v,t)=>`<tr><td class="nm">${STATS[t]}</td><td>${init[t]}</td><td class="pv">${v}${rk(rankOfV(v))}</td><td class="${v>init[t]?"up":""}">${v>init[t]?"+"+(v-init[t]):"0"}</td></tr>`).join("")
       }<tr class="tot"><td class="nm">合計</td><td>${tot0}</td><td class="pv">${tot}</td><td class="up">+${tot-tot0}</td></tr></tbody></table></div>
-      <p class="note">アイテムを毎週使う前提（×1.25、鈍化はアイテムで消える）。999で頭打ち。極限集中（約2倍）とスペシャル特訓（+2）は入れていないので、そのぶん上ぶれします。ランクの境目は魔石表の数値からの目安</p></div>`;
+      <p class="note">アイテムを毎週使う前提（×1.25、鈍化はアイテムで消える）。大会の優勝で上がる分（各+${simCupAdd()}）を含む。999で頭打ち。極限集中（約2倍）とスペシャル特訓（+2）は入れていないので、そのぶん上ぶれします。ランクの境目は魔石表の数値からの目安</p></div>`;
 }
 function viewSim(){
   const w=simWeeks(),g=GROW[sim.g];
@@ -1605,10 +1606,13 @@ function viewSim(){
   <h2><span class="tg">${ico("book")}</span>2年間の予定</h2>
   <div class="box sim-b">
     <div class="sorter" style="margin-bottom:6px"><button data-simr="n" aria-pressed="${sim.rest==="n"}">特訓5回に休み2回</button><button data-simr="i" aria-pressed="${sim.rest==="i"}">休みアイテムで3回に1回</button></div>
-    ${step("snack","おやつ","1年あたりの週",0,10)}
-    ${step("cup","大会","1年あたりの週",0,20)}
+    ${step("snackT","おやつ","2年間の週",0,10)}
+    ${step("cupT","大会","2年間の週",0,40)}
+    ${step("cupUp","パラメータが上がる大会","優勝した大会の回数",0,sim.cupT)}
+    ${step("cupGain","大会1回で上がる量","6つのパラメータそれぞれ",0,40)}
+    <p class="note">育成カレンダーの予定どおりなら、大会11回（そのうちパラメータが上がるのは2年生7〜10月・1〜3月の8回）、おやつ1回</p>
     <div class="sorter" style="margin:8px 0 0"><button data-simit="w" aria-pressed="${sim.item==="w"}">複合アイテム</button><button data-simit="s" aria-pressed="${sim.item==="s"}">単体アイテム</button></div>
-    <div class="sim-sum">行動 ${SIM_YEAR*SIM_WEEK}週 − おやつ ${SIM_YEAR*sim.snack}週 − 大会 ${SIM_YEAR*sim.cup}週 ＝ ${w.A}週<br><b>特訓 ${w.n}回</b>・休み ${w.r}回（${w.t}回ごとに${w.rr}回休み）</div>
+    <div class="sim-sum">行動 ${SIM_YEAR*SIM_WEEK}週 − おやつ ${sim.snackT}週 − 大会 ${sim.cupT}週 ＝ ${w.A}週<br><b>特訓 ${w.n}回</b>・休み ${w.r}回（${w.t}回ごとに${w.rr}回休み）<br><b>大会で各パラメータ +${simCupAdd()}</b>（+${sim.cupGain}×${sim.cupUp}回）</div>
   </div>
   <div id="simplan">${simPlan()}</div>
   <div id="cupcal">${cupView()}</div>`;
@@ -1627,7 +1631,7 @@ document.addEventListener("click",e=>{
   if(ds.simg){const g=GROW[+ds.simg];sim.g=+ds.simg;sim.T=g.T.map(x=>[...x]);if(g.init)sim.init=[...g.init];simSave();return render()}
   if(ds.simr){sim.rest=ds.simr;simSave();return render()}
   if(ds.simit){sim.item=ds.simit;simSave();return render()}
-  if(ds.sims){const [k,d]=ds.sims.split("|");sim[k]=Math.max(0,sim[k]+ +d);simSave();return render()}
+  if(ds.sims){const [k,d]=ds.sims.split("|");sim[k]=Math.max(0,sim[k]+ +d);if(sim.cupUp>sim.cupT)sim.cupUp=sim.cupT;simSave();return render()}
   if(ds.simc){const [i,d]=ds.simc.split("|");sim.cnt[+i]=Math.max(0,sim.cnt[+i]+ +d);return simRe()}
   if(ds.simw){const i=+ds.simw;sim.want[i]=sim.want[i]?0:1;return simRe()}
   if("simauto" in ds){simAuto();return simRe()}
