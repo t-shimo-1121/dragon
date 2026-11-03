@@ -78,8 +78,8 @@ h1{font-family:var(--f-head);font-weight:700;font-size:var(--fs-xl);line-height:
 /* タブ（アイコン＋文字の札） */
 nav.views{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:linear-gradient(var(--paper) 86%,transparent);
   display:flex;gap:3px;padding-block:8px 12px;margin-bottom:6px}
-nav.views button{flex:1 1 auto;padding-inline:3px!important;display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 0 7px;border:1px solid var(--line);border-radius:12px;
-  background:var(--sheet);color:var(--mute);font-weight:700;font-size:var(--fs-s);line-height:1.15;min-width:0;letter-spacing:-.06em;white-space:nowrap;overflow:hidden}
+nav.views button{flex:1 1 auto;padding-inline:1px!important;display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 0 7px;border:1px solid var(--line);border-radius:12px;
+  background:var(--sheet);color:var(--mute);font-weight:700;font-size:var(--fs-s);line-height:1.15;min-width:0;letter-spacing:-.09em;white-space:nowrap;overflow:hidden}
 nav.views button .ic{font-size:1.4em}
 nav.views button[aria-selected="true"]{background:var(--accent);border-color:transparent;color:var(--sheet);box-shadow:0 4px 12px hsla(40,30%,25%,.22)}
 
@@ -404,6 +404,27 @@ mark{background:hsl(45 95% 62% / .55);color:inherit;border-radius:3px;padding:0 
 .ab-b .eff{margin:0}
 .holds{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
 .hold{display:inline-flex;align-items:center;gap:4px;border:1px solid var(--line);background:var(--sheet);border-radius:9px;padding:2px 4px 2px 8px;font-size:var(--fs-m);font-weight:700}
+/* 検証 */
+.lab-h{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.tag{display:inline-block;font-size:var(--fs-s);font-weight:700;border:1.5px solid currentColor;border-radius:7px;padding:0 6px;line-height:1.5;white-space:nowrap}
+.tag.ok{color:var(--accent)}.tag.hyp{color:var(--mute)}
+.lab-b{padding:10px 14px}
+.lab-b p{margin:0 0 8px}
+.lab-b ul{margin:0 0 8px;padding-left:1.2em}
+.lab-b li{margin:2px 0}
+.lab-b li::marker{color:var(--mute)}
+.lab-b .xtbl{margin:4px -4px 8px}
+.lab-b .xtbl td.c{width:auto}
+.lab-b .note:last-child,.lab-b p:last-child,.lab-b ul:last-child{margin-bottom:0}
+.lab-t th.c,.lab-t td.c{text-align:right;padding-right:6px}
+.lab-t td.nm{white-space:nowrap;font-weight:700}
+.lab-t th:first-child{white-space:nowrap}
+.lab-t th{white-space:normal;vertical-align:bottom;line-height:1.3}
+.lab-t th .cnt{display:block;font-size:var(--fs-s);color:var(--mute)}
+.lab-t td.nm .cnt{display:block}
+.lab-t td.c{font-family:var(--f-body);font-weight:400;white-space:nowrap}
+.lab-t .ar{color:var(--mute);font-weight:400;margin:0 2px}
+.lab-cond{margin:-4px 0 12px;font-size:var(--fs-s);color:var(--mute)}
 /* 情報 */
 .foot{margin-top:26px;color:var(--mute);font-size:var(--fs-s)}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
@@ -420,6 +441,7 @@ mark{background:hsl(45 95% 62% / .55);color:inherit;border-radius:3px;padding:0 
   <symbol id="i-crown" viewBox="0 0 24 24"><path d="M3 7.5 8 11l4-6.5 4 6.5 5-3.5-1.8 11.2H4.8ZM5 20h14v2H5Z"/></symbol>
   <symbol id="i-sword" viewBox="0 0 24 24"><path d="M20.8 2.2 21 7.4 11.6 16.8 7.2 12.4 16.6 3Zm-15 11.6 4.4 4.4-1.6 1.6-1.3-1.3-2.8 2.8a1.4 1.4 0 0 1-2-2l2.8-2.8-1.3-1.3Z"/></symbol>
   <symbol id="i-wing" viewBox="0 0 24 24"><path d="M2.5 5.5c6 0 11 1.6 14.5 5.6 1.8 2 3 4.6 4.5 7.9-3.3-1.7-6.4-2.3-9.5-2.2 1.2 1 2 2.2 2.6 3.7-4.6-1.2-8-4-10-7.6 1.5.4 3 .5 4.4.3C6 11.6 3.8 9 2.5 5.5Z"/></symbol>
+  <symbol id="i-lab" viewBox="0 0 24 24"><path d="M8.6 2h6.8v2h-1.2v5.1l5.7 9.6A2.2 2.2 0 0 1 18 22H6a2.2 2.2 0 0 1-1.9-3.3l5.7-9.6V4H8.6Zm-.9 13.5h8.6l-2.1-3.6H9.8Z"/></symbol>
   <symbol id="i-book" viewBox="0 0 24 24"><path d="M3 4.5C5.8 3.6 8.9 3.9 11 5.6v15c-2.1-1.5-5.2-1.8-8-.9Zm18 0c-2.8-.9-5.9-.6-8 1.1v15c2.1-1.5 5.2-1.8 8-.9Z"/></symbol>
   <symbol id="i-chev" viewBox="0 0 24 24"><path d="M5.6 8.4 12 14.8l6.4-6.4 2 2L12 18.8 3.6 10.4Z"/></symbol>
   <symbol id="i-img" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M5 3h14a3 3 0 0 1 3 3v12a3 3 0 0 1-3 3H5a3 3 0 0 1-3-3V6a3 3 0 0 1 3-3Zm0 2a1 1 0 0 0-1 1v9.6l4.3-4.3 5 5 2.7-2.7 4 4V6a1 1 0 0 0-1-1Zm11 2.5a2 2 0 1 1 0 4 2 2 0 0 1 0-4Z"/></symbol>
@@ -436,6 +458,7 @@ mark{background:hsl(45 95% 62% / .55);color:inherit;border-radius:3px;padding:0 
   <button role="tab" data-tab="skill"><svg class="ic"><use href="#i-bolt"/></svg>スキル</button>
   <button role="tab" data-tab="ability"><svg class="ic"><use href="#i-shield"/></svg>アビリティ</button>
   <button role="tab" data-tab="card"><svg class="ic"><use href="#i-book"/></svg>カード</button>
+  <button role="tab" data-tab="lab"><svg class="ic"><use href="#i-lab"/></svg>検証</button>
 </nav>
 
 <main id="view"></main>
@@ -1259,7 +1282,64 @@ function viewCard(){
       l.map(([nm,full,sh])=>`<tr><td class="nm"><b>${esc(nm)}</b><small class="cnt">${esc(full)}</small></td><td class="ef">${arrows(esc(sh))}</td></tr>`).join("")
     }</tbody></table></div></div>`).join("")}`;
 }
-const VIEWS={dragon:viewDragon,status:viewStatus,skill:viewSkill,ability:viewAbility,card:viewCard};
+/* ===== 検証：特訓の仕様（2026/11/03 カオガコワイで検証） ===== */
+const labTbl=(head,rows)=>`<div class="xtbl"><table class="lab-t"><thead><tr>${head.map((h,i)=>`<th${i?' class="c"':""}>${h}</th>`).join("")}</tr></thead><tbody>${
+  rows.map(r=>`<tr>${r.map((c,i)=>`<td${i?' class="c"':' class="nm"'}>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+const ar=`<span class="ar">→</span>`;
+const lu=(a,b)=>`${a}${ar}<span class="up">${b}</span>`;
+function labSec(icon,title,tag,body){
+  return `<h2 class="lab-h"><span class="tg">${ico(icon)}</span>${title}${tag==="ok"?'<span class="tag ok">確認済み</span>':'<span class="tag hyp">仮説</span>'}</h2><div class="box lab-b">${body}</div>`;
+}
+function viewLab(){
+  return `<h2><span class="tg">${ico("lab")}</span>特訓の検証</h2>
+  <p class="hint">特訓の画面に出る上昇量を、アイテムを変えながら比べた結果です</p>
+  <p class="lab-cond">検証：カオガコワイ（絶好調・失敗率0%）、3月2週、ランク51</p>
+  ${labSec("hex","特訓の基本","ok",`
+    <ul>
+      <li>特訓は2つずつペア。<b>体力と防御、攻撃と命中、素早さと回避</b>が一緒に上がる</li>
+      <li>上がる量は、主に上がる方が<b>約24</b>、一緒に上がる方が<b>約10</b></li>
+      <li>上がる量は<b>ロードするたびに抽選し直し</b>（±3くらい）。その回の中では固定</li>
+    </ul>
+    ${labTbl(["特訓","主に上がる","一緒に"],[["体力","体力 +24","防御 +5"],["攻撃","攻撃 +17","命中 +9"],["防御","防御 +13","体力 +10"],["素早さ","素早さ +23","回避 +9"],["命中","命中 +24","攻撃 +7"],["回避","回避 +24","素早さ +10"]])}
+    <p class="note">アイテムなしの1回目の数値。攻撃と防御が小さいのは「伸びにくさ」のため（下の仮説）</p>`)}
+  ${labSec("bolt","スペシャル特訓の書","ok",`
+    <ul>
+      <li>書を使った<b>その場で今週の抽選</b>があり、当たった特訓のカードが<b>虹色の枠</b>になる</li>
+      <li>虹色になるのは<b>ペア単位</b>（攻撃と命中／体力と防御の2回とも）</li>
+      <li>上がる量は、主に上がる方も一緒に上がる方も<b>+2</b>（たまに+3）</li>
+      <li>ほかの特訓の数値は変わらない</li>
+    </ul>
+    ${labTbl(["書Ⅱで当選","主に上がる","一緒に"],[["体力",`体力 ${lu(23,26)}`,`防御 ${lu(5,7)}`],["防御",`防御 ${lu(13,15)}`,`体力 ${lu(10,12)}`]])}`)}
+  ${labSec("crown","上書きでも残るスペシャル","ok",`
+    <p>アイテムを使うと「現在の効果に上書きされます」と出るのに、<b>今週のスペシャル特訓（虹色の枠と+2）は消えずに残ります</b>。消えるのは、書の「発生率アップ」の続きの効果だけと考えられます</p>
+    ${labTbl(["使ったもの","防御<small class=\"cnt\">体力特訓で</small>","体力<small class=\"cnt\">防御特訓で</small>"],[["なし","+5","+10"],["書Ⅱ","<span class=\"up\">+7</span>","<span class=\"up\">+12</span>"],["→ダンベル","<span class=\"up\">+7</span>","–"],["→エキス","–","<span class=\"up\">+12</span>"],["→鎧","<span class=\"up\">+8</span>","<span class=\"up\">+14</span>"]])}
+    <p class="note">書Ⅱ→ダンベル→エキス→鎧と3回上書きしても、虹色の枠と+2が残ったまま（ダンベル・エキスは一緒に上がる方を上げないので、残った+2がそのまま見える）</p>
+    <p><b>使い方</b>：書で今週のスペシャルを出す→その特訓に合うアイテムに切り替える→特訓する。スペシャルとアイテムの効果を同じ週に両方受けられます</p>
+    <p class="note"><b>まだ確かめていないこと</b>実行したとき表示どおりに上がるか／次の週以降、書の発生率アップが本当に消えているか</p>`)}
+  ${labSec("shield","特訓アイテムの効果","ok",`
+    <ul>
+      <li>上がる量が<b>1.25倍</b>（端数は内部の小数しだいで±1）</li>
+      <li>ⅠとⅡは<b>効果期間が4週と6週の違いだけ</b>で、効果の量は同じ</li>
+      <li>パラメータ1つのアイテム（ダンベル・エキス・ブーツなど）は、その特訓で<b>主に上がる方だけ</b>が上がる</li>
+      <li>パラメータ2つのアイテム（鎧・兜・耳飾りなど）は、対象の2つが<b>主に上がる時も一緒に上がる時も</b>上がる</li>
+      <li>アイテムを使うと、効果のある特訓のカードに袋と↑のマークが付く</li>
+    </ul>
+    ${labTbl(["素早さ特訓","素早さ","回避"],[["素早さのブーツ",lu(24,30),"10"+ar+"10"],["俊敏の耳飾り",lu(24,30),lu(10,13)]])}`)}
+  ${labSec("sword","隠しパラメータ","hyp",`
+    <p>伸びにくさと破壊の兜について。ゲームでは説明されていないが、プレイヤーが実感している仕組みです</p>
+    <ul>
+      <li><b>伸びにくさ（鈍化）</b>：パラメータがある値の近くまで育つと、特訓で上がる量が減る。カオガコワイの攻撃（830・A）は約<b>0.73〜0.75倍</b></li>
+      <li><b>破壊の兜で鈍化が消える</b>：兜を使うと、攻撃だけ1.25倍ではなく<b>約1.7倍</b>になる。鈍化する前の値に1.25倍がかかっていると考えると、すべての数値が合う</li>
+    </ul>
+    ${labTbl(["兜Ⅰのみ","主に上がる","一緒に"],[["攻撃特訓",`攻撃 ${lu(20,34)}`,`命中 ${lu(11,14)}`],["命中特訓",`命中 ${lu(27,33)}`,`攻撃 ${lu(7,12)}`]])}
+    <p class="note">攻撃は×1.70、命中は×1.25前後。34÷1.25≒27.2で、ふだんの20はその約0.74倍</p>
+    <ul>
+      <li>鎧では、防御（132・G）の約0.55倍は<b>消えなかった</b>。防御は値が低いので鈍化ではなく、元々の伸びにくさ（適性）なのかもしれない</li>
+      <li>鈍化が消える条件が分かれば、<b>鈍化を突き抜けた育成</b>ができる可能性がある</li>
+    </ul>
+    <p class="note"><b>次に確かめること</b>別のドラゴンで、高い値で伸びが鈍ったパラメータに合うアイテムを使う（約1.7倍なら「鈍化はアイテムで消える」で決まり）／兜の状態で攻撃を実行して、表示どおり入るか</p>`)}`;
+}
+const VIEWS={dragon:viewDragon,status:viewStatus,skill:viewSkill,ability:viewAbility,card:viewCard,lab:viewLab};
 const view=document.getElementById("view");
 function render(){
   document.querySelectorAll("nav.views button").forEach(t=>t.setAttribute("aria-selected",t.dataset.tab===state.tab));
