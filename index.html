@@ -77,9 +77,9 @@ h1{font-family:var(--f-head);font-weight:700;font-size:var(--fs-xl);line-height:
 
 /* タブ（アイコン＋文字の札） */
 nav.views{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:linear-gradient(var(--paper) 86%,transparent);
-  display:flex;gap:3px;padding-block:8px 12px;margin-bottom:6px}
+  display:flex;gap:2px;padding-block:8px 12px;margin-bottom:6px}
 nav.views button{flex:1 1 auto;padding-inline:1px!important;display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 0 7px;border:1px solid var(--line);border-radius:12px;
-  background:var(--sheet);color:var(--mute);font-weight:700;font-size:var(--fs-s);line-height:1.15;min-width:0;letter-spacing:-.09em;white-space:nowrap;overflow:hidden}
+  background:var(--sheet);color:var(--mute);font-weight:700;font-size:var(--fs-s);line-height:1.15;min-width:0;letter-spacing:-.11em;white-space:nowrap;overflow:hidden}
 nav.views button .ic{font-size:1.4em}
 nav.views button[aria-selected="true"]{background:var(--accent);border-color:transparent;color:var(--sheet);box-shadow:0 4px 12px hsla(40,30%,25%,.22)}
 
@@ -425,6 +425,49 @@ mark{background:hsl(45 95% 62% / .55);color:inherit;border-radius:3px;padding:0 
 .lab-t td.c{font-family:var(--f-body);font-weight:400;white-space:nowrap}
 .lab-t .ar{color:var(--mute);font-weight:400;margin:0 2px}
 .lab-cond{margin:-4px 0 12px;font-size:var(--fs-s);color:var(--mute)}
+/* 育成シミュレーター */
+.sim-b{padding:10px 12px}
+.sim-b .sorter{margin:0 0 10px}
+.sim-in{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+.sim-in th{font-size:var(--fs-s);font-weight:400;color:var(--mute);text-align:center;padding:2px 2px 4px;line-height:1.25;white-space:nowrap}
+.sim-in th:first-child{text-align:left}
+.sim-in td{padding:3px 2px;border-bottom:1px solid var(--line);text-align:center}
+.sim-in th{border-bottom:1px solid var(--line)}
+.sim-in td.nm{text-align:left;font-weight:700;white-space:nowrap}
+.sim-in td.nm .ic{color:var(--accent);margin-right:4px;vertical-align:-2px}
+.sim-in td.pr{font-size:var(--fs-s);color:var(--mute);white-space:nowrap}
+.sim-in input{width:3.2em;font:inherit;font-variant-numeric:tabular-nums;text-align:right;padding:4px 4px;border:1px solid var(--line);border-radius:8px;background:var(--paper);color:var(--ink)}
+.sim-row{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 0;border-top:1px solid var(--line)}
+.sim-row:first-child{border-top:0}
+.sim-row .lb{font-weight:700}
+.sim-row .lb small{display:block;font-weight:400;font-size:var(--fs-s);color:var(--mute)}
+.stp{display:inline-flex;align-items:center;gap:6px;flex:none}
+.stp button{width:2.2rem;height:2.2rem;border:1px solid var(--line);border-radius:10px;background:var(--sheet);font-weight:700;font-size:var(--fs-l);line-height:1;display:grid;place-items:center;padding:0}
+.stp button:disabled{opacity:.35}
+.stp b{min-width:2.2em;text-align:center;font-family:var(--f-head);font-size:var(--fs-l);font-variant-numeric:tabular-nums}
+.sim-sum{background:var(--tint);border-radius:10px;padding:8px 10px;margin-top:8px;font-size:var(--fs-s);line-height:1.6}
+.sim-sum b{font-size:var(--fs-m)}
+.sim-left{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin:0 0 8px}
+.sim-left .n{font-family:var(--f-head);font-weight:700;font-size:var(--fs-l)}
+.sim-left .n.over{color:var(--hi)}
+.sim-act{display:flex;gap:6px}
+.sim-act button{border:1px solid var(--accent);background:var(--accent);color:var(--sheet);border-radius:11px;padding:6px 12px;font-weight:700}
+.sim-act button.sub{background:var(--sheet);color:var(--accent)}
+.sim-want{display:flex;flex-wrap:wrap;gap:5px;margin:4px 0 0}
+.sim-want button{border:1px solid var(--line);background:var(--sheet);border-radius:9px;padding:3px 9px;font-size:var(--fs-s);font-weight:700;color:var(--mute)}
+.sim-want button[aria-pressed="true"]{border-color:var(--accent);color:var(--accent);background:var(--soft)}
+.sim-res{display:grid;grid-template-columns:minmax(0,1fr);gap:4px}
+.sim-res .radar{max-width:300px;margin:0 auto}
+.sim-out{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+.sim-out th{font-size:var(--fs-s);font-weight:400;color:var(--mute);text-align:right;padding:2px 4px}
+.sim-out th:first-child{text-align:left}
+.sim-out td{padding:5px 4px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap;background:none;box-shadow:none}
+.sim-out tr.tot td{border-bottom:0}
+.sim-out td.nm{text-align:left;font-weight:700}
+.sim-out td.pv{font-family:var(--f-head);font-weight:700;font-size:var(--fs-l)}
+.sim-out td .rk{font-size:var(--fs-s);vertical-align:2px;margin-left:4px}
+.sim-out tr.tot td{font-weight:700}
+@media (min-width:640px){.sim-res{grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);align-items:center}}
 /* 情報 */
 .foot{margin-top:26px;color:var(--mute);font-size:var(--fs-s)}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
@@ -442,6 +485,7 @@ mark{background:hsl(45 95% 62% / .55);color:inherit;border-radius:3px;padding:0 
   <symbol id="i-sword" viewBox="0 0 24 24"><path d="M20.8 2.2 21 7.4 11.6 16.8 7.2 12.4 16.6 3Zm-15 11.6 4.4 4.4-1.6 1.6-1.3-1.3-2.8 2.8a1.4 1.4 0 0 1-2-2l2.8-2.8-1.3-1.3Z"/></symbol>
   <symbol id="i-wing" viewBox="0 0 24 24"><path d="M2.5 5.5c6 0 11 1.6 14.5 5.6 1.8 2 3 4.6 4.5 7.9-3.3-1.7-6.4-2.3-9.5-2.2 1.2 1 2 2.2 2.6 3.7-4.6-1.2-8-4-10-7.6 1.5.4 3 .5 4.4.3C6 11.6 3.8 9 2.5 5.5Z"/></symbol>
   <symbol id="i-lab" viewBox="0 0 24 24"><path d="M8.6 2h6.8v2h-1.2v5.1l5.7 9.6A2.2 2.2 0 0 1 18 22H6a2.2 2.2 0 0 1-1.9-3.3l5.7-9.6V4H8.6Zm-.9 13.5h8.6l-2.1-3.6H9.8Z"/></symbol>
+  <symbol id="i-dumbbell" viewBox="0 0 24 24"><path d="M1.5 9.5h2v-2h2.5v9H3.5v-2h-2Zm21 0h-2v-2H18v9h2.5v-2h2ZM7 5h3.2v14H7Zm6.8 0H17v14h-3.2Zm-3.6 5.8h3.6v2.4h-3.6Z"/></symbol>
   <symbol id="i-book" viewBox="0 0 24 24"><path d="M3 4.5C5.8 3.6 8.9 3.9 11 5.6v15c-2.1-1.5-5.2-1.8-8-.9Zm18 0c-2.8-.9-5.9-.6-8 1.1v15c2.1-1.5 5.2-1.8 8-.9Z"/></symbol>
   <symbol id="i-chev" viewBox="0 0 24 24"><path d="M5.6 8.4 12 14.8l6.4-6.4 2 2L12 18.8 3.6 10.4Z"/></symbol>
   <symbol id="i-img" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M5 3h14a3 3 0 0 1 3 3v12a3 3 0 0 1-3 3H5a3 3 0 0 1-3-3V6a3 3 0 0 1 3-3Zm0 2a1 1 0 0 0-1 1v9.6l4.3-4.3 5 5 2.7-2.7 4 4V6a1 1 0 0 0-1-1Zm11 2.5a2 2 0 1 1 0 4 2 2 0 0 1 0-4Z"/></symbol>
@@ -459,6 +503,7 @@ mark{background:hsl(45 95% 62% / .55);color:inherit;border-radius:3px;padding:0 
   <button role="tab" data-tab="ability"><svg class="ic"><use href="#i-shield"/></svg>アビリティ</button>
   <button role="tab" data-tab="card"><svg class="ic"><use href="#i-book"/></svg>カード</button>
   <button role="tab" data-tab="lab"><svg class="ic"><use href="#i-lab"/></svg>検証</button>
+  <button role="tab" data-tab="sim"><svg class="ic"><use href="#i-dumbbell"/></svg>育成</button>
 </nav>
 
 <main id="view"></main>
@@ -1352,7 +1397,114 @@ function viewLab(){
     ${labTbl(["9月4週の例","なし","アイテム"],[["命中","+27",'<span class="up">+34</span>'],["攻撃（鈍化）","+18",'<span class="up">+31</span>'],["素早さ","+23","+29"]])}
     <p class="note">アイテムなしなら素早さ＞攻撃だが、アイテムを使うと攻撃＞素早さに逆転する。鈍化したパラメータは、アイテムを使う時こそ伸ばしどき</p>`)}`;
 }
-const VIEWS={dragon:viewDragon,status:viewStatus,skill:viewSkill,ability:viewAbility,card:viewCard,lab:viewLab};
+/* ===== 育成シミュレーター =====
+   GROW：種族ごとの伸び率。T＝6種類の特訓それぞれの [主に上がる量, ペアが一緒に上がる量]（アイテムなし・育成1週目の画面の数値）
+   順番は 体力・攻撃・防御・素早さ・命中・回避。init＝初期値（分からなければ null） */
+const GROW=[
+  {nm:"ゴツオ",note:"育成1週目（4月1週）の数値",init:[125,80,120,75,100,105],T:[[29,10],[23,9],[28,10],[11,5],[19,8],[10,4]]},
+  {nm:"カオガコワイ",note:"3月2週の2回の平均。攻撃は鈍化前の推定値",init:null,T:[[24,5],[25,10],[13,10],[24,9],[26,10],[25,10]]},
+];
+const PAIR=[2,4,0,5,1,3];   /* 体力↔防御・攻撃↔命中・素早さ↔回避 */
+const SIM_KEY="dragon-sim-v1";
+const sim=(()=>{const g=GROW[0];const d={g:0,init:[...g.init],T:g.T.map(x=>[...x]),rest:"n",snack:1,cup:6,item:"w",cnt:[0,0,0,0,0,0],want:[1,1,1,1,1,1]};
+  try{const s=JSON.parse(localStorage.getItem(SIM_KEY)||"{}");Object.keys(d).forEach(k=>{if(s[k]!=null)d[k]=s[k]})}catch(e){}return d})();
+const simSave=()=>{try{localStorage.setItem(SIM_KEY,JSON.stringify(sim))}catch(e){}};
+const SIM_WEEK=48,SIM_YEAR=2,ITEM=1.25;
+function simWeeks(){
+  const A=SIM_YEAR*(SIM_WEEK-sim.snack-sim.cup),[t,r]=sim.rest==="n"?[5,2]:[3,1],c=t+r;
+  const n=Math.floor(A/c)*t+Math.min(A%c,t);
+  return {A,n,r:A-n,t,rr:r};
+}
+const simGain=t=>[sim.T[t][0]*ITEM,sim.T[t][1]*(sim.item==="w"?ITEM:1)];
+function simRun(cnt){
+  const v=sim.init.map(Number);
+  cnt.forEach((k,t)=>{const [m,sb]=simGain(t);v[t]+=k*m;v[PAIR[t]]+=k*sb});
+  return v.map(x=>Math.min(999,Math.round(x)));
+}
+/* おまかせ：伸ばしたいパラメータの上がる量（999で頭打ち）がいちばん多い特訓を、1回ずつ選んでいく */
+function simAuto(){
+  const {n}=simWeeks(),v=sim.init.map(Number),cnt=[0,0,0,0,0,0];
+  const want=sim.want.some(Boolean)?sim.want:[1,1,1,1,1,1];
+  for(let k=0;k<n;k++){
+    let best=-1,bv=0;
+    for(let t=0;t<6;t++){const [m,sb]=simGain(t),p=PAIR[t];
+      const g=(want[t]?Math.min(m,999-v[t]):0)+(want[p]?Math.min(sb,999-v[p]):0);
+      if(g>bv+1e-9){bv=g;best=t}}
+    if(best<0)break;
+    const [m,sb]=simGain(best);v[best]+=m;v[PAIR[best]]+=sb;cnt[best]++;
+  }
+  sim.cnt=cnt;
+}
+const RANK_AT=[[900,"S"],[800,"A"],[700,"B"],[550,"C"],[400,"D"],[300,"E"],[200,"F"],[0,"G"]];
+const rankOfV=v=>RANK_AT.find(([x])=>v>=x)[1];
+function simPlan(){
+  const w=simWeeks(),used=sim.cnt.reduce((a,b)=>a+b,0),left=w.n-used,res=simRun(sim.cnt);
+  const init=sim.init.map(Number),tot=res.reduce((a,b)=>a+b,0),tot0=init.reduce((a,b)=>a+b,0);
+  const rows=STATS.map((n,t)=>{const [m,sb]=simGain(t);return `<div class="sim-row"><span class="lb">${ico(ST_ICON[t])} ${n}特訓<small>${n}+${+m.toFixed(1)}・${STATS[PAIR[t]]}+${+sb.toFixed(1)}</small></span>
+    <span class="stp"><button data-simc="${t}|-1" aria-label="${n}特訓を1回へらす"${sim.cnt[t]?"":" disabled"}>−</button><b>${sim.cnt[t]}</b><button data-simc="${t}|1" aria-label="${n}特訓を1回ふやす"${left>0?"":" disabled"}>＋</button></span></div>`}).join("");
+  const d={nk:"予想",st:res.map(v=>({v})),total:tot};
+  return `<h2><span class="tg">${ico("dumbbell")}</span>特訓の回数</h2>
+    <div class="box sim-b">
+      <div class="sim-left"><span>のこり <span class="n${left<0?" over":""}">${left}</span> 回 <small style="color:var(--mute)">／ ${w.n}回</small></span>
+        <span class="sim-act"><button data-simauto>おまかせ</button><button class="sub" data-simclr>0にする</button></span></div>
+      <p class="note" style="margin:0 0 4px">おまかせで伸ばすパラメータ</p>
+      <div class="sim-want">${STATS.map((n,t)=>`<button data-simw="${t}" aria-pressed="${!!sim.want[t]}">${n}</button>`).join("")}</div>
+      <div style="margin-top:8px">${rows}</div>
+      ${left<0?`<p class="note" style="color:var(--hi)">特訓の回数が ${-left}回 多すぎます</p>`:""}
+    </div>
+    <h2><span class="tg">${ico("hex")}</span>2年後の予想</h2>
+    <div class="box sim-b"><div class="sim-res">${radar(d,{W:280,R:84})}
+      <table class="sim-out"><thead><tr><th>パラメータ</th><th>はじめ</th><th>予想</th><th>ふえる</th></tr></thead><tbody>${
+        res.map((v,t)=>`<tr><td class="nm">${STATS[t]}</td><td>${init[t]}</td><td class="pv">${v}${rk(rankOfV(v))}</td><td class="${v>init[t]?"up":""}">${v>init[t]?"+"+(v-init[t]):"0"}</td></tr>`).join("")
+      }<tr class="tot"><td class="nm">合計</td><td>${tot0}</td><td class="pv">${tot}</td><td class="up">+${tot-tot0}</td></tr></tbody></table></div>
+      <p class="note">アイテムを毎週使う前提（×1.25、鈍化はアイテムで消える）。999で頭打ち。極限集中（約2倍）とスペシャル特訓（+2）は入れていないので、そのぶん上ぶれします。ランクの境目は魔石表の数値からの目安</p></div>`;
+}
+function viewSim(){
+  const w=simWeeks(),g=GROW[sim.g];
+  const inRows=STATS.map((n,t)=>`<tr><td class="nm">${ico(ST_ICON[t])}${n}</td>
+    <td><input type="number" inputmode="numeric" min="0" max="999" data-simi="init|${t}" value="${sim.init[t]??""}" aria-label="${n}の初期値"></td>
+    <td><input type="number" inputmode="numeric" min="0" max="99" data-simi="m|${t}" value="${sim.T[t][0]}" aria-label="${n}特訓で${n}が上がる量"></td>
+    <td><input type="number" inputmode="numeric" min="0" max="99" data-simi="s|${t}" value="${sim.T[t][1]}" aria-label="${n}特訓で${STATS[PAIR[t]]}が上がる量"></td>
+    <td class="pr">${STATS[PAIR[t]]}</td></tr>`).join("");
+  const step=(k,lab,sub,min,max)=>`<div class="sim-row"><span class="lb">${lab}<small>${sub}</small></span><span class="stp"><button data-sims="${k}|-1"${sim[k]>min?"":" disabled"} aria-label="${lab}をへらす">−</button><b>${sim[k]}</b><button data-sims="${k}|1"${sim[k]<max?"":" disabled"} aria-label="${lab}をふやす">＋</button></span></div>`;
+  return `<h2><span class="tg">${ico("dumbbell")}</span>育成シミュレーター</h2>
+  <p class="hint">はじめのパラメータと、育成1週目の上がる量（アイテムなし）から、2年後のパラメータを予想します</p>
+  <h2><span class="tg">${ico("list")}</span>ドラゴン</h2>
+  <div class="box sim-b">
+    <div class="sorter">${GROW.map((x,i)=>`<button data-simg="${i}" aria-pressed="${sim.g===i}">${esc(x.nm)}</button>`).join("")}</div>
+    <p class="note" style="margin:-4px 0 8px">${esc(g.note)}${g.init?"":"。初期値は分からないので入れてください"}</p>
+    <table class="sim-in"><thead><tr><th>パラメータ</th><th>はじめ</th><th>特訓で<br>上がる</th><th colspan="2">一緒に<br>上がる</th></tr></thead><tbody>${inRows}</tbody></table>
+    <p class="note">数値は書きかえられます。「一緒に上がる」は、その特訓でペアのパラメータが上がる量</p>
+  </div>
+  <h2><span class="tg">${ico("book")}</span>2年間の予定</h2>
+  <div class="box sim-b">
+    <div class="sorter" style="margin-bottom:6px"><button data-simr="n" aria-pressed="${sim.rest==="n"}">特訓5回に休み2回</button><button data-simr="i" aria-pressed="${sim.rest==="i"}">休みアイテムで3回に1回</button></div>
+    ${step("snack","おやつ","1年あたりの週",0,10)}
+    ${step("cup","大会","1年あたりの週",0,20)}
+    <div class="sorter" style="margin:8px 0 0"><button data-simit="w" aria-pressed="${sim.item==="w"}">複合アイテム</button><button data-simit="s" aria-pressed="${sim.item==="s"}">単体アイテム</button></div>
+    <div class="sim-sum">行動 ${SIM_YEAR*SIM_WEEK}週 − おやつ ${SIM_YEAR*sim.snack}週 − 大会 ${SIM_YEAR*sim.cup}週 ＝ ${w.A}週<br><b>特訓 ${w.n}回</b>・休み ${w.r}回（${w.t}回ごとに${w.rr}回休み）</div>
+  </div>
+  <div id="simplan">${simPlan()}</div>`;
+}
+const simRe=()=>{simSave();const el=document.getElementById("simplan");if(el)el.innerHTML=simPlan()};
+document.addEventListener("input",e=>{
+  const t=e.target.closest("[data-simi]");if(!t)return;
+  const [k,i]=t.dataset.simi.split("|"),v=Math.max(0,Math.min(999,Math.round(+t.value||0)));
+  if(k==="init")sim.init[+i]=v;else sim.T[+i][k==="m"?0:1]=v;
+  simRe();
+});
+document.addEventListener("click",e=>{
+  const t=e.target.closest("[data-simg],[data-simr],[data-sims],[data-simit],[data-simc],[data-simw],[data-simauto],[data-simclr]");if(!t)return;const ds=t.dataset;
+  if(ds.simg){const g=GROW[+ds.simg];sim.g=+ds.simg;sim.T=g.T.map(x=>[...x]);if(g.init)sim.init=[...g.init];simSave();return render()}
+  if(ds.simr){sim.rest=ds.simr;simSave();return render()}
+  if(ds.simit){sim.item=ds.simit;simSave();return render()}
+  if(ds.sims){const [k,d]=ds.sims.split("|");sim[k]=Math.max(0,sim[k]+ +d);simSave();return render()}
+  if(ds.simc){const [i,d]=ds.simc.split("|");sim.cnt[+i]=Math.max(0,sim.cnt[+i]+ +d);return simRe()}
+  if(ds.simw){const i=+ds.simw;sim.want[i]=sim.want[i]?0:1;return simRe()}
+  if("simauto" in ds){simAuto();return simRe()}
+  if("simclr" in ds){sim.cnt=[0,0,0,0,0,0];return simRe()}
+});
+const VIEWS={dragon:viewDragon,status:viewStatus,skill:viewSkill,ability:viewAbility,card:viewCard,lab:viewLab,sim:viewSim};
 const view=document.getElementById("view");
 function render(){
   document.querySelectorAll("nav.views button").forEach(t=>t.setAttribute("aria-selected",t.dataset.tab===state.tab));
