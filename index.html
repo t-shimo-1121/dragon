@@ -1507,6 +1507,9 @@ const CUP_UP={
   "1-7-4-アタック自慢大会":[
     {nk:"ゴツオ",sp:"クエレブレ変異種",up:[0,26,0,0,33,0]},
   ],
+  "1-8-4-アタック自慢大会":[
+    {nk:"ゴツオ",sp:"クエレブレ変異種",up:[0,30,0,0,26,0]},
+  ],
 };
 const sixTbl=(vals,f=v=>v)=>`<div class="xtbl"><table class="pmtbl"><thead><tr>${STATS.map(n=>`<th class="c">${n==="素早さ"?"素早":n}</th>`).join("")}</tr></thead><tbody><tr>${vals.map(v=>`<td class="c">${f(v)}</td>`).join("")}</tr></tbody></table></div>`;
 const sum=a=>a.reduce((x,y)=>x+y,0);
