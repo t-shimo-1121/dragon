@@ -467,6 +467,18 @@ mark{background:hsl(45 95% 62% / .55);color:inherit;border-radius:3px;padding:0 
 .sim-out td.pv{font-family:var(--f-head);font-weight:700;font-size:var(--fs-l)}
 .sim-out td .rk{font-size:var(--fs-s);vertical-align:2px;margin-left:4px}
 .sim-out tr.tot td{font-weight:700}
+/* 大会カレンダー */
+.cup-wk{display:grid;grid-template-columns:2.6rem minmax(0,1fr);gap:8px;padding:8px 0;border-bottom:1px solid var(--line);align-items:start}
+.cup-wk:last-child{border-bottom:0}
+.cup-wk>b{font-family:var(--f-head);color:var(--mute);padding-top:3px;white-space:nowrap}
+.cup-l{display:flex;flex-direction:column;gap:5px}
+.cup{display:flex;align-items:baseline;justify-content:space-between;gap:8px;border-left:5px solid var(--c);background:var(--tint);border-radius:4px 9px 9px 4px;padding:4px 8px 4px 9px;line-height:1.35}
+.cup b{font-weight:700}
+.cup small{font-size:var(--fs-s);color:var(--mute);white-space:nowrap}
+.cup.lock{opacity:.55}
+.cup.g{--c:hsl(125 55% 42%)}.cup.o{--c:hsl(18 78% 52%)}.cup.p{--c:hsl(255 28% 58%)}.cup.y{--c:hsl(42 90% 48%)}.cup.t{--c:hsl(176 48% 44%)}
+.sim-b .sorter.mo{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:4px}
+.sim-b .sorter.mo button{padding:4px 0;text-align:center;letter-spacing:-.04em}
 @media (min-width:640px){.sim-res{grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);align-items:center}}
 /* 情報 */
 .foot{margin-top:26px;color:var(--mute);font-size:var(--fs-s)}
@@ -1406,8 +1418,21 @@ const GROW=[
   {nm:"ケツァルコアトル変異種",note:"カオガコワイの3月2週の2回の平均。攻撃は鈍化前の推定値",init:null,T:[[24,5],[25,10],[13,10],[24,9],[26,10],[25,10]]},
 ];
 const PAIR=[2,4,0,5,1,3];   /* 体力↔防御・攻撃↔命中・素早さ↔回避 */
+const CUPS={"4":[[[["春季大会","森林","g"]],[["若葉大会","水辺","g"]],[["春季大会","岩場","g"],["ルーキー大会","荒野","o"]],[["アマチュア育成計画杯","ランダム","o"]]],[[["ルーキー大会","森林","o"],["エリート大会","岩場","p"]],[["春季大会","荒野","g"],["白金攻略戦","水辺","t"]],[["調子アゲアゲ大会","ランダム","p"],["黄金攻略戦","森林","y"]],[["お小遣い争奪戦","ランダム","o"]]]],"5":[[[["若葉大会","森林","g"]],[["ルーキー大会","荒野","o"]],[["若葉大会","水辺","g"]],[["ルーキー大会","岩場","o"]]],[[["ルーキー大会","岩場","o"],["黄金攻略戦","荒野","y"]],[["お小遣い争奪戦","ランダム","o"],["特殊能力大会","ランダム","p"]],[["若葉大会","荒野","g"],["経験値アゲアゲ大会","ランダム","p"]],[["エリート大会","水辺","p"]]]],"6":[[[["夏季大会","水辺","g"]],[["お小遣い争奪戦","ランダム","o"],["金銀財宝争奪戦","ランダム","p"]],[["若葉大会","岩場","g"],["ホープ大会","ランダム","o"]],[["ルーキー大会","森林","o"]]],[[["エリート大会","森林","p"]],[["黄金攻略戦","岩場","y"]],[["金銀財宝争奪戦","ランダム","p"],["幻の秘宝争奪戦","ランダム","y"]],[["アマチュア育成計画杯","ランダム","o"],["エース大会","ランダム","p"]]]],"7":[[[["夏季大会","岩場","g"]],[["若葉大会","森林","g"],["ルーキー大会","岩場","o"]],[["夏季大会","森林","g"],["お小遣い争奪戦","ランダム","o"]],[["アマチュア育成計画杯","ランダム","o"],["エリート大会","水辺","p"]]],[[["ルーキー大会","水辺","o"],["エリート大会","荒野","p"]],[["夏季大会","荒野","g"],["白金攻略戦","森林","t"]],[["経験値アゲアゲ大会","ランダム","p"],["黄金攻略戦","水辺","y"]],[["お小遣い争奪戦","ランダム","o"],["アタック自慢大会","ランダム","y"]]]],"8":[[[["若葉大会","荒野","g"]],[["夏祭り大会","岩場","o"]],[["夏季大会","水辺","g"],["エリート大会","森林","p"]],[["ルーキー大会","荒野","o"],["特殊能力大会","ランダム","p"]]],[[["ルーキー大会","森林","o"],["ベテラン育成計画杯","ランダム","y"]],[["金銀財宝争奪戦","ランダム","p"],["経験値アゲアゲ大会","ランダム","p"]],[["若葉大会","岩場","g"],["特殊能力大会","ランダム","p"],["黄金攻略戦","森林","y"]],[["アタック自慢大会","ランダム","y"],["ディフェンス自慢大会","ランダム","y"],["スピード自慢大会","ランダム","y"]]]],"9":[[[["秋季大会","森林","g"]],[["お小遣い争奪戦","ランダム","o"],["エリート大会","岩場","p"]],[["若葉大会","水辺","g"],["ホープ大会","ランダム","o"]],[["ルーキー大会","岩場","o"],["エリート大会","水辺","p"],["黄金攻略戦","荒野","y"]]],[[["エリート大会","荒野","p"],["白金攻略戦","荒野","t"]],[["ディフェンス自慢大会","ランダム","y"],["ハイランク大会","ランダム","t"]],[["特殊能力大会","ランダム","p"],["幻の秘宝争奪戦","ランダム","y"]],[["アマチュア育成計画杯","ランダム","o"],["エース大会","ランダム","p"]]]],"10":[[[["秋季大会","荒野","g"]],[["若葉大会","岩場","g"],["エリート大会","荒野","p"]],[["秋季大会","水辺","g"],["ルーキー大会","森林","o"]],[["アマチュア育成計画杯","ランダム","o"],["エリート大会","ランダム","p"]]],[[["ルーキー大会","水辺","o"],["エリート大会","森林","p"]],[["秋季大会","岩場","g"],["白金攻略戦","水辺","t"]],[["経験値アゲアゲ大会","ランダム","p"],["白金攻略戦","岩場","t"]],[["ハロウィン大会","荒野","o"],["スピード自慢大会","ランダム","y"]]]],"11":[[[["若葉大会","荒野","g"],["エリート大会","岩場","p"]],[["ルーキー大会","岩場","o"],["白金攻略戦","森林","t"]],[["秋季大会","森林","g"],["ホープ大会","ランダム","o"]],[["ルーキー大会","ランダム","o"],["エリート大会","ランダム","p"]]],[[["ルーキー大会","荒野","o"],["幻の秘宝争奪戦","ランダム","y"],["ハイランク大会","ランダム","t"]],[["金銀財宝争奪戦","ランダム","p"],["経験値アゲアゲ大会","ランダム","p"]],[["若葉大会","水辺","g"],["エリート大会","岩場","p"],["ベテラン育成計画杯","ランダム","y"]],[["アタック自慢大会","ランダム","y"],["ディフェンス自慢大会","ランダム","y"],["スピード自慢大会","ランダム","y"]]]],"12":[[[["冬季大会","森林","g"],["黄金攻略戦","水辺","y"]],[["お小遣い争奪戦","ランダム","o"],["金銀財宝争奪戦","ランダム","p"]],[["若葉大会","森林","g"],["ホープ大会","ランダム","o"],["白金攻略戦","水辺","t"]],[["クリスマス大会","森林","o"],["エリート大会","森林","p"]]],[[["ルーキー大会","水辺","o"],["白金攻略戦","森林","t"]],[["アマチュア育成計画杯","ランダム","o"],["特殊能力大会","ランダム","p"]],[["エース大会","ランダム","p"],["ハイランク大会","ランダム","t"]],[["ルーキー大会","岩場","o"],["白金攻略戦","荒野","t"]]]],"1":[[[["冬季大会","水辺","g"],["黄金攻略戦","森林","y"]],[["若葉大会","森林","g"],["エリート大会","岩場","p"]],[["冬季大会","荒野","g"],["お小遣い争奪戦","ランダム","o"]],[["森林 新人王決定戦","森林","p"],["荒野 新人王決定戦","荒野","p"]]],[[["ルーキー大会","森林","o"],["エリート大会","水辺","p"]],[["冬季大会","岩場","g"],["ベテラン育成計画杯","ランダム","y"],["白金攻略戦","森林","t"]],[["エース大会","ランダム","p"],["黄金攻略戦","荒野","y"],["ハイランク大会","ランダム","t"]],[["森林 最強王決定戦","森林","y"],["荒野 最強王決定戦","荒野","y"]]]],"2":[[[["若葉大会","荒野","g"],["白金攻略戦","荒野","t"]],[["アマチュア育成計画杯","ランダム","o"],["ベテラン育成計画杯","ランダム","y"]],[["冬季大会","森林","g"],["バレンタイン大会","水辺","o"]],[["岩場 新人王決定戦","岩場","p"],["水辺 新人王決定戦","水辺","p"]]],[[["ルーキー大会","荒野","o"],["黄金攻略戦","岩場","y"]],[["お小遣い争奪戦","ランダム","o"],["経験値アゲアゲ大会","ランダム","p"],["白金攻略戦","岩場","t"]],[["若葉大会","岩場","g"],["エリート大会","森林","p"],["幻の秘宝争奪戦","ランダム","y"]],[["岩場 最強王決定戦","岩場","y"],["水辺 最強王決定戦","水辺","y"]]]],"3":[[[["春季大会","森林","g"]],[["ルーキー大会","水辺","o"],["エリート大会","荒野","p"]],[["若葉大会","水辺","g"],["黄金攻略戦","水辺","y"]],[["エース大会","ランダム","p"],["白金攻略戦","水辺","t"]]],[[["火vs土 最強王決定戦","ランダム","t","!"],["白金攻略戦","森林","t"]],[["水vs風 最強王決定戦","ランダム","t","!"],["白金攻略戦","荒野","t"]],[["光vs闇 最強王決定戦","ランダム","t"],["白金攻略戦","岩場","t"]],[["ドラゴン最強王決定戦","ランダム","t"],["？","ランダム","t","?"],["？","ランダム","t","?"]]]]};
+const CUP_MO=[4,5,6,7,8,9,10,11,12,1,2,3];
+const CUP_SEEN={};
+function cupView(){
+  const m=sim.cm||4,y=sim.cy||0,wk=CUPS[m][y];
+  return `<h2><span class="tg">${ico("crown")}</span>大会カレンダー</h2>
+  <div class="box sim-b">
+    <div class="sorter">${["1年生","2年生"].map((n,i)=>`<button data-cupy="${i}" aria-pressed="${y===i}">${n}</button>`).join("")}</div>
+    <div class="sorter mo">${CUP_MO.map(k=>`<button data-cupm="${k}" aria-pressed="${m===k}">${k}月</button>`).join("")}</div>
+    ${wk.map((l,i)=>`<div class="cup-wk"><b>${i+1}週</b><div class="cup-l">${l.map(([n,t,c,f])=>`<div class="cup ${c}${f==="!"||f==="?"?" lock":""}"><b>${esc(n)}${f==="!"?" 🔒":f==="?"?"（鎖）":""}</b><small>${esc(t)}</small></div>`).join("")}</div></div>`).join("")}
+    <p class="note">左の線の色はゲームの枠の色。🔒は鍵つき、（鎖）は名前が読めないもの</p>
+  </div>`;
+}
 const SIM_KEY="dragon-sim-v1";
-const sim=(()=>{const g=GROW[0];const d={g:0,init:[...g.init],T:g.T.map(x=>[...x]),rest:"n",snack:1,cup:6,item:"w",cnt:[0,0,0,0,0,0],want:[1,1,1,1,1,1]};
+const sim=(()=>{const g=GROW[0];const d={cm:4,cy:0,g:0,init:[...g.init],T:g.T.map(x=>[...x]),rest:"n",snack:1,cup:6,item:"w",cnt:[0,0,0,0,0,0],want:[1,1,1,1,1,1]};
   try{const s=JSON.parse(localStorage.getItem(SIM_KEY)||"{}");Object.keys(d).forEach(k=>{if(s[k]!=null)d[k]=s[k]})}catch(e){}return d})();
 const simSave=()=>{try{localStorage.setItem(SIM_KEY,JSON.stringify(sim))}catch(e){}};
 const SIM_WEEK=48,SIM_YEAR=2,ITEM=1.25;
@@ -1485,7 +1510,8 @@ function viewSim(){
     <div class="sorter" style="margin:8px 0 0"><button data-simit="w" aria-pressed="${sim.item==="w"}">複合アイテム</button><button data-simit="s" aria-pressed="${sim.item==="s"}">単体アイテム</button></div>
     <div class="sim-sum">行動 ${SIM_YEAR*SIM_WEEK}週 − おやつ ${SIM_YEAR*sim.snack}週 − 大会 ${SIM_YEAR*sim.cup}週 ＝ ${w.A}週<br><b>特訓 ${w.n}回</b>・休み ${w.r}回（${w.t}回ごとに${w.rr}回休み）</div>
   </div>
-  <div id="simplan">${simPlan()}</div>`;
+  <div id="simplan">${simPlan()}</div>
+  <div id="cupcal">${cupView()}</div>`;
 }
 const simRe=()=>{simSave();const el=document.getElementById("simplan");if(el)el.innerHTML=simPlan()};
 document.addEventListener("input",e=>{
@@ -1495,6 +1521,8 @@ document.addEventListener("input",e=>{
   simRe();
 });
 document.addEventListener("click",e=>{
+  const c=e.target.closest("[data-cupm],[data-cupy]");
+  if(c){if(c.dataset.cupm)sim.cm=+c.dataset.cupm;else sim.cy=+c.dataset.cupy;simSave();const el=document.getElementById("cupcal");if(el)el.innerHTML=cupView();return}
   const t=e.target.closest("[data-simg],[data-simr],[data-sims],[data-simit],[data-simc],[data-simw],[data-simauto],[data-simclr]");if(!t)return;const ds=t.dataset;
   if(ds.simg){const g=GROW[+ds.simg];sim.g=+ds.simg;sim.T=g.T.map(x=>[...x]);if(g.init)sim.init=[...g.init];simSave();return render()}
   if(ds.simr){sim.rest=ds.simr;simSave();return render()}
