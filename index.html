@@ -496,6 +496,26 @@ details.cup{display:block}
 @media (max-width:400px){.rv{padding:8px 6px}.cup.rvd{padding-right:5px}}
 .cup.g{--c:hsl(125 55% 42%)}.cup.o{--c:hsl(18 78% 52%)}.cup.p{--c:hsl(255 28% 58%)}.cup.y{--c:hsl(42 90% 48%)}.cup.t{--c:hsl(176 48% 44%)}
 .sim-b .sorter.mo{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:4px}
+.sim-b .sorter.mo button.has{position:relative}
+.sim-b .sorter.mo button.has::after{content:"";position:absolute;top:4px;right:5px;width:6px;height:6px;border-radius:50%;background:var(--hi)}
+.sim-b .sorter.mo button.has[aria-pressed="true"]::after{background:var(--sheet)}
+.plan-box{margin:0 0 12px}
+.plan-box summary{font-weight:700;cursor:pointer;padding:2px 0 6px}
+.plan-box summary small{font-weight:400;color:var(--mute);margin-left:6px;font-size:var(--fs-s)}
+.plan-l{display:flex;flex-direction:column;gap:3px}
+.plan-i{display:grid;grid-template-columns:6.6em minmax(0,1fr) auto;gap:6px;align-items:baseline;text-align:left;border:0;border-left:4px solid var(--accent);background:var(--tint);border-radius:4px 8px 8px 4px;padding:4px 8px}
+.plan-i span{font-size:var(--fs-s);color:var(--mute);white-space:nowrap}
+.plan-i b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.plan-i small{font-size:var(--fs-s);color:var(--mute);white-space:nowrap}
+.plan-i.must{border-left-color:var(--hi)}.plan-i.must small{color:var(--hi);font-weight:700}
+.plan-i.on{box-shadow:inset 0 0 0 1.5px var(--accent)}
+.pl{border:1.5px solid var(--accent);background:var(--soft);border-radius:9px;padding:5px 9px;line-height:1.5}
+.pl.must{border-color:var(--hi)}
+.pl-k{display:inline-block;font-size:var(--fs-s);font-weight:700;color:var(--sheet);background:var(--accent);border-radius:6px;padding:0 6px;margin-right:6px}
+.pl.must .pl-k{background:var(--hi)}
+.pl-d{display:block;font-size:var(--fs-s);color:var(--mute)}
+.pl-phase{margin:0 0 6px;font-size:var(--fs-s);font-weight:700;color:var(--accent);background:var(--soft);border-radius:9px;padding:6px 10px}
+.cup.tgt{box-shadow:inset 0 0 0 2px var(--hi)}
 .sim-b .sorter.mo button{padding:4px 0;text-align:center;letter-spacing:-.04em}
 @media (min-width:640px){.sim-res{grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);align-items:center}}
 /* 情報 */
@@ -1472,17 +1492,43 @@ function cupDetail(rv,up){
   if(up)h+=`<p class="cup-sh">上がったパラメータ</p>`+up.map(r=>`<div class="rv"><div class="rv-h"><b>${esc(r.nk)}</b><span class="rv-sp">${esc(r.sp)}</span><span class="rv-t">合計 +${sum(r.up)}</span></div>${sixTbl(r.up,v=>`<span class="up">+${v}</span>`)}</div>`).join("");
   return h;
 }
+/* 決まっている育成の予定。y＝0:1年生 1:2年生。k＝must（出る）・opt（属性が合えば出る）・plan（予定）。cups＝出る大会の候補 */
+const PLAN=[
+  {y:0,m:4,w:1,k:"plan",t:"おやつ",d:"調子アップのアイテムを使ってから、おやつ"},
+  {y:0,m:4,w:2,k:"plan",t:"伸び率を記録",d:"絶好調で6種類の特訓画面を撮り、魔石表に記録する"},
+  {y:0,m:1,w:4,k:"must",t:"新人王決定戦",cups:["森林 新人王決定戦","荒野 新人王決定戦"],d:"どちらかに出る"},
+  {y:0,m:2,w:4,k:"must",t:"新人王決定戦",cups:["岩場 新人王決定戦","水辺 新人王決定戦"],d:"優勝でゴールドに上がる"},
+  {y:1,m:7,w:4,k:"must",t:"大会",d:"パラメータが上がり、元気が減らない"},
+  {y:1,m:8,w:4,k:"must",t:"大会",d:"パラメータが上がり、元気が減らない"},
+  {y:1,m:9,w:2,k:"must",t:"大会",d:"パラメータが上がり、元気が減らない"},
+  {y:1,m:10,w:4,k:"must",t:"大会",d:"パラメータが上がり、元気が減らない"},
+  {y:1,m:11,w:4,k:"must",t:"自慢大会",cups:["アタック自慢大会","ディフェンス自慢大会","スピード自慢大会"],d:"アタック・ディフェンス・スピードのどれか"},
+  {y:1,m:1,w:4,k:"must",t:"最強王決定戦",cups:["森林 最強王決定戦","荒野 最強王決定戦"],d:"優勝で各パラメータ約+20"},
+  {y:1,m:2,w:4,k:"must",t:"最強王決定戦",cups:["岩場 最強王決定戦","水辺 最強王決定戦"],d:"優勝で各パラメータ約+20"},
+  {y:1,m:3,w:1,k:"opt",t:"火vs土 最強王",cups:["火vs土 最強王決定戦"],d:"火・土のドラゴンなら出る（優勝で各パラメータ約+20、元気が減らない）。違えば特訓か休み"},
+  {y:1,m:3,w:2,k:"opt",t:"水vs風 最強王",cups:["水vs風 最強王決定戦"],d:"水・風のドラゴンなら出る（優勝で各パラメータ約+20、元気が減らない）。違えば特訓か休み"},
+  {y:1,m:3,w:3,k:"opt",t:"光vs闇 最強王",cups:["光vs闇 最強王決定戦"],d:"光・闇のドラゴンなら出る（優勝で各パラメータ約+20、元気が減らない）。違えば特訓か休み"},
+  {y:1,m:3,w:4,k:"must",t:"ドラゴン最強王",cups:["ドラゴン最強王決定戦"],d:"優勝で各パラメータ約+20。必ず出る"},
+];
+const PL_LB={must:"マスト",opt:"属性しだい",plan:"予定"};
+const PHASE=(y,m)=>y===0&&m>=4&&m<=11?"4月2週〜11月ごろは、体力・防御など耐久を中心に育てる。ダメージはサポートカードの状態異常に頼る":"";
 function cupView(){
   const m=sim.cm||4,y=sim.cy||0,wk=CUPS[m][y];
-  return `<h2><span class="tg">${ico("crown")}</span>大会カレンダー</h2>
+  const plan=w=>PLAN.find(p=>p.y===y&&p.m===m&&p.w===w);
+  const has=k=>PLAN.some(p=>p.y===y&&p.m===k);
+  const list=PLAN.map(p=>`<button class="plan-i ${p.k}${p.y===y&&p.m===m?" on":""}" data-cupgo="${p.y}|${p.m}"><span>${p.y+1}年 ${p.m}月${p.w}週</span><b>${esc(p.t)}</b><small>${PL_LB[p.k]}</small></button>`).join("");
+  const ph=PHASE(y,m);
+  return `<h2><span class="tg">${ico("crown")}</span>育成カレンダー</h2>
   <div class="box sim-b">
+    <details class="plan-box" open><summary>決まっている予定<small>${PLAN.length}</small></summary><div class="plan-l">${list}</div></details>
     <div class="sorter">${["1年生","2年生"].map((n,i)=>`<button data-cupy="${i}" aria-pressed="${y===i}">${n}</button>`).join("")}</div>
-    <div class="sorter mo">${CUP_MO.map(k=>`<button data-cupm="${k}" aria-pressed="${m===k}">${k}月</button>`).join("")}</div>
-    ${wk.map((l,i)=>`<div class="cup-wk"><b>${i+1}週</b><div class="cup-l">${l.map(([n,t,c,f])=>{const k=`${y}-${m}-${i+1}-${n}`,rv=RIVALS[k],up=CUP_UP[k];
+    <div class="sorter mo">${CUP_MO.map(k=>`<button data-cupm="${k}" aria-pressed="${m===k}"${has(k)?' class="has"':""}>${k}月</button>`).join("")}</div>
+    ${ph?`<p class="pl-phase">${ph}</p>`:""}
+    ${wk.map((l,i)=>{const p=plan(i+1);return `<div class="cup-wk"><b>${i+1}週</b><div class="cup-l">${p?`<div class="pl ${p.k}"><span class="pl-k">${PL_LB[p.k]}</span><b>${esc(p.t)}</b><span class="pl-d">${esc(p.d)}</span></div>`:""}${l.map(([n,t,c,f])=>{const k=`${y}-${m}-${i+1}-${n}`,rv=RIVALS[k],up=CUP_UP[k],tg=p&&p.cups&&p.cups.includes(n);
       const tag=[rv&&`強敵${rv.length}体`,up&&`記録${up.length}件`].filter(Boolean).join("・");
-      const head=`<b>${esc(n)}${f==="!"?" 🔒":f==="?"?"（鎖）":""}</b><small>${esc(t)}${tag?`・${tag}`:""}</small>`;
-      return rv||up?`<details class="cup ${c} rvd"><summary>${head}</summary>${cupDetail(rv,up)}</details>`:`<div class="cup ${c}${f==="!"||f==="?"?" lock":""}">${head}</div>`}).join("")}</div></div>`).join("")}
-    <p class="note">左の線の色はゲームの枠の色。🔒は鍵つき、（鎖）は名前が読めないもの。「強敵」「記録」と書いてある大会は、押すと出てくるドラゴンや、出たドラゴンの上がったパラメータが見られます</p>
+      const head=`<b>${tg?"★ ":""}${esc(n)}${f==="!"?" 🔒":f==="?"?"（鎖）":""}</b><small>${esc(t)}${tag?`・${tag}`:""}</small>`;
+      return rv||up?`<details class="cup ${c} rvd${tg?" tgt":""}"><summary>${head}</summary>${cupDetail(rv,up)}</details>`:`<div class="cup ${c}${f==="!"||f==="?"?" lock":""}${tg?" tgt":""}">${head}</div>`}).join("")}</div></div>`}).join("")}
+    <p class="note">★は出る大会。月の右上の点は、予定がある月。左の線の色はゲームの枠の色。🔒は鍵つき、（鎖）は名前が読めないもの。「強敵」「記録」と書いてある大会は、押すと出てくるドラゴンや、出たドラゴンの上がったパラメータが見られます</p>
   </div>`;
 }
 const SIM_KEY="dragon-sim-v1";
@@ -1575,8 +1621,8 @@ document.addEventListener("input",e=>{
   simRe();
 });
 document.addEventListener("click",e=>{
-  const c=e.target.closest("[data-cupm],[data-cupy]");
-  if(c){if(c.dataset.cupm)sim.cm=+c.dataset.cupm;else sim.cy=+c.dataset.cupy;simSave();const el=document.getElementById("cupcal");if(el)el.innerHTML=cupView();return}
+  const c=e.target.closest("[data-cupm],[data-cupy],[data-cupgo]");
+  if(c){if(c.dataset.cupgo){const [yy,mm]=c.dataset.cupgo.split("|");sim.cy=+yy;sim.cm=+mm}else if(c.dataset.cupm)sim.cm=+c.dataset.cupm;else sim.cy=+c.dataset.cupy;simSave();const el=document.getElementById("cupcal");if(el)el.innerHTML=cupView();return}
   const t=e.target.closest("[data-simg],[data-simr],[data-sims],[data-simit],[data-simc],[data-simw],[data-simauto],[data-simclr]");if(!t)return;const ds=t.dataset;
   if(ds.simg){const g=GROW[+ds.simg];sim.g=+ds.simg;sim.T=g.T.map(x=>[...x]);if(g.init)sim.init=[...g.init];simSave();return render()}
   if(ds.simr){sim.rest=ds.simr;simSave();return render()}
