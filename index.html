@@ -77,10 +77,10 @@ h1{font-family:var(--f-head);font-weight:700;font-size:var(--fs-xl);line-height:
 
 /* タブ（アイコン＋文字の札） */
 nav.views{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:linear-gradient(var(--paper) 86%,transparent);
-  display:flex;gap:2px;padding-block:8px 12px;margin-bottom:6px}
-nav.views button{flex:1 1 auto;padding-inline:1px!important;display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 0 7px;border:1px solid var(--line);border-radius:12px;
+  display:flex;gap:5px;padding-block:8px 12px;margin-bottom:6px}
+nav.views button{flex:1 1 0;padding-inline:0!important;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;padding:9px 0;border:1px solid var(--line);border-radius:12px;
   background:var(--sheet);color:var(--mute);font-weight:700;font-size:var(--fs-s);line-height:1.15;min-width:0;letter-spacing:-.11em;white-space:nowrap;overflow:hidden}
-nav.views button .ic{font-size:1.4em}
+nav.views button .ic{font-size:1.75em}
 nav.views button[aria-selected="true"]{background:var(--accent);border-color:transparent;color:var(--sheet);box-shadow:0 4px 12px hsla(40,30%,25%,.22)}
 
 h2{font-family:var(--f-head);font-size:var(--fs-l);margin:22px 0 10px;display:flex;align-items:center;gap:10px;text-wrap:balance}
@@ -560,13 +560,13 @@ details.cup{display:block}
 </header>
 
 <nav class="views" role="tablist" aria-label="表示切り替え">
-  <button role="tab" data-tab="dragon"><svg class="ic"><use href="#i-list"/></svg>ドラゴン</button>
-  <button role="tab" data-tab="status"><svg class="ic"><use href="#i-hex"/></svg>パラメータ</button>
-  <button role="tab" data-tab="skill"><svg class="ic"><use href="#i-bolt"/></svg>スキル</button>
-  <button role="tab" data-tab="ability"><svg class="ic"><use href="#i-shield"/></svg>アビリティ</button>
-  <button role="tab" data-tab="card"><svg class="ic"><use href="#i-book"/></svg>カード</button>
-  <button role="tab" data-tab="lab"><svg class="ic"><use href="#i-lab"/></svg>検証</button>
-  <button role="tab" data-tab="sim"><svg class="ic"><use href="#i-dumbbell"/></svg>育成</button>
+  <button role="tab" data-tab="dragon" aria-label="ドラゴン" title="ドラゴン"><svg class="ic" aria-hidden="true"><use href="#i-list"/></svg></button>
+  <button role="tab" data-tab="status" aria-label="パラメータ" title="パラメータ"><svg class="ic" aria-hidden="true"><use href="#i-hex"/></svg></button>
+  <button role="tab" data-tab="skill" aria-label="スキル" title="スキル"><svg class="ic" aria-hidden="true"><use href="#i-bolt"/></svg></button>
+  <button role="tab" data-tab="ability" aria-label="アビリティ" title="アビリティ"><svg class="ic" aria-hidden="true"><use href="#i-shield"/></svg></button>
+  <button role="tab" data-tab="card" aria-label="カード" title="カード"><svg class="ic" aria-hidden="true"><use href="#i-book"/></svg></button>
+  <button role="tab" data-tab="lab" aria-label="検証" title="検証"><svg class="ic" aria-hidden="true"><use href="#i-lab"/></svg></button>
+  <button role="tab" data-tab="sim" aria-label="育成" title="育成"><svg class="ic" aria-hidden="true"><use href="#i-dumbbell"/></svg></button>
 </nav>
 
 <main id="view"></main>
