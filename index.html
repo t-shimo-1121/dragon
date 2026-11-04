@@ -1731,7 +1731,7 @@ function simWeeks(){
   const n=Math.floor(A/c)*t+Math.min(A%c,t);
   return {A,n,r:A-n,lb:`特訓${t}回ごとに${r}回休み`};
 }
-const simGain=t=>[sim.T[t][0]*ITEM,sim.T[t][1]*ITEM];   /* アイテム：主に上がる方も一緒に上がる方も×1.25 */
+const simGain=t=>[sim.T[t][0]*ITEM,sim.T[t][1]];   /* 単体アイテム：主に上がる方だけ×1.25 */
 const simCupAdd=()=>sim.cupWin*sim.cupGain;
 function simRun(cnt){
   const v=sim.init.map(x=>Number(x)+simCupAdd());
@@ -1774,7 +1774,7 @@ function simPlan(){
       <table class="sim-out"><thead><tr><th>パラメータ</th><th>はじめ</th><th>予想</th><th>ふえる</th></tr></thead><tbody>${
         res.map((v,t)=>`<tr><td class="nm">${STATS[t]}</td><td>${init[t]}</td><td class="pv">${v}${rk(rankOfV(v))}</td><td class="${v>init[t]?"up":""}">${v>init[t]?"+"+(v-init[t]):"0"}</td></tr>`).join("")
       }<tr class="tot"><td class="nm">合計</td><td>${tot0}</td><td class="pv">${tot}</td><td class="up">+${tot-tot0}</td></tr></tbody></table></div>
-      <p class="note">まったり育成で、アイテムを毎週使う前提（主に上がる方も一緒に上がる方も×1.25、鈍化はアイテムで消える）。大会の優勝で上がる分（各+${simCupAdd()}）を含む。999で頭打ち。極限集中（3週間、約2倍）とスペシャル特訓（+2）は入れていないので、そのぶん上ぶれします。ランクの境目は魔石表の数値からの目安</p></div>`;
+      <p class="note">まったり育成で、単体アイテムを毎週使う前提（主に上がる方だけ×1.25、鈍化はアイテムで消える）。大会の優勝で上がる分（各+${simCupAdd()}）を含む。999で頭打ち。極限集中（3週間、約2倍）とスペシャル特訓（+2）は入れていないので、そのぶん上ぶれします。ランクの境目は魔石表の数値からの目安</p></div>`;
 }
 function viewSim(){
   const w=simWeeks(),g=GROW[sim.g];
