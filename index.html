@@ -442,6 +442,10 @@ mark{background:hsl(45 95% 62% / .55);color:inherit;border-radius:3px;padding:0 
 .lab-b .note:last-child,.lab-b p:last-child,.lab-b ul:last-child{margin-bottom:0}
 .lab-t th.c,.lab-t td.c{text-align:right;padding-right:6px}
 .lab-t td.nm{white-space:nowrap;font-weight:700}
+.xtbl table.gr-t{table-layout:fixed;width:100%}
+.gr-t th.c,.gr-t td.c{width:2.3rem;padding-right:2px}
+.gr-t td.nm{white-space:normal}
+.gr-t td.nm .cnt{white-space:normal;line-height:1.35}
 .lab-t th:first-child{white-space:nowrap}
 .lab-t th{white-space:normal;vertical-align:bottom;line-height:1.3}
 .lab-t th .cnt{display:block;font-size:var(--fs-s);color:var(--mute)}
@@ -1545,6 +1549,22 @@ const lu=(a,b)=>`${a}${ar}<span class="up">${b}</span>`;
 function labSec(icon,title,tag,body){
   return `<h2 class="lab-h"><span class="tg">${ico(icon)}</span>${title}${tag==="ok"?'<span class="tag ok">確認済み</span>':'<span class="tag hyp">仮説</span>'}</h2><div class="box lab-b">${body}</div>`;
 }
+/* ===== 種族ごとの伸び率（アイテムなしの特訓で主に上がる量）=====
+   報告が来たら1行足す。g=[体,攻,防,早,命,避]、dull=鈍化中のパラメータの番号 */
+const GROWTH=[
+  {nk:"カオガコワイ",sp:"ケツァルコアトル変異種",when:"1年3月2週",cond:"絶好調",g:[24,17,13,23,24,24],dull:[1]},
+  {nk:"ゴツオ",sp:"クエレブレ変異種",when:"1年4月1週",cond:"好調",g:[29,23,28,11,19,10]},
+  {nk:"シンゴジラ",sp:"蜃変異種",when:"1年4月2週",cond:"絶好調",g:[17,12,25,33,27,32]},
+  {nk:"デカミミズ",sp:"リントヴルム変異種",when:"1年11月4週",cond:"絶好調",g:[20,14,41,26,26,24]},
+];
+function growthTable(){
+  const rows=GROWTH.map(r=>{
+    const ok=r.g.filter((v,i)=>!(r.dull||[]).includes(i)),mx=Math.max(...ok),mn=Math.min(...ok);
+    return [`${esc(r.nk)}<small class="cnt">${esc(spn(r.sp))}・${esc(r.when)}・${esc(r.cond)}</small>`,
+      ...r.g.map((v,i)=>(r.dull||[]).includes(i)?`${v}＊`:v===mx?`<span class="up">${v}</span>`:v===mn?`<span class="dn">${v}</span>`:String(v))];
+  });
+  return `<div class="xtbl"><table class="lab-t gr-t"><thead><tr><th>ドラゴン</th>${STATS.map(t=>`<th class="c">${t}</th>`).join("")}</tr></thead><tbody>${rows.map(r=>`<tr><td class="nm">${r[0]}</td>${r.slice(1).map(v=>`<td class="c">${v}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+}
 function viewLab(){
   return `<h2><span class="tg">${ico("lab")}</span>特訓の検証</h2>
   <p class="hint">特訓の画面に出る上昇量を、アイテムを変えながら比べた結果です</p>
@@ -1564,9 +1584,12 @@ function viewLab(){
       <li>伸び率は<b>種族とパラメータで大きく違う</b>。今の値やランクの高さとは関係なさそう（下のデカミミズは、いちばん値の高い防御がいちばん伸びる）</li>
     </ul>
     ${labTbl(["デカミミズ<small class=\"cnt\">値</small>","主に上がる","一緒に","割合"],[["体<small class=\"cnt\">322 E</small>","+20","+8","0.40"],["攻<small class=\"cnt\">112 G</small>",'<span class="dn">+14</span>',"+6","0.43"],["防<small class=\"cnt\">711 B</small>",'<span class="up">+41</span>',"+16","0.39"],["早<small class=\"cnt\">219 F</small>","+26","+11","0.42"],["命<small class=\"cnt\">174 G</small>","+26","+9","0.35"],["避<small class=\"cnt\">166 G</small>","+24","+9","0.38"]])}
-    <p class="note">デカミミズ（リントヴルム変異種）の11月4週（絶好調・アイテムなし）。「一緒に」は、そのパラメータがペアの相手の特訓で上がる量（体なら防御特訓の時の体の上昇）。防御は攻撃の約3倍伸びる</p>
+    <p class="note">デカミミズ（リントヴルム変異種）の1年生11月4週（絶好調・アイテムなし）。「一緒に」は、そのパラメータがペアの相手の特訓で上がる量（体なら防御特訓の時の体の上昇）。防御は攻撃の約3倍伸びる</p>
     <p><b>ほかのドラゴンでも同じ</b>：カオガコワイ（上の「特訓の基本」の表）は0.38〜0.43、ゴツオ（4月1週）は0.34〜0.50、シンゴジラ（4月2週）は0.33〜0.44。カオガコワイの攻撃は鈍化していても0.41だった。数が小さいほど、ロードごとの±3の抽選でぶれる</p>
-    <p class="note"><b>まだ確かめていないこと</b>育成後半の減り方がある時も、0.4倍の関係が保たれるか</p>`)}
+    <p class="note"><b>まだ確かめていないこと</b>育成後半の減り方がある時も、0.4倍の関係が保たれるか</p>
+    <p><b>種族ごとの伸び率</b>：アイテムなしの特訓で、主に上がる量。いちばん伸びるパラメータを赤、いちばん伸びないパラメータを青にしています</p>
+    ${growthTable()}
+    <p class="note">調子が違うと全体の量が変わる（好調は絶好調より1〜2割少ない）ので、種族どうしは<b>同じ行の中の形</b>で比べる。＊は鈍化中（約0.7倍）の値</p>`)}
   ${labSec("heart","調子と上がる量","ok",`
     <ul>
       <li>調子が良いほど、特訓で上がる量が増える。<b>絶好調は普通の約1.15〜1.2倍</b></li>
