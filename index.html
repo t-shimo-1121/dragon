@@ -572,8 +572,8 @@ details.cup{display:block}
 </header>
 
 <nav class="views" role="tablist" aria-label="表示切り替え">
-  <button role="tab" data-tab="dragon" aria-label="ドラゴン" title="ドラゴン"><svg class="ic" aria-hidden="true"><use href="#i-list"/></svg></button>
-  <button role="tab" data-tab="status" aria-label="パラメータ" title="パラメータ"><svg class="ic" aria-hidden="true"><use href="#i-hex"/></svg></button>
+  <button role="tab" data-tab="dragon" aria-label="ドラゴン" title="ドラゴン"><svg class="ic" aria-hidden="true"><use href="#i-hex"/></svg></button>
+  <button role="tab" data-tab="status" aria-label="パラメータ" title="パラメータ"><svg class="ic" aria-hidden="true"><use href="#i-crown"/></svg></button>
   <button role="tab" data-tab="skill" aria-label="スキル" title="スキル"><svg class="ic" aria-hidden="true"><use href="#i-bolt"/></svg></button>
   <button role="tab" data-tab="ability" aria-label="アビリティ" title="アビリティ"><svg class="ic" aria-hidden="true"><use href="#i-shield"/></svg></button>
   <button role="tab" data-tab="card" aria-label="カード" title="カード"><svg class="ic" aria-hidden="true"><use href="#i-book"/></svg></button>
@@ -969,9 +969,9 @@ const AB={
 
 /* ===== 状態（並べ替えと画像の種類は端末に保存） ===== */
 const state={tab:"dragon",detail:null,img:"illust",
-  dSort:{key:"no",dir:1},sSort:{key:"total",dir:-1},kSort:{key:"no",dir:1},aSort:{key:"no",dir:1},abCat:"all",dGrp:"all",skMana:"all",skCat:"all",skPow:"all",skAcc:"all",skEl:"all",skSort:{key:"pow",dir:-1},dScroll:0,dMiss:false,dOpen:[],
+  dSort:{key:"no",dir:1},sSort:{key:"total",dir:-1},kSort:{key:"no",dir:1},aSort:{key:"no",dir:1},abCat:"all",dGrp:"all",skMana:"all",skCat:"all",skPow:"all",skAcc:"all",skEl:"all",skSort:{key:"no",dir:1},dScroll:0,dMiss:false,dOpen:[],
   rk:{status:"total",skill:"pow",ability:"all"}};
-const KEEP=["dSort","sSort","img","abCat","dGrp","rk","skMana","skCat","skPow","skAcc","skEl","skSort","dMiss"];
+const KEEP=["dSort","sSort","img","abCat","dGrp","rk","skMana","skCat","skPow","skAcc","skEl","dMiss"];
 try{const s=JSON.parse(localStorage.getItem("dragon-maseki-v2")||"{}");KEEP.forEach(k=>{if(s[k])state[k]=s[k]})}catch(e){}
 state.img="illust";  // 画像はイラストに固定
 const save=()=>{try{localStorage.setItem("dragon-maseki-v2",JSON.stringify(Object.fromEntries(KEEP.map(k=>[k,state[k]]))))}catch(e){}};
@@ -1311,12 +1311,12 @@ function skillList(){
   const [rows,cchips]=step(byP,"効果","skcat",state.skCat,skCat,SK_CATS.filter(k=>byP.some(r=>skCat(r)===k)));
   /* 見出し（属性・マナ・命中・威力）を押すと並べ替え。同じ値の時は威力→マナ→合計の順 */
   const ACC_N={"◎":4,"○":3,"△":2,"×":1,"✕":1,"✖":1};
-  const key={at:r=>{const i=EL_ORDER.indexOf(r.at);return i<0?99:i},mana:r=>r.mana,acc:r=>ACC_N[r.acc]||0,pow:r=>r.pow};
-  const ss=key[state.skSort.key]?state.skSort:{key:"pow",dir:-1};
-  const kf=key[ss.key];
-  rows.sort((a,b)=>(kf(a)-kf(b))*ss.dir||b.pow-a.pow||a.mana-b.mana||(b.d?b.d.total:-1)-(a.d?a.d.total:-1));
+  const key={no:r=>msNo(r.d?r.d.sp:r.sp)*1000+(r.d?r.d.no:0),at:r=>{const i=EL_ORDER.indexOf(r.at);return i<0?99:i},mana:r=>r.mana,acc:r=>ACC_N[r.acc]||0,pow:r=>r.pow};
+  const ss=key[state.skSort.key]?state.skSort:{key:"no",dir:1};
+  const kf=key[ss.key],ix=new Map(allR.map((r,i)=>[r,i]));
+  rows.sort((a,b)=>(kf(a)-kf(b))*ss.dir||(ss.key==="no"?ix.get(a)-ix.get(b):0)||b.pow-a.pow||a.mana-b.mana||(b.d?b.d.total:-1)-(a.d?a.d.total:-1));
   const th=(k,n)=>`<th class="c"${ariaSort(ss,k)}><button data-sksort="${k}">${n}</button></th>`;
-  const list=rows.length?`<div class="box sklist"><div class="xtbl"><table class="sktbl"><thead><tr><th>スキル・ドラゴン</th>${th("at","属性")}${th("mana","マナ")}${th("acc","命中")}${th("pow","威力")}</tr></thead><tbody>${
+  const list=rows.length?`<div class="box sklist"><div class="xtbl"><table class="sktbl"><thead><tr><th${ariaSort(ss,"no")}><button data-sksort="no">スキル・ドラゴン</button></th>${th("at","属性")}${th("mana","マナ")}${th("acc","命中")}${th("pow","威力")}</tr></thead><tbody>${
     rows.map(r=>{const e=effHTML(r.eff,r.dur);
       const op=r.d?` data-open="${r.d.no}"`:` class="unown"`;
       return `<tr${op}><td class="nm"><b>${esc(skn(r.n))}${r.lt&&r.d?`<span class="lvt">${r.lt}</span>`:""}</b><small class="cnt">${r.d?esc(r.d.nk):`<span class="nw">${esc(spn(r.sp))}</span> <span class="nw">未習得${r.lt?" "+r.lt:""}</span>`}</small></td><td class="c">${r.at?elTag(r.at):"？"}</td><td class="c">${r.mana}</td><td class="c">${accTag(r.acc)}</td><td class="c pw">${r.pow}</td></tr>${e?`<tr class="sk-e${r.d?"":" unown"}"${r.d?` data-open="${r.d.no}"`:""}><td colspan="5" class="ef"><div class="efb">${e}</div></td></tr>`:""}`}).join("")
@@ -1326,7 +1326,7 @@ function skillList(){
 }
 function viewSkill(){
   const missing=D.filter(x=>!SK[x.sp]).map(x=>esc(x.nk)).join("・");
-  return `<h2><span class="tg">${ico("bolt")}</span>スキル一覧</h2><p class="hint">はじめは威力の高い順。見出しの属性・マナ・命中・威力を押すと並べ替えます。値はMaxです（Maxが分からないものはLvを表示）。「未習得」はまだ持っていない種族のスキルです</p>${skillList()}
+  return `<h2><span class="tg">${ico("bolt")}</span>スキル一覧</h2><p class="hint">はじめは通常種→変異種の順に、通常種のナンバー順で並びます。見出しを押すと並べ替えます。値はMaxです（Maxが分からないものはLvを表示）。「未習得」はまだ持っていない種族のスキルです</p>${skillList()}
     ${missing?`<p class="hint" style="margin-top:10px">まだデータがないドラゴン：${missing}</p>`:""}`;
 }
 
@@ -1795,7 +1795,7 @@ document.addEventListener("click",e=>{
   if(ds.tab)return go(ds.tab);
   if(ds.open)return go("dragon",+ds.open);
   if("back" in ds)return go("dragon");
-  if(ds.sksort)return toggle(state.skSort,ds.sksort,ds.sksort==="at"?1:-1);
+  if(ds.sksort)return toggle(state.skSort,ds.sksort,ds.sksort==="at"||ds.sksort==="no"?1:-1);
   if(ds.skel){state.skEl=ds.skel;
     if(state.tab!=="skill"){state.skMana="all";state.skCat="all";state.skPow="all";state.skAcc="all";save();return go("skill")}  /* カードから来た時は属性だけで絞る */
     save();return render()}
