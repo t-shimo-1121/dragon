@@ -577,6 +577,7 @@ details.cup{display:block}
   <button role="tab" data-tab="skill" aria-label="スキル" title="スキル"><svg class="ic" aria-hidden="true"><use href="#i-bolt"/></svg></button>
   <button role="tab" data-tab="ability" aria-label="アビリティ" title="アビリティ"><svg class="ic" aria-hidden="true"><use href="#i-shield"/></svg></button>
   <button role="tab" data-tab="card" aria-label="カード" title="カード"><svg class="ic" aria-hidden="true"><use href="#i-book"/></svg></button>
+  <button role="tab" data-tab="battle" aria-label="バトル" title="バトル"><svg class="ic" aria-hidden="true"><use href="#i-sword"/></svg></button>
   <button role="tab" data-tab="lab" aria-label="検証" title="検証"><svg class="ic" aria-hidden="true"><use href="#i-lab"/></svg></button>
   <button role="tab" data-tab="sim" aria-label="育成" title="育成"><svg class="ic" aria-hidden="true"><use href="#i-dumbbell"/></svg></button>
 </nav>
@@ -1405,6 +1406,82 @@ function viewCard(){
       l.map(([nm,full,sh])=>`<tr><td class="nm"><b>${esc(nm)}</b><small class="cnt">${esc(full)}</small></td><td class="ef">${arrows(esc(sh))}</td></tr>`).join("")
     }</tbody></table></div></div>`).join("")}`;
 }
+/* ===== バトル：攻撃999 vs 防御999 のモデルケース =====
+   検証タブ「ダメージの出方は2通り」の式で計算。攻撃側は絶好調（×1.2）。
+   バフの倍率（小1.1・中1.2・大1.3）とクリティカル1.5は仮定 */
+const BT={A:999,D:999,cut:0.64,edge:0.69,cond:1.2,weak:1.6,crit:1.5,
+  K:{10:0.42,20:0.49,30:0.53,50:0.58,60:0.61,80:0.64,120:0.70},
+  BF:[["なし",1],["小",1.1],["中",1.2],["大",1.3]]};
+/* 攻撃・防御はバフの倍率をかけた値。境目を超えられないと1〜2 */
+function btDmg(pow,am=1,dm=1,x=1){
+  const a=BT.A*am,d=BT.D*dm;
+  if(a<d*BT.edge)return null;
+  return BT.K[pow]*(a-d*BT.cut)*BT.cond*x;
+}
+const btBase=btDmg(30);
+const btV=v=>v==null?'<span class="dn">1〜2</span>':Math.round(v);
+const btR=v=>v==null?"–":"×"+(v/btBase).toFixed(2);
+const btKill=v=>v!=null&&v>=999?`<b class="up">${Math.round(v)}</b>`:btV(v);
+function viewBattle(){
+  const pows=[10,20,30,50,60,80,120];
+  /* 防御バフを重ねた時（1段＝1.1倍と仮定し、段数ぶん足す） */
+  const stack=[1,2,3,4,5].map(n=>[`${n}段`,1+n*0.1]);
+  return `<h2><span class="tg">${ico("sword")}</span>バトルのモデルケース</h2>
+  <p class="hint">攻撃999のドラゴンが、防御999のドラゴンを攻撃した時のダメージの目安です</p>
+  <p class="lab-cond">攻撃側は絶好調。乱数で±4%ぶれる。検証タブ「ダメージの検証」の式を使った計算</p>
+  ${labSec("lab","計算の決まり","hyp",`
+    <p class="dmg-f">ダメージ ≒ 威力係数 ×（攻撃 − 防御×0.64）× 1.2 × 弱点 × 会心</p>
+    <ul>
+      <li>攻撃999・防御999なら、かっこの中は <b>999 − 639 ＝ 360</b></li>
+      <li>弱点は<b>1.6倍</b>（確認済み）。クリティカルは1.35倍以上と分かっていて、ここでは<b>1.5倍</b>と仮定</li>
+      <li>バフは、<b>小1.1倍・中1.2倍・大1.3倍</b>と仮定。ドレイクンの八つ裂き（攻撃中↑で約100）から逆算すると、中は約1.17〜1.22倍</li>
+      <li>攻撃が防御×0.69より小さいと、ダメージは<b>1〜2</b></li>
+    </ul>`)}
+  ${labSec("bolt","技の威力・弱点・クリティカル","hyp",`
+    ${labTbl(["威力","ふつう","弱点","会心","弱点<br>＋会心"],pows.map(w=>[`威力${w}`,btV(btDmg(w)),btV(btDmg(w,1,1,BT.weak)),btV(btDmg(w,1,1,BT.crit)),btV(btDmg(w,1,1,BT.weak*BT.crit))]))}
+    <ul>
+      <li>威力が<b>12倍</b>（10→120）になっても、ダメージは<b>約1.7倍</b>（181→302）</li>
+      <li>弱点（1.6倍）は、威力30→120に変えるより効く</li>
+      <li>弱点＋会心で<b>2.4倍</b>。威力120なら約720で、体力999の7割を一撃で削る</li>
+    </ul>`)}
+  ${labSec("sword","攻撃側のバフ","hyp",`
+    ${labTbl(["攻撃バフ","攻撃","威力30","威力60","倍率"],BT.BF.map(([n,m])=>[n,Math.round(BT.A*m),btV(btDmg(30,m)),btV(btDmg(60,m)),btR(btDmg(30,m))]))}
+    <ul>
+      <li>攻撃が1.1倍になると、ダメージは<b>約1.28倍</b>。防御の分を引いた残りが増えるので、<b>バフの倍率より大きく効く</b></li>
+      <li>攻撃大↑で<b>約1.8倍</b>。威力を上げるより、攻撃バフの方がずっと効く</li>
+    </ul>`)}
+  ${labSec("shield","防御側のバフ","hyp",`
+    ${labTbl(["防御バフ","防御","威力30","威力60","倍率"],BT.BF.map(([n,m])=>[n,Math.round(BT.D*m),btV(btDmg(30,1,m)),btV(btDmg(60,1,m)),btR(btDmg(30,1,m))]))}
+    <ul>
+      <li>防御小↑で<b>約0.82倍</b>、大↑で<b>約0.47倍</b>。半分近くまで減る</li>
+      <li>防御が<b>1448</b>（999×1.45）を超えると、攻撃999でも<b>1〜2</b>しか入らない</li>
+    </ul>
+    <p><b>防御バフを重ねると</b>（1段＝0.1倍ずつ増えると仮定）</p>
+    ${labTbl(["重ねた数","防御","威力30","倍率"],stack.map(([n,m])=>[n,Math.round(BT.D*m),btV(btDmg(30,1,m)),btR(btDmg(30,1,m))]))}
+    <p class="note">5段で境目を超えて1〜2になる。重ねられる数の上限や、1段の大きさはまだ分かっていない</p>`)}
+  ${labSec("crown","攻撃バフと防御バフ","hyp",`
+    <p>威力30（体当たり）のダメージ。行が攻撃側のバフ、列が防御側のバフ</p>
+    ${labTbl(["攻＼防",...BT.BF.map(([n])=>n)],BT.BF.map(([an,am])=>[an,...BT.BF.map(([,dm])=>btV(btDmg(30,am,dm)))]))}
+    <ul>
+      <li><b>同じ大きさのバフどうし</b>（攻小↑と防小↑など）だと打ち消し合わず、ダメージは<b>バフの倍率ぶん増える</b>（小なら1.1倍）</li>
+      <li>攻撃バフが相手の防御バフより<b>1つ小さい</b>と、ほぼバフなしと同じ（攻中↑と防大↑で234）。1つ大きいと約1.3〜1.5倍</li>
+    </ul>`)}
+  ${labSec("target","一撃で999を倒せる組み合わせ","hyp",`
+    ${labTbl(["条件","威力60","威力120"],[
+      ["攻大↑",btV(btDmg(60,1.3)),btV(btDmg(120,1.3))],
+      ["攻大↑＋弱点",btKill(btDmg(60,1.3,1,BT.weak)),btKill(btDmg(120,1.3,1,BT.weak))],
+      ["攻大↑＋会心",btKill(btDmg(60,1.3,1,BT.crit)),btKill(btDmg(120,1.3,1,BT.crit))],
+      ["攻大↑＋弱点＋会心",btKill(btDmg(60,1.3,1,BT.weak*BT.crit)),btKill(btDmg(120,1.3,1,BT.weak*BT.crit))],
+      ["攻中↑＋弱点＋会心",btKill(btDmg(60,1.2,1,BT.weak*BT.crit)),btKill(btDmg(120,1.2,1,BT.weak*BT.crit))]])}
+    <p class="note">赤い太字は999以上（体力999を一撃）。乱数で±4%ぶれるので、1000前後はぎりぎり</p>`)}
+  ${labSec("wing","まとめ","hyp",`
+    <ul>
+      <li>いちばん効くのは<b>攻撃バフ</b>（大↑で1.8倍）。次に<b>弱点</b>（1.6倍）と<b>会心</b>（1.5倍）。威力は、30→120に変えても1.3倍</li>
+      <li>守る側は<b>防御バフ</b>がとても効く。大↑でダメージ半分、重ねれば1〜2</li>
+      <li>防御を固めた相手には、ハンマー使い（相手のバフ全解除）や状態異常（防御に関係なし）</li>
+    </ul>
+    <p class="note"><b>まだ確かめていないこと</b>小・中・大のバフの本当の倍率／バフを何段まで重ねられるか／クリティカルの本当の倍率／クリティカルで防御バフが無視されるか</p>`)}`;
+}
 /* ===== 検証：特訓の仕様（2026/11/03 カオガコワイで検証） ===== */
 const labTbl=(head,rows)=>`<div class="xtbl"><table class="lab-t"><thead><tr>${head.map((h,i)=>`<th${i?' class="c"':""}>${h}</th>`).join("")}</tr></thead><tbody>${
   rows.map(r=>`<tr>${r.map((c,i)=>`<td${i?' class="c"':' class="nm"'}>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
@@ -1765,7 +1842,7 @@ document.addEventListener("click",e=>{
   if("simauto" in ds){simAuto();return simRe()}
   if("simclr" in ds){sim.cnt=[0,0,0,0,0,0];return simRe()}
 });
-const VIEWS={dragon:viewDragon,status:viewStatus,skill:viewSkill,ability:viewAbility,card:viewCard,lab:viewLab,sim:viewSim};
+const VIEWS={dragon:viewDragon,status:viewStatus,skill:viewSkill,ability:viewAbility,card:viewCard,battle:viewBattle,lab:viewLab,sim:viewSim};
 const view=document.getElementById("view");
 function render(){
   document.querySelectorAll("nav.views button").forEach(t=>t.setAttribute("aria-selected",t.dataset.tab===state.tab));
