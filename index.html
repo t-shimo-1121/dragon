@@ -383,6 +383,30 @@ mark{background:hsl(45 95% 62% / .55);color:inherit;border-radius:3px;padding:0 
 .sktbl tr:has(+tr.sk-e) td{border-bottom:0;padding-bottom:0}
 .sktbl tr.sk-e td{padding:4px 0 10px}
 .sktbl .efb{background:var(--tint);border-radius:8px;padding:5px 10px;line-height:1.5}
+/* ドラゴン別スキル：通常種＋変異種で1枚。スキルごとに 上＝通常・下＝変異、効果は下にまとめて */
+.spgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,340px),1fr));gap:10px}
+.spc{padding:8px 10px 6px}
+.spc-h{display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding:0 2px 4px;border-bottom:1px solid var(--line)}
+.spc-h b{font-size:var(--fs-l)}
+.spc-h small{font-size:var(--fs-s);color:var(--mute);font-weight:400;text-align:right}
+.spc .xtbl{margin:0 -2px}
+.xtbl table.sptbl{table-layout:fixed;width:100%}
+.sptbl th.c,.sptbl td.c{width:auto}
+.sptbl th.kd,.sptbl td.kd{width:4.8rem;padding-left:2px;padding-right:2px;white-space:nowrap}
+.sptbl td.kd{font-size:var(--fs-s);font-weight:700;color:var(--mute)}
+.sptbl tr.sn td{padding:9px 2px 2px;border-bottom:0;font-weight:700}
+.sptbl tr.sn:first-child td{padding-top:4px}
+.sptbl tr.sn .lvt{margin-left:4px}
+.sptbl tr.rw td{border-bottom:0;padding-top:3px;padding-bottom:3px}
+.sptbl tr.rw.rv td{border-top:1px dotted var(--line)}
+.sptbl td.df{background:var(--soft);border-radius:6px}
+.sptbl tr.ex td{padding:3px 0 6px;border-bottom:1px solid var(--line)}
+.sptbl tr.ex:last-child td{border-bottom:0}
+.sptbl .efb{background:var(--tint);border-radius:8px;padding:4px 9px;line-height:1.5;font-size:var(--fs-m)}
+.sptbl .efb div{display:flex;gap:6px}
+.sptbl .efb i{font-style:normal;font-size:var(--fs-s);color:var(--mute);font-weight:700;flex:none;width:2.2em}
+.sptbl .nod{color:var(--mute);font-size:var(--fs-s);font-weight:400}
+.go-down{display:inline-block;margin:0 0 10px;font-size:var(--fs-s);color:var(--accent);font-weight:700;background:none;border:0;padding:0}
 /* アビリティタブ：名前の下に効果と覚えているドラゴンを横いっぱいで */
 .abtbl.stack td{display:block}
 .abtbl.stack td.nm{border-bottom:0;padding-bottom:0;position:static;box-shadow:none}
@@ -1325,9 +1349,40 @@ function skillList(){
   return echips+mchips+achips+pchips+cchips+list;
 
 }
+/* ===== ドラゴン別スキル：通常種と変異種を1枚のカードに =====
+   スキルごとに 上の行＝通常種・下の行＝変異種（属性・マナ・命中・威力）。追加効果は2行の下にまとめ、同じなら1行。
+   変異種で通常種と値が変わったところは薄く色をつける */
+function speciesSkillCards(){
+  const bases=MASEKI_N.concat(MASEKI_R).filter(b=>SK[b]||SK[b+"変異種"]);
+  const owned=sp=>D.filter(d=>d.sp===sp).map(d=>esc(d.nk)).join("・");
+  const cell=(v,k,o)=>{const val=k==="at"?v.at:v.v[{mana:1,acc:3,pow:2}[k]];
+    const html=k==="at"?(val?elTag(val):"？"):k==="acc"?accTag(val):esc(val);
+    const other=o?(k==="at"?o.at:o.v[{mana:1,acc:3,pow:2}[k]]):undefined;
+    return `<td class="c${o&&String(other)!==String(val)?" df":""}">${html}</td>`};
+  const row=(label,v,o,cls)=>v
+    ?`<tr class="rw ${cls}"><td class="kd">${label}${v.lt?`<span class="lvt">${v.lt}</span>`:""}</td>${["at","mana","acc","pow"].map(k=>cell(v,k,cls==="rv"?o:null)).join("")}</tr>`
+    :`<tr class="rw ${cls}"><td class="kd">${label}</td><td colspan="4" class="nod">データなし</td></tr>`;
+  return `<div class="spgrid">${bases.map(b=>{
+    const vb=b+"変異種",A=SK[b]||{},B=SK[vb]||{};
+    const names=[...new Set([...Object.keys(A),...Object.keys(B)])];
+    const get=(db,n)=>{const x=db[n];if(!x)return null;const [v,lt]=bestLv(x.L);return v?{at:x.at,v,lt}:null};
+    const rows=names.map(n=>{
+      const a=get(A,n),c=get(B,n);
+      const ea=a?effHTML(a.v[4],a.v[0]):"",ec=c?effHTML(c.v[4],c.v[0]):"";
+      const none=`<span class="none">なし</span>`;
+      let ef;
+      if(a&&c&&a.v[4]===c.v[4]&&String(a.v[0])===String(c.v[0]))ef=`<div><i>共通</i><span>${ea||none}</span></div>`;
+      else ef=(a?`<div><i>通常</i><span>${ea||none}</span></div>`:"")+(c?`<div><i>変異</i><span>${ec||none}</span></div>`:"");
+      return `<tr class="sn"><td colspan="5">${esc(n)}</td></tr>${row("通常",a,null,"rn")}${row("変異",c,a,"rv")}${ef?`<tr class="ex"><td colspan="5"><div class="efb">${ef}</div></td></tr>`:""}`;
+    }).join("");
+    const own=[owned(b),owned(vb)].filter(Boolean).join(" / ");
+    return `<div class="box spc"><div class="spc-h"><b>${esc(b)}</b><small>${own||"未所持"}</small></div><div class="xtbl"><table class="sktbl sptbl"><thead><tr><th class="kd"></th><th class="c">属性</th><th class="c">マナ</th><th class="c">命中</th><th class="c">威力</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
+  }).join("")}</div>`;
+}
 function viewSkill(){
   const missing=D.filter(x=>!SK[x.sp]).map(x=>esc(x.nk)).join("・");
-  return `<h2><span class="tg">${ico("bolt")}</span>スキル一覧</h2><p class="hint">はじめは通常種→変異種の順に、通常種のナンバー順で並びます。見出しを押すと並べ替えます。値はMaxです（Maxが分からないものはLvを表示）。「未習得」はまだ持っていない種族のスキルです</p>${skillList()}
+  return `<h2><span class="tg">${ico("bolt")}</span>ドラゴン別スキル</h2><p class="hint">通常種と変異種を1枚にまとめています。上の行が通常種、下の行が変異種。変異種で値が変わったところに色をつけています。値はMaxです（分からないものはLvを表示）</p><button class="go-down" data-skjump>スキル一覧へ ↓</button>${speciesSkillCards()}
+    <h2 id="sk-list"><span class="tg">${ico("bolt")}</span>スキル一覧</h2><p class="hint">はじめは通常種→変異種の順に、通常種のナンバー順で並びます。見出しを押すと並べ替えます。値はMaxです（Maxが分からないものはLvを表示）。「未習得」はまだ持っていない種族のスキルです</p>${skillList()}
     ${missing?`<p class="hint" style="margin-top:10px">まだデータがないドラゴン：${missing}</p>`:""}`;
 }
 
@@ -1881,6 +1936,7 @@ document.addEventListener("change",e=>{
   if(e.target.matches("[data-dmiss]")){state.dMiss=e.target.checked;save();render()}
 });
 document.addEventListener("click",e=>{
+  if(e.target.closest("[data-skjump]")){const el=document.getElementById("sk-list"),nav=document.querySelector("nav.views");if(el)window.scrollTo({top:el.getBoundingClientRect().top+window.scrollY-nav.offsetHeight-8,behavior:"smooth"});return}
   const t=e.target.closest("[data-tab],[data-open],[data-back],[data-dsort],[data-abcat],[data-dgrp],[data-img],[data-rk],[data-skmana],[data-skpow],[data-skacc],[data-skel],[data-sksort],[data-skcat],[data-acc],[data-rx]");
   if(!t)return;const ds=t.dataset;
   /* アコーディオン：その場で開け閉めする（描き直さない） */
