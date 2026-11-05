@@ -433,6 +433,7 @@ mark{background:hsl(45 95% 62% / .55);color:inherit;border-radius:3px;padding:0 
 .tag{display:inline-block;font-size:var(--fs-s);font-weight:700;border:1.5px solid currentColor;border-radius:7px;padding:0 6px;line-height:1.5;white-space:nowrap}
 .tag.ok{color:var(--accent)}.tag.hyp{color:var(--mute)}
 .lab-b{padding:10px 14px}
+.ab-rule{margin:0 0 12px}
 .lab-b p{margin:0 0 8px}
 .lab-b ul{margin:0 0 8px;padding-left:1.2em}
 .lab-b li{margin:2px 0}
@@ -1180,13 +1181,19 @@ function skillTable(spName,list){
   return `<div class="xtbl"><table class="sktbl"><thead><tr><th>スキル</th><th class="c">属性</th><th class="c">マナ</th><th class="c">命中</th><th class="c">威力</th></tr></thead><tbody>${rows}</tbody></table></div>`;
 }
 /* アビリティの表：アビリティ・効果。extra(n) で効果の下に足すもの（覚えているドラゴンなど） */
+/* アビリティの効き目の長さ。持続Nは発動したターンを入れてN+1ターン。持続のない上昇（構え・必中など）はそのターンだけ */
+function abDur(d,t){
+  if(/^\d+$/.test(String(d)))return `<span class="dur">(${+d+1}ターン)</span>`;
+  if(/アップ|必中/.test(t||""))return `<span class="dur">(そのターンだけ)</span>`;
+  return "";
+}
 function abilityTable(list,extra=abilityTable.none){
   const rows=list.map(x=>{
     if(x.none)return `<tr><td class="nm" colspan="2"><span class="none">ー（空き）</span></td></tr>`;
     /* そのドラゴンのLvが分かっていれば、そのLvの効果を出す */
     const L=(AB[x.n]||{}).L||{};
     const [v,lt]=x.lv&&L[x.lv]?[L[x.lv],"Lv"+x.lv]:bestLv(L);
-    const eff=v?effHTML(v[1],v[0])+(lt?`<span class="dur">${lt}の効果</span>`:""):`<span class="none">効果はまだ確かめていません</span>`;
+    const eff=v?(v[1]?arrows(esc(fxShort(v[1]).replace(/体力(\d+)%以下で/,(m,n)=>n==="0"?"体力0を切る時":`体力${n}%を切る時`))):"")+abDur(v[0],v[1])+(lt?`<span class="dur">${lt}の効果</span>`:""):`<span class="none">効果はまだ確かめていません</span>`;
     return `<tr><td class="nm"><b>${esc(abn(x.n))}</b>${x.cnt?`<small class="cnt">${x.cnt}体</small>`:x.cnt===0?`<small class="cnt">未習得</small>`:""}</td><td class="ef">${eff}${extra(x.n)}</td></tr>`;
   }).join("");
   const wide=extra!==abilityTable.none;
@@ -1413,13 +1420,20 @@ function viewAbility(){
   const holders=n=>!m[n]?"":`<div class="holds">${orderD(m[n]).map(d=>`<button class="hold" data-open="${d.no}">${esc(d.nk)}</button>`).join("")}</div>`;
   const table=abilityTable(names.map(([n,ds])=>({n,cnt:ds.length})),holders);
   return `<h2><span class="tg">${ico("shield")}</span>アビリティの効果</h2><p class="hint">発動確率の高い順（条件を満たせば必ず発動するものが先）。効果はMaxの値です（Maxが分からないものは、分かっている一番高いレベルの効果）。覚えているドラゴンを押すと、そのドラゴンのページが開きます</p>
+    <div class="box lab-b ab-rule"><p><b>効き目の長さ</b></p><ul>
+      <li><b>持続1は2ターン、持続2は3ターン</b>。発動したターンも1ターンに数える</li>
+      <li>持続のない上昇は、<b>発動したそのターンだけ</b>。守りの構えで確認。攻めの構え・狙い撃ちなどほかの構え系も同じと考えられる</li>
+      <li>効いている間にもう一度発動すると<b>上書き</b>になり、そこから数え直し。重ねがけで大きくはならない</li>
+      <li><b>フクツ系</b>は、50%より上の体力で受けた攻撃で50%を下回る時に、<b>その攻撃を受ける前に発動</b>する。その攻撃から軽くなり、持続2なので合わせて3ターン</li>
+      <li><b>ふんばる</b>も同じで、体力が0を下回る攻撃を受けたその時に判定される</li>
+    </ul></div>
     <div class="sorter">${cats.map(([k,n,c])=>`<button data-abcat="${k}" aria-pressed="${state.abCat===k}">${n}<small>${c}</small></button>`).join("")}</div>
     <div class="box" style="padding:4px 10px">${table}</div>
     ${abExpect()}`;
 }
 /* ===== 発動回数の目安 =====
-   想定する対戦：5ターン。攻撃3回・マナチャージ2回、被弾3回、状態異常3ターン、体力50%以下は2ターン */
-const BATTLE={turn:5,atk:3,charge:2,hit:3,ail:3,low:2};
+   想定する対戦：5ターン。攻撃3回・マナチャージ2回、被弾3回、状態異常3ターン、体力50%を下回った被弾から3ターン（持続2） */
+const BATTLE={turn:5,atk:3,charge:2,hit:3,ail:3,low:3};
 function abChance(t){
   const p=+((String(t).match(/(\d+)%の確率/)||[])[1]||0)/100;
   const B=BATTLE;
@@ -1429,7 +1443,7 @@ function abChance(t){
   if(/^攻撃を受ける前|^攻撃を受けた時/.test(t))return {k:"被弾",n:B.hit,p};
   if(/^状態異常の時/.test(t))return {k:"状態異常",n:B.ail,p};
   if(/^マナチャージした時/.test(t))return {k:"チャージ",n:B.charge,p};
-  if(/^体力が\d+%以下の時、/.test(t)&&!p)return {k:"体力50%以下",n:B.low,p:1,always:true};
+  if(/^体力が\d+%以下の時、/.test(t)&&!p)return {k:"50%を切った被弾から",n:B.low,p:1,always:true};
   return null;   // 回避した時・体力0%以下など、今の想定では数えられないもの
 }
 function abExpect(){
@@ -1442,9 +1456,9 @@ function abExpect(){
   });
   rows.sort((a,b)=>(b.c.always?1:0)-(a.c.always?1:0)||b.e-a.e||b.one-a.one);  /* 必ず発動するものが先 */
   const pc=x=>Math.round(x*100)+"%";
-  const tr=rows.map(r=>`<tr><td class="nm"><b>${esc(abn(r.n))}</b><small class="cnt">${r.c.always?`${r.c.k}の間ずっと`:`${r.c.k} ${Math.round(r.c.p*100)}%×${r.c.n}回${r.c.max?"（最大）":""}`}</small></td><td class="c">${r.c.always?`${r.c.n}<small>ターン</small>`:`${r.e.toFixed(1)}<small>回</small>`}</td><td class="c">${pc(r.one)}</td></tr>`).join("");
+  const tr=rows.map(r=>`<tr><td class="nm"><b>${esc(abn(r.n))}</b><small class="cnt">${r.c.always?`${r.c.k}`:`${r.c.k} ${Math.round(r.c.p*100)}%×${r.c.n}回${r.c.max?"（最大）":""}`}</small></td><td class="c">${r.c.always?`${r.c.n}<small>ターン</small>`:`${r.e.toFixed(1)}<small>回</small>`}</td><td class="c">${pc(r.one)}</td></tr>`).join("");
   return `<h2><span class="tg">${ico("target")}</span>発動回数の目安</h2>
-    <p class="hint">5ターンの対戦で、攻撃3回・マナチャージ2回、攻撃を受ける3回、状態異常3ターン、体力50%以下2ターンとした時の目安です。効果はMaxの値（分からないものは分かっている一番高いレベル）。「1回以上」は1度でも発動する確率</p>
+    <p class="hint">5ターンの対戦で、攻撃3回・マナチャージ2回、攻撃を受ける3回、状態異常3ターン、フクツ系は50%を切った被弾から3ターンとした時の目安です。効果はMaxの値（分からないものは分かっている一番高いレベル）。「1回以上」は1度でも発動する確率</p>
     <div class="box" style="padding:4px 10px"><div class="xtbl"><table class="extbl"><thead><tr><th>アビリティ・きっかけ</th><th class="c">回数</th><th class="c">1回以上</th></tr></thead><tbody>${tr}</tbody></table></div></div>
     ${skip.length?`<p class="hint" style="margin-top:8px">今の想定では数えないもの：${skip.join("・")}</p>`:""}`;
 }
