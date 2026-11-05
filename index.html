@@ -1650,9 +1650,9 @@ function cupView(){
   const L=PLAN.filter(p=>p.cups).sort((a,b)=>ord(a)-ord(b));
   const SN=["体力","攻撃","防御","素早","命中","回避"];
   const row=p=>{const o=p.k==="opt";
-    const cells=p.up?p.up.map(v=>v?`<td>+${v}</td>`:`<td class="z">–</td>`).join(""):`<td colspan="6" class="pk">えらんだ2つが +${UP_PICK}</td>`;
+    const cells=p.up?p.up.map(v=>v?`<td>${v}</td>`:`<td class="z">–</td>`).join(""):`<td colspan="6" class="pk">えらんだ2つが ${UP_PICK}</td>`;
     const tot=p.up?p.up.reduce((a,b)=>a+b,0):UP_PICK*2;
-    return `<tr${o?' class="opt"':""}><th>${p.m}月${p.w}週${o?"＊":""}</th>${cells}<td class="t">+${tot}</td></tr>`};
+    return `<tr${o?' class="opt"':""}><th>${p.m}月${p.w}週${o?"＊":""}</th>${cells}<td class="t">${tot}</td></tr>`};
   const yr=y=>`<tr class="yr"><th colspan="8">${y+1}年生</th></tr>`+L.filter(p=>p.y===y).map(row).join("");
   return `<h2><span class="tg">${ico("crown")}</span>育成カレンダー</h2>
   <div class="box sim-b">
