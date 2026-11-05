@@ -590,7 +590,9 @@ const IMG_SETS={
   illust:["イラスト","images/illust/",".png"],
   chibi:["デフォルメ","images/chibi/",".png"],
 };
-const STATS=["体力","攻撃","防御","素早さ","命中","回避"];
+const STATS_L=["体力","攻撃","防御","素早さ","命中","回避"];   /* 正式名（読み上げ用） */
+const STATS=["体","攻","防","早","命","避"];   /* 画面の表記 */
+const SH={"体力":"体","攻撃":"攻","防御":"防","素早さ":"早","命中":"命","回避":"避"},sh=n=>SH[n]||n;
 /* [種族, ニックネーム, [[ランク,値]×6], [[スキル,Lv(0=最大)]×3], [[アビリティ,Lv(0=最大)]×3]] */
 const D=[
 ["ワイヴァーン","ワイー",[["C",683],["S",999],["E",337],["C",592],["C",591],["C",689]],[["空中機動",3],["毒刺し",2],["焼き払う",3]],[["攻めの構え",2],["回避アップ",0],["デトックス",0]]],
@@ -989,14 +991,14 @@ function radar(d,{W=240,R=74,total=true,sq=false,icons=true}={}){
   const H=Math.round(R*2+(icons?(IS+GAP+2)*2:4));if(sq)W=H;const cx=W/2,cy=H/2;
   const pt=(i,f)=>{const a=(-90+60*i)*Math.PI/180;return[cx+Math.cos(a)*R*f,cy+Math.sin(a)*R*f]};
   const poly=f=>[0,1,2,3,4,5].map(i=>pt(i,f).map(n=>n.toFixed(1)).join(",")).join(" ");
-  let s=`<svg class="radar" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(d.nk)}の能力：${d.st.map((x,i)=>STATS[i]+x.v).join("、")}、合計${d.total}">`;
+  let s=`<svg class="radar" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(d.nk)}の能力：${d.st.map((x,i)=>STATS_L[i]+x.v).join("、")}、合計${d.total}">`;
   s+=`<polygon class="frame" points="${poly(1)}"/>`;
   [1/3,2/3].forEach(f=>s+=`<polygon class="gl" points="${poly(f)}"/>`);
   for(let i=0;i<6;i++){const[x,y]=pt(i,1);s+=`<line class="gl" x1="${cx}" y1="${cy}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}"/>`}
   s+=`<polygon class="area" points="${d.st.map((x,i)=>pt(i,Math.max(.04,x.v/999)).map(n=>n.toFixed(1)).join(",")).join(" ")}"/>`;
   d.st.forEach((x,i)=>{
     const[ix,iy]=pt(i,1+(GAP+IS/2)/R);    // 枠の外：アイコン
-    if(icons)s+=`<use class="si" href="#i-${ST_ICON[i]}" x="${(ix-IS/2).toFixed(1)}" y="${(iy-IS/2).toFixed(1)}" width="${IS}" height="${IS}"><title>${STATS[i]}</title></use>`;
+    if(icons)s+=`<use class="si" href="#i-${ST_ICON[i]}" x="${(ix-IS/2).toFixed(1)}" y="${(iy-IS/2).toFixed(1)}" width="${IS}" height="${IS}"><title>${STATS_L[i]}</title></use>`;
     const[vx,vy]=pt(i,.76);               // 枠の内側の角：数値
     s+=`<text class="vl${x.v>=800?" s":x.v<400?" lo":""}" x="${vx.toFixed(1)}" y="${(vy+FV*.36).toFixed(1)}" font-size="${FV}" text-anchor="middle">${x.v}</text>`;
   });
@@ -1182,7 +1184,7 @@ function viewDetail(d){
 
 /* ===== 能力値 ===== */
 /* パラメータの表（ランキングの中で開く） */
-const paramTable=d=>`<div class="xtbl"><table class="pmtbl"><thead><tr>${STATS.map(n=>`<th class="c">${n==="素早さ"?"素早":n}</th>`).join("")}</tr></thead><tbody><tr>${
+const paramTable=d=>`<div class="xtbl"><table class="pmtbl"><thead><tr>${STATS.map(n=>`<th class="c">${n}</th>`).join("")}</tr></thead><tbody><tr>${
   d.st.map(x=>`<td class="c"><span class="${x.v>=800?"s":x.v<400?"lo":""}">${x.v}</span></td>`).join("")}</tr></tbody></table></div>`;
 /* 合計と6つのパラメータを数字と色だけで（800以上は赤、400未満は青） */
 const statLine=d=>`<span class="sl"><b>${d.total}</b>${d.st.map(x=>`<i class="${x.v>=800?"s":x.v<400?"lo":""}">${x.v}</i>`).join("")}</span>`;
@@ -1194,9 +1196,9 @@ function topSkill(d){
 }
 const GROUPS=[
   ["crown","合計","6つの合計",d=>d.total,d=>esc(spn(d.sp))],
-  ["sword","攻撃系","攻撃＋命中",d=>d.st[1].v+d.st[4].v,d=>`攻撃 ${d.st[1].v}・命中 ${d.st[4].v}`],
-  ["shield","防御系","体力＋防御",d=>d.st[0].v+d.st[2].v,d=>`体力 ${d.st[0].v}・防御 ${d.st[2].v}`],
-  ["wing","スピード系","素早さ＋回避",d=>d.st[3].v+d.st[5].v,d=>`素早さ ${d.st[3].v}・回避 ${d.st[5].v}`],
+  ["sword","攻撃系","攻＋命",d=>d.st[1].v+d.st[4].v,d=>`攻 ${d.st[1].v}・命 ${d.st[4].v}`],
+  ["shield","防御系","体＋防",d=>d.st[0].v+d.st[2].v,d=>`体 ${d.st[0].v}・防 ${d.st[2].v}`],
+  ["wing","スピード系","早＋避",d=>d.st[3].v+d.st[5].v,d=>`早 ${d.st[3].v}・避 ${d.st[5].v}`],
 ];
 function viewStatus(){
   const card=(ic,t,u,f,sub)=>()=>rankCard(ic,t+"ランキング",u,topN(D.map(d=>({d,name:d.nk,v:f(d),sub:sub(d),more:()=>`${paramTable(d)}${skillTable(d.sp,d.sk)}`,tie:d.no})),D.length));
@@ -1346,7 +1348,7 @@ function viewAbility(){
   const pct=n=>{const v=bestLv((AB[n]||{}).L)[0];if(!v)return -1;const m=String(v[1]).match(/(\d+)%の確率/);return m?+m[1]:100.5};
   const all=[...new Set([...Object.keys(m),...Object.keys(AB)])].map(n=>[n,m[n]||[]]).sort((a,b)=>pct(b[0])-pct(a[0])||b[1].length-a[1].length||a[0].localeCompare(b[0],"ja"));
   const cnt=c=>all.filter(([n])=>abCat(n)===c).length;
-  const cats=[["all","すべて",all.length],...AB_CATS.map(c=>[c,c,cnt(c)]).filter(x=>x[2]>0||state.abCat===x[0])];
+  const cats=[["all","すべて",all.length],...AB_CATS.map(c=>[c,sh(c),cnt(c)]).filter(x=>x[2]>0||state.abCat===x[0])];
   const names=state.abCat==="all"?all:all.filter(([n])=>abCat(n)===state.abCat);
   const holders=n=>!m[n]?"":`<div class="holds">${orderD(m[n]).map(d=>`<button class="hold" data-open="${d.no}">${esc(d.nk)}</button>`).join("")}</div>`;
   const table=abilityTable(names.map(([n,ds])=>({n,cnt:ds.length})),holders);
@@ -1421,14 +1423,14 @@ function viewLab(){
       <li>上がる量は、主に上がる方が<b>約24</b>、一緒に上がる方が<b>約10</b></li>
       <li>上がる量は<b>ロードするたびに抽選し直し</b>（±3くらい）。その回の中では固定</li>
     </ul>
-    ${labTbl(["特訓","主に上がる","一緒に"],[["体力","体力 +24","防御 +5"],["攻撃","攻撃 +17","命中 +9"],["防御","防御 +13","体力 +10"],["素早さ","素早さ +23","回避 +9"],["命中","命中 +24","攻撃 +7"],["回避","回避 +24","素早さ +10"]])}
+    ${labTbl(["特訓","主に上がる","一緒に"],[["体","体 +24","防 +5"],["攻","攻 +17","命 +9"],["防","防 +13","体 +10"],["早","早 +23","避 +9"],["命","命 +24","攻 +7"],["避","避 +24","早 +10"]])}
     <p class="note">カオガコワイ（絶好調）のアイテムなしの1回目の数値。攻撃が小さいのは鈍化、防御が小さいのは種族の伸び率のため（下の「鈍化とアイテム」）</p>`)}
   ${labSec("heart","調子と上がる量","ok",`
     <ul>
       <li>調子が良いほど、特訓で上がる量が増える。<b>絶好調は普通の約1.15〜1.2倍</b></li>
       <li>主に上がる方も、一緒に上がる方も、同じくらいの割合で増える</li>
     </ul>
-    ${labTbl(["特訓<small class=\"cnt\">主・一緒に</small>","普通","絶好調"],[["体力","+14・+8",'<span class="up">+17・+11</span>'],["攻撃","+11・+9",'<span class="up">+12</span>・+9'],["防御","+19・+5",'<span class="up">+25・+6</span>'],["素早さ","+32・+11",'<span class="up">+33・+12</span>'],["命中","+22・+4",'<span class="up">+27・+5</span>'],["回避","+28・+11",'<span class="up">+32・+14</span>'],["合計","126・48",'<span class="up">146・57</span>']])}
+    ${labTbl(["特訓<small class=\"cnt\">主・一緒に</small>","普通","絶好調"],[["体","+14・+8",'<span class="up">+17・+11</span>'],["攻","+11・+9",'<span class="up">+12</span>・+9'],["防","+19・+5",'<span class="up">+25・+6</span>'],["早","+32・+11",'<span class="up">+33・+12</span>'],["命","+22・+4",'<span class="up">+27・+5</span>'],["避","+28・+11",'<span class="up">+32・+14</span>'],["合計","126・48",'<span class="up">146・57</span>']])}
     <p class="note">シンゴジラ（蜃変異種）の4月1週（普通）と4月2週（絶好調）。パラメータの値は同じまま比べた。12個のうち減ったものはなく、10個が増えて2個が同じ。倍率は1回分からの目安</p>
     <ul>
       <li>調子は、極限集中の起こりやすさにも効いているらしい<span class="tag hyp" style="margin-left:6px">仮説</span></li>
@@ -1440,17 +1442,17 @@ function viewLab(){
       <li>極限集中の間は、特訓で上がる量が<b>約2倍</b>。主に上がる方も一緒に上がる方も増える</li>
       <li><b>鈍化も消える</b>。防御（874・A）は、鈍化していない攻撃・素早さ・命中・回避と同じくらいの伸び方だった。体力（974・S）も一緒に上がる時は+25と大きい</li>
     </ul>
-    ${labTbl(["特訓","主に上がる","一緒に"],[["体力","体力 +25","防御 <span class=\"up\">+25</span>"],["攻撃","攻撃 <span class=\"up\">+46</span>","命中 <span class=\"up\">+14</span>"],["防御","防御 <span class=\"up\">+65</span>","体力 <span class=\"up\">+25</span>"],["素早さ","素早さ <span class=\"up\">+22</span>","回避 <span class=\"up\">+9</span>"],["命中","命中 <span class=\"up\">+42</span>","攻撃 <span class=\"up\">+22</span>"],["回避","回避 <span class=\"up\">+28</span>","素早さ <span class=\"up\">+9</span>"]])}
+    ${labTbl(["特訓","主に上がる","一緒に"],[["体","体 +25","防 <span class=\"up\">+25</span>"],["攻","攻 <span class=\"up\">+46</span>","命 <span class=\"up\">+14</span>"],["防","防 <span class=\"up\">+65</span>","体 <span class=\"up\">+25</span>"],["早","早 <span class=\"up\">+22</span>","避 <span class=\"up\">+9</span>"],["命","命 <span class=\"up\">+42</span>","攻 <span class=\"up\">+22</span>"],["避","避 <span class=\"up\">+28</span>","早 <span class=\"up\">+9</span>"]])}
     <p class="note">ゴツオ（クエレブレ変異種）の2年生8月3週（極限集中・絶好調・ランク58）。値は体力974・攻撃577・防御874・素早さ100・命中694・回避148。体力特訓の体力+25は999で頭打ち（974+25）。スペシャル特訓の書Ⅰを使った後の表示で、当選した特訓は+2を含む</p>
     <p><b>ふだんとの比較</b>：値が同じまま（素早さ100・回避148）だった素早さと回避で比べると、合計で<b>約1.9倍</b>。数が小さいので、ロードごとの±3の抽選で1.7〜2.2倍にぶれる</p>
-    ${labTbl(["特訓<small class=\"cnt\">主・一緒に</small>","ふだん<small class=\"cnt\">9月3週</small>","極限集中<small class=\"cnt\">8月3週</small>"],[["素早さ","+13・+5",'<span class="up">+22・+9</span>'],["回避","+13・+5",'<span class="up">+28・+9</span>'],["合計","36",'<span class="up">68</span>']])}
+    ${labTbl(["特訓<small class=\"cnt\">主・一緒に</small>","ふだん<small class=\"cnt\">9月3週</small>","極限集中<small class=\"cnt\">8月3週</small>"],[["早","+13・+5",'<span class="up">+22・+9</span>'],["避","+13・+5",'<span class="up">+28・+9</span>'],["合計","36",'<span class="up">68</span>']])}
     <p class="note">どちらも絶好調・アイテムなし。8月3週はスペシャル特訓の書Ⅰを使った後なので、当選していれば+2を含む</p>
     <p><b>シンゴジラ（蜃変異種）でも約2倍</b>：1年生10月2週（極限集中・絶好調）。値はどれもAランク前で鈍化していないので、4月2週（絶好調）の数値と比べられる。合計で、主に上がる方は<b>約1.8倍</b>、一緒に上がる方は<b>約2.0倍</b></p>
-    ${labTbl(["特訓<small class=\"cnt\">主・一緒に</small>","4月2週","10月2週<small class=\"cnt\">極限集中</small>"],[["体力","+17・+11",'<span class="up">+26・+22</span>'],["攻撃","+12・+9",'<span class="up">+24・+20</span>'],["素早さ","+33・+12",'<span class="up">+58・+25</span>'],["命中","+27・+5",'<span class="up">+50・+10</span>'],["回避","+32・+14",'<span class="up">+59・+23</span>'],["合計","121・51",'<span class="up">217・100</span>']])}
+    ${labTbl(["特訓<small class=\"cnt\">主・一緒に</small>","4月2週","10月2週<small class=\"cnt\">極限集中</small>"],[["体","+17・+11",'<span class="up">+26・+22</span>'],["攻","+12・+9",'<span class="up">+24・+20</span>'],["早","+33・+12",'<span class="up">+58・+25</span>'],["命","+27・+5",'<span class="up">+50・+10</span>'],["避","+32・+14",'<span class="up">+59・+23</span>'],["合計","121・51",'<span class="up">217・100</span>']])}
     <p class="note">どちらも絶好調で、この5つの特訓にはアイテムなし（防御のカードにだけアイテムのマークがあり、防御特訓の画面はない）</p>
     <p>ほかの特訓は値が変わっているので倍率は出せないが、ふだんの週はかなり小さい。9月3週（体力999・攻撃637・防御903・命中783）は、攻撃特訓 攻撃+7・命中+1、命中特訓 命中+2・攻撃+3、防御特訓 防御+12・体力+0、体力特訓 体力+0・防御+4。8月3週の極限集中は防御+65など大きかったので、<b>極限集中の間は鈍化が消える</b>ことの裏付けになる</p>
     <p><b>攻撃と命中もアイテムで大きく増えた（鈍化）</b>：攻撃（637・C）と命中（783・B）はAランク前なのに、ふだんの週の上昇がとても小さい。同じロードのままアイテムを使うと、<b>アイテムの対象でない方まで大きく増えた</b>ので、鈍化していてアイテムで消えたと考えられる</p>
-    ${labTbl(["9月3週<small class=\"cnt\">主・一緒に</small>","なし","攻撃の<br>アイテム","命中の<br>アイテム"],[["攻撃特訓","+7・+1",'<span class="up">+15・+3</span>','<span class="up">+12・+3</span>'],["命中特訓","+2・+3",'<span class="up">+7・+6</span>','<span class="up">+9・+4</span>']])}
+    ${labTbl(["9月3週<small class=\"cnt\">主・一緒に</small>","なし","攻の<br>アイテム","命の<br>アイテム"],[["攻特訓","+7・+1",'<span class="up">+15・+3</span>','<span class="up">+12・+3</span>'],["命特訓","+2・+3",'<span class="up">+7・+6</span>','<span class="up">+9・+4</span>']])}
     <p class="note">ロードせずに、なし→攻撃のアイテム→命中のアイテムの順に使って撮った。どちらも単体アイテム</p>
     <ul>
       <li>攻撃のアイテムで命中特訓の命中が2→7、命中のアイテムで攻撃特訓の攻撃が7→12。<b>アイテムを使うと、対象でない特訓の鈍化も消える</b></li>
@@ -1476,13 +1478,13 @@ function viewLab(){
       <li>上がる量は、主に上がる方も一緒に上がる方も<b>+2</b>（たまに+3）</li>
       <li>ほかの特訓の数値は変わらない</li>
     </ul>
-    ${labTbl(["書Ⅱで当選","主に上がる","一緒に"],[["体力",`体力 ${lu(23,26)}`,`防御 ${lu(5,7)}`],["防御",`防御 ${lu(13,15)}`,`体力 ${lu(10,12)}`]])}`)}
+    ${labTbl(["書Ⅱで当選","主に上がる","一緒に"],[["体",`体 ${lu(23,26)}`,`防 ${lu(5,7)}`],["防",`防 ${lu(13,15)}`,`体 ${lu(10,12)}`]])}`)}
   ${labSec("crown","上書きでも残るスペシャル","ok",`
     <p>アイテムを使うと「現在の効果に上書きされます」と出るのに、<b>今週のスペシャル特訓（虹色の枠と+2）は消えずに残ります</b>。消えるのは、書の「発生率アップ」の続きの効果だけと考えられます</p>
-    ${labTbl(["使ったもの","防御<small class=\"cnt\">体力特訓で</small>","体力<small class=\"cnt\">防御特訓で</small>"],[["なし","+5","+10"],["書Ⅱ","<span class=\"up\">+7</span>","<span class=\"up\">+12</span>"],["→ダンベル","<span class=\"up\">+7</span>","–"],["→エキス","–","<span class=\"up\">+12</span>"],["→鎧","<span class=\"up\">+8</span>","<span class=\"up\">+14</span>"]])}
+    ${labTbl(["使ったもの","防<small class=\"cnt\">体特訓で</small>","体<small class=\"cnt\">防特訓で</small>"],[["なし","+5","+10"],["書Ⅱ","<span class=\"up\">+7</span>","<span class=\"up\">+12</span>"],["→ダンベル","<span class=\"up\">+7</span>","–"],["→エキス","–","<span class=\"up\">+12</span>"],["→鎧","<span class=\"up\">+8</span>","<span class=\"up\">+14</span>"]])}
     <p class="note">書Ⅱ→ダンベル→エキス→鎧と3回上書きしても、虹色の枠と+2が残ったまま（ダンベル・エキスは一緒に上がる方を上げないので、残った+2がそのまま見える）</p>
     <p><b>実行しても両方入る</b>：書（体力・防御に当選）→ダンベルで体力特訓を実行すると、「SPECIAL 体力特訓成功！」となり、体力は表示どおり<span class="up">+36</span>（スペシャル込みの29×1.25）上がりました</p>
-    ${labTbl(["体力特訓","体力","防御"],[["書の後の表示","+29","+7"],["ダンベルの後の表示","+36","+7"],["実際に上がった量",'<span class="up">+36</span>','<span class="up">+6</span>']])}
+    ${labTbl(["体特訓","体","防"],[["書の後の表示","+29","+7"],["ダンベルの後の表示","+36","+7"],["実際に上がった量",'<span class="up">+36</span>','<span class="up">+6</span>']])}
     <p class="note">一緒に上がる防御は表示+7、実際+6。表示と実際で1ずれることがある（内部の小数の端数処理の違いと思われる）</p>
     <p><b>使い方</b>：書で今週のスペシャルを出す→その特訓に合うアイテムに切り替える→特訓する。スペシャルとアイテムの効果を同じ週に両方受けられます</p>
     <p class="note"><b>まだ確かめていないこと</b>次の週以降、書の発生率アップが本当に消えているか</p>`)}
@@ -1494,7 +1496,7 @@ function viewLab(){
       <li>パラメータ2つのアイテム（鎧・兜・耳飾りなど）は、対象の2つが<b>主に上がる時も一緒に上がる時も</b>上がる</li>
       <li>アイテムを使うと、効果のある特訓のカードに袋と↑のマークが付く</li>
     </ul>
-    ${labTbl(["素早さ特訓","素早さ","回避"],[["素早さのブーツ",lu(24,30),"10"+ar+"10"],["俊敏の耳飾り",lu(24,30),lu(10,13)]])}`)}
+    ${labTbl(["早特訓","早","避"],[["素早さのブーツ",lu(24,30),"10"+ar+"10"],["俊敏の耳飾り",lu(24,30),lu(10,13)]])}`)}
   ${labSec("sword","鈍化とアイテム","ok",`
     <ul>
       <li><b>鈍化</b>：パラメータが<b>Aランク（800）</b>を超えると、特訓で上がる量が約<b>0.7倍</b>に減る。カオガコワイの攻撃（830〜843）は3月から10月までずっと約0.7倍、ゴツオの体力も794では変わらず、828で鈍化した</li>
@@ -1502,12 +1504,12 @@ function viewLab(){
       <li>単体と複合の違いは、一緒に上がる方にも1.25倍が効くかどうかだけ</li>
       <li><b>アイテムの対象でない特訓でも鈍化が消える</b>。Aランク前の攻撃（C）・命中（B）でも鈍化していた例がある（上の「極限集中」）</li>
     </ul>
-    ${labTbl(["攻撃特訓（10月1週）","攻撃","命中"],[["アイテムなし","+18","+9"],["攻撃のフルーツⅠ",'<span class="up">+31</span>',"+9"],["破壊の兜Ⅰ",'<span class="up">+31</span>','<span class="up">+11</span>']])}
+    ${labTbl(["攻特訓（10月1週）","攻","命"],[["アイテムなし","+18","+9"],["攻撃のフルーツⅠ",'<span class="up">+31</span>',"+9"],["破壊の兜Ⅰ",'<span class="up">+31</span>','<span class="up">+11</span>']])}
     <p class="note">31÷1.25≒24.8（鈍化しなかった場合）。ふだんの18はその約0.73倍。3月の兜（20→34）も同じ計算で合う</p>
     <ul>
       <li>伸び率は<b>種族ごとに違う</b>。カオガコワイの防御の約0.55倍は鈍化ではなく種族の伸び率で、値が132→190になっても変わらず、アイテムでも消えない</li>
     </ul>
-    ${labTbl(["ゴツオ","体力の値","体力","防御"],[["4月1週","125","+29","+10"],["12月1週","794 B","+28","+10"],["12月2週","828 A",'<span class="dn">+17</span>',"+7"],["＋ダンベル","828 A",'<span class="up">+30</span>',"+9"]])}
+    ${labTbl(["ゴツオ","体の値","体","防"],[["4月1週","125","+29","+10"],["12月1週","794 B","+28","+10"],["12月2週","828 A",'<span class="dn">+17</span>',"+7"],["＋ダンベル","828 A",'<span class="up">+30</span>',"+9"]])}
     <p class="note">ゴツオ（クエレブレ変異種）の体力特訓</p>
     <p class="note">Bの794までは1週目と同じで、Aの828で約0.7倍（17÷24）に。ダンベルを使うと30（24×1.25）で、ここでも鈍化が消えた。カオガコワイの素早さ495・回避434も鈍化なし</p>
     <p class="note"><b>まだ確かめていないこと</b>鈍化した状態でアイテムを使って実行した時、表示どおり入るか</p>`)}
@@ -1518,7 +1520,7 @@ function viewLab(){
       <li>使ったアイテムの対象の特訓には、×1.25が入った数値が出る</li>
       <li>別のアイテムに切り替えると、その対象の特訓の数値に変わる（今週の抽選は変わらない）</li>
     </ul>
-    ${labTbl(["9月4週の例","使う前","アイテム"],[["命中","+27",'<span class="up">+34</span>'],["攻撃（鈍化）","+18",'<span class="up">+31</span>'],["素早さ","+23","+29"]])}
+    ${labTbl(["9月4週の例","使う前","アイテム"],[["命","+27",'<span class="up">+34</span>'],["攻（鈍化）","+18",'<span class="up">+31</span>'],["早","+23","+29"]])}
     <p class="note">使う前の画面では素早さ＞攻撃だが、アイテムを使うと攻撃＞素早さに逆転する</p>`)}
   ${viewDmg()}`;
 }
@@ -1530,10 +1532,10 @@ function viewDmg(){
   ${labSec("crown","ゴツオ（絶好調）の攻撃","hyp",`
     <p>4月2週からはずっと絶好調にする前提なので、<b>絶好調の分を係数に含めた</b>ゴツオ専用の式です</p>
     <p class="dmg-f">ダメージ ≒ 係数 ×（攻撃 − 相手の防御×0.70）× 弱点1.6</p>
-    ${labTbl(["技","係数"],[["体当たり<small class=\"cnt\">威力30</small>","0.67"],["急降下<small class=\"cnt\">威力60</small>","0.86"],["急降下・防御バフ1個<small class=\"cnt\">威力120</small>","1.11"]])}
+    ${labTbl(["技","係数"],[["体当たり<small class=\"cnt\">威力30</small>","0.67"],["急降下<small class=\"cnt\">威力60</small>","0.86"],["急降下・防バフ1個<small class=\"cnt\">威力120</small>","1.11"]])}
     <p class="note">ゴツオが攻撃した5回すべてで、ずれは3%以内（乱数の範囲）。ただし5回から4つの数を決めているので、データが増えたら見直す。威力120は計算からの予想で、まだ撃っていない</p>
     <p><b>攻撃657の時の目安</b>（弱点でない相手）</p>
-    ${labTbl(["相手の防御","体当たり","急降下","急降下<small class=\"cnt\">バフ1個</small>"],[["200","346","446","574"],["300","299","385","496"],["400","252","324","417"],["500","204","263","339"],["600","157","202","260"],["700","110","141","182"],["800","62","80","104"],["900","15?","19?","25?"]])}
+    ${labTbl(["相手の防","体当たり","急降下","急降下<small class=\"cnt\">バフ1個</small>"],[["200","346","446","574"],["300","299","385","496"],["400","252","324","417"],["500","204","263","339"],["600","157","202","260"],["700","110","141","182"],["800","62","80","104"],["900","15?","19?","25?"]])}
     <p class="note">弱点をつける相手なら1.6倍。相手の防御が930を超えると、攻撃657では1〜2しか入らない見込み（900あたりは境目に近く、あてにならない）</p>`)}
   ${labSec("shield","ダメージの出方は2通り","hyp",`
     <p>攻撃する側の<b>攻撃</b>と、受ける側の<b>防御</b>の割合で、ダメージの出方が分かれます</p>
@@ -1550,7 +1552,7 @@ function viewDmg(){
       <li>18回のうち、式で計算できる10回はずれが<b>10%以内</b>（平均6%）</li>
     </ul>
     <p class="note">境目の0.69は、ファイヤン（攻撃599÷防御894＝0.67）が1〜2、ドレイクン（637÷894＝0.71）が31だったことから。境目を超えるといきなり30くらい入るので、0から少しずつ増えるのではなく、<b>段差がある</b>と考えられます</p>
-    ${labTbl(["技","攻撃","防御","実際","計算"],[["体当たり","657","497","199","215"],["体当たり","657","613","153","167"],["急降下","657","613","194","192"],["体当たり<small class=\"cnt\">弱点</small>","657","607","250","271"],["毒液発射<small class=\"cnt\">弱点</small>","802","884","195","193"],["火炎放射","637","894","31","30"]])}
+    ${labTbl(["技","攻","防","実際","計算"],[["体当たり","657","497","199","215"],["体当たり","657","613","153","167"],["急降下","657","613","194","192"],["体当たり<small class=\"cnt\">弱点</small>","657","607","250","271"],["毒液発射<small class=\"cnt\">弱点</small>","802","884","195","193"],["火炎放射","637","894","31","30"]])}
     <p class="note">上の4つはゴツオ、毒液発射はストゥトゥ、火炎放射はドレイクンの攻撃</p>
     <p class="note"><b>まだ確かめていないこと</b>調子の本当の倍率／境目の正確な値（0.67〜0.71の間）／威力係数の形（威力2倍で1.1〜1.3倍の間）</p>`)}
   ${labSec("target","確認済みのこと","ok",`
@@ -1648,7 +1650,7 @@ const PLAN=[
 function cupView(){
   const ord=p=>p.y*1000+CUP_MO.indexOf(p.m)*10+p.w;
   const L=PLAN.filter(p=>p.cups).sort((a,b)=>ord(a)-ord(b));
-  const SN=["体力","攻撃","防御","素早","命中","回避"];
+  const SN=STATS;
   const row=p=>{const o=p.k==="opt";
     const cells=p.up?p.up.map(v=>v?`<td>${v}</td>`:`<td class="z">–</td>`).join(""):`<td colspan="6" class="pk">えらんだ2つが ${UP_PICK}</td>`;
     const tot=p.up?p.up.reduce((a,b)=>a+b,0):UP_PICK*2;
@@ -1720,9 +1722,9 @@ function simPlan(){
 function viewSim(){
   const w=simWeeks(),g=GROW[sim.g];
   const inRows=STATS.map((n,t)=>`<tr><td class="nm">${ico(ST_ICON[t])}${n}</td>
-    <td><input type="number" inputmode="numeric" min="0" max="999" data-simi="init|${t}" value="${sim.init[t]??""}" aria-label="${n}の初期値"></td>
-    <td><input type="number" inputmode="numeric" min="0" max="99" data-simi="m|${t}" value="${sim.T[t][0]}" aria-label="${n}特訓で${n}が上がる量"></td>
-    <td><input type="number" inputmode="numeric" min="0" max="99" data-simi="s|${t}" value="${sim.T[t][1]}" aria-label="${n}特訓で${STATS[PAIR[t]]}が上がる量"></td>
+    <td><input type="number" inputmode="numeric" min="0" max="999" data-simi="init|${t}" value="${sim.init[t]??""}" aria-label="${STATS_L[t]}の初期値"></td>
+    <td><input type="number" inputmode="numeric" min="0" max="99" data-simi="m|${t}" value="${sim.T[t][0]}" aria-label="${STATS_L[t]}特訓で${STATS_L[t]}が上がる量"></td>
+    <td><input type="number" inputmode="numeric" min="0" max="99" data-simi="s|${t}" value="${sim.T[t][1]}" aria-label="${STATS_L[t]}特訓で${STATS_L[PAIR[t]]}が上がる量"></td>
     <td class="pr">${STATS[PAIR[t]]}</td></tr>`).join("");
   const step=(k,lab,sub,min,max)=>`<div class="sim-row"><span class="lb">${lab}<small>${sub}</small></span><span class="stp"><button data-sims="${k}|-1"${sim[k]>min?"":" disabled"} aria-label="${lab}をへらす">−</button><b>${sim[k]}</b><button data-sims="${k}|1"${sim[k]<max?"":" disabled"} aria-label="${lab}をふやす">＋</button></span></div>`;
   return `<div id="cupcal">${cupView()}</div>
