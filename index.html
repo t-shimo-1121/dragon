@@ -527,6 +527,18 @@ details.cup{display:block}
 .pl-cap{display:block;font-size:var(--fs-s);margin-top:2px}
 .pl-cap b{color:var(--hi)}
 .cal-y{margin:14px 0 0;padding:0 0 4px;border-bottom:2px solid var(--ink);font-family:var(--f-head);font-weight:700;font-size:var(--fs-l)}.cal-y:first-child{margin-top:0}.cal .cup-wk{grid-template-columns:2.8rem minmax(0,1fr)}.cal .cup-wk>b{line-height:1.3}
+.cal-t{width:100%;border-collapse:collapse;table-layout:fixed;font-variant-numeric:tabular-nums}
+.cal-t th,.cal-t td{padding:7px 1px;text-align:center;border-bottom:1px solid var(--line);white-space:nowrap}
+.cal-t thead th{font-size:var(--fs-s);font-weight:400;color:var(--mute);padding-top:0}
+.cal-t thead th:first-child,.cal-t tbody th{width:4.6em;text-align:left;padding-left:2px}
+.cal-t tbody th{font-weight:700;color:var(--ink)}
+.cal-t td.z{color:var(--mute)}
+.cal-t td.t{font-weight:700}
+.cal-t td.pk{font-size:var(--fs-s);color:var(--mute)}
+.cal-t tr.opt th,.cal-t tr.opt td{color:var(--mute)}
+.cal-t tr.yr th{padding:12px 2px 4px;border-bottom:2px solid var(--ink);font-family:var(--f-head);font-size:var(--fs-l);text-align:left}
+.cal-t tbody tr.yr:first-child th{padding-top:4px}
+@media (max-width:400px){.cal-t td{font-size:var(--fs-s)}.cal-t thead th:first-child,.cal-t tbody th{width:4.2em}}
 .pl-phase{margin:0 0 6px;font-size:var(--fs-s);font-weight:700;color:var(--accent);background:var(--soft);border-radius:9px;padding:6px 10px}
 .cup.tgt{box-shadow:inset 0 0 0 2px var(--hi)}
 .sim-b .sorter.mo button{padding:4px 0;text-align:center;letter-spacing:-.04em}
@@ -1611,20 +1623,7 @@ const GROW=[
   {nm:"リントヴルム変異種",note:"育成2週目（4月2週・絶好調）の予測値。スペシャル特訓だった攻撃・素早さ・命中は+2を引いた値",init:[108,46,125,120,95,129],T:[[24,15],[15,9],[37,8],[24,10],[29,5],[27,11]]},
 ];
 const PAIR=[2,4,0,5,1,3];   /* 体力↔防御・攻撃↔命中・素早さ↔回避 */
-/* カレンダーに残す大会：キー＝「年(0/1)-月-週」 */
-const CUP_KEEP={"1-3-4":[["ドラゴン最強王決定戦","ランダム","t"],["？","ランダム","t","?"],["？","ランダム","t","?"]]};
 const CUP_MO=[4,5,6,7,8,9,10,11,12,1,2,3];
-/* 大会で上がったパラメータ：キー＝「年(0/1)-月-週-大会名」。up＝体力・攻撃・防御・素早さ・命中・回避 */
-const CUP_UP={
-  "1-3-4-ドラゴン最強王決定戦":[
-    {nk:"ゴツオ",sp:"クエレブレ変異種",up:[0,22,0,21,22,23],note:"体力・防御はもう999なので+0"},
-  ],
-};
-const sixTbl=(vals,f=v=>v)=>`<div class="xtbl"><table class="pmtbl"><thead><tr>${STATS.map(n=>`<th class="c">${n==="素早さ"?"素早":n}</th>`).join("")}</tr></thead><tbody><tr>${vals.map(v=>`<td class="c">${f(v)}</td>`).join("")}</tr></tbody></table></div>`;
-const sum=a=>a.reduce((x,y)=>x+y,0);
-function cupDetail(up){
-  return `<p class="cup-sh">上がったパラメータ</p>`+up.map(r=>`<div class="rv"><div class="rv-h"><b>${esc(r.nk)}</b><span class="rv-sp">${esc(r.sp)}</span><span class="rv-t">合計 +${sum(r.up)}</span></div>${sixTbl(r.up,v=>v?`<span class="up">+${v}</span>`:`<span class="none">–</span>`)}${r.note?`<p class="note" style="margin:2px 0 0">${esc(r.note)}</p>`:""}</div>`).join("");
-}
 /* 大会の優勝で上がる量（検証タブ「大会で上がるパラメータ」）。体力・攻撃・防御・素早さ・命中・回避。
    新人王は6つ全部が約+12、地形・属性の最強王は6つ全部が約+17、ドラゴン最強王は6つ全部が約+22、自慢大会は名前に合ったペアが約+28。up:null は自慢大会のどれかを選ぶ週 */
 const UP_NEW=[12,12,12,12,12,12],UP_ALL=[17,17,17,17,17,17],UP_DK=[22,22,22,22,22,22],UP_A=[0,28,0,0,28,0],UP_D=[28,0,28,0,0,0],UP_S=[0,0,0,28,0,28],UP_PICK=28;
@@ -1646,32 +1645,19 @@ const PLAN=[
   {y:1,m:3,w:3,k:"opt",t:"光vs闇 最強王",cups:["光vs闇 最強王決定戦"],up:UP_ALL,d:"光・闇のドラゴンなら出る（優勝で6つ全部が約+17、元気が減らない）。違えば特訓か休み"},
   {y:1,m:3,w:4,k:"must",t:"ドラゴン最強王",cups:["ドラゴン最強王決定戦"],up:UP_DK,d:"優勝で6つのパラメータ全部が約+22。必ず出る"},
 ];
-const PL_LB={must:"マスト",opt:"属性しだい",plan:"予定"};
-/* 999から逆算した、その大会の前の上限。大会の数は、属性の最強王（3つのうち1つ）を1回と数える */
-const PL_EV=(()=>{const ev=[];PLAN.forEach(p=>{if(p.k==="must")ev.push([p]);else if(p.k==="opt"){const last=ev[ev.length-1];if(last&&last[0].k==="opt")last.push(p);else ev.push([p])}});return ev})();
-/* その大会から最後までに上がる量の合計（6つ）と、どれかを選ぶ自慢大会の数 */
-const plRest=p=>{const i=PL_EV.findIndex(e=>e.includes(p));if(i<0)return null;const v=[0,0,0,0,0,0];let pick=0;
-  PL_EV.slice(i).forEach(e=>{const u=e[0].up;if(u)u.forEach((x,t)=>v[t]+=x);else pick++});return {v,pick}};
-const PL_PAIRS=[[0,2,"体力・防御"],[1,4,"攻撃・命中"],[3,5,"素早さ・回避"]];
-const plCaps=p=>{const r=plRest(p);return r&&PL_PAIRS.map(([a,b,n])=>({n,c:999-Math.max(r.v[a],r.v[b]),add:Math.max(r.v[a],r.v[b])}))};
-const plCapS=p=>{const c=plCaps(p);if(!c)return "";const xs=c.map(x=>x.c),lo=Math.min(...xs),hi=Math.max(...xs);return lo===hi?`${lo}まで`:`${lo}〜${hi}`};
-const plCapD=p=>{const c=plCaps(p),r=plRest(p);if(!c)return "";
-  return `<span class="pl-cap">この大会の前は、${c.map(x=>`${x.n}<b>${x.c}まで</b>`).join("、")}（このあとの大会で上がる量から逆算）${r.pick?`。ほかに自慢大会が${r.pick}回あり、選んだペアはさらに${r.pick*UP_PICK}下げる`:""}</span>`};
-const PHASE="4月2週〜11月ごろは、体力・防御など耐久を中心に育てる。ダメージはサポートカードの状態異常に頼る";
 function cupView(){
   const ord=p=>p.y*1000+CUP_MO.indexOf(p.m)*10+p.w;
-  const L=[...PLAN].sort((a,b)=>ord(a)-ord(b));
-  const row=p=>{const k=`${p.y}-${p.m}-${p.w}`;
-    const cl=(CUP_KEEP[k]||[]).map(([n,t,c,f])=>{const up=CUP_UP[`${k}-${n}`],tg=p.cups&&p.cups.includes(n);
-      const head=`<b>${tg?"★ ":""}${esc(n)}${f==="?"?"（鎖）":""}</b><small>${esc(t)}${up?`・記録${up.length}件`:""}</small>`;
-      return up?`<details class="cup ${c} rvd${tg?" tgt":""}"><summary>${head}</summary>${cupDetail(up)}</details>`:`<div class="cup ${c}${f==="?"?" lock":""}${tg?" tgt":""}">${head}</div>`}).join("");
-    return `<div class="cup-wk"><b>${p.m}月<br>${p.w}週</b><div class="cup-l"><div class="pl ${p.k}"><span class="pl-k">${PL_LB[p.k]}</span><b>${esc(p.t)}</b><span class="pl-d">${esc(p.d)}</span>${plCapD(p)}</div>${cl}</div></div>`
-      +(p.y===0&&p.m===4&&p.w===2?`<p class="pl-phase" style="margin:8px 0">${PHASE}</p>`:"")};
-  const yr=y=>`<p class="cal-y">${y+1}年生</p>`+L.filter(p=>p.y===y).map(row).join("");
+  const L=PLAN.filter(p=>p.cups).sort((a,b)=>ord(a)-ord(b));
+  const SN=["体力","攻撃","防御","素早","命中","回避"];
+  const row=p=>{const o=p.k==="opt";
+    const cells=p.up?p.up.map(v=>v?`<td>+${v}</td>`:`<td class="z">–</td>`).join(""):`<td colspan="6" class="pk">えらんだ2つが +${UP_PICK}</td>`;
+    const tot=p.up?p.up.reduce((a,b)=>a+b,0):UP_PICK*2;
+    return `<tr${o?' class="opt"':""}><th>${p.m}月${p.w}週${o?"＊":""}</th>${cells}<td class="t">+${tot}</td></tr>`};
+  const yr=y=>`<tr class="yr"><th colspan="8">${y+1}年生</th></tr>`+L.filter(p=>p.y===y).map(row).join("");
   return `<h2><span class="tg">${ico("crown")}</span>育成カレンダー</h2>
-  <div class="box sim-b cal">
-    ${yr(0)}${yr(1)}
-    <p class="note">赤い線はマスト、青い線は予定・属性しだい。999を超えた分はむだになるので、それぞれの大会の前に「〜まで」の値を超えないように育てます（999 − このあとの大会で上がる量の合計）。新人王は最強王と同じと仮定。★は出る大会、（鎖）は名前が読めないもの。「記録」と書いてある大会は、押すと上がったパラメータが見られます</p>
+  <div class="box sim-b">
+    <table class="cal-t"><thead><tr><th>週</th>${SN.map(n=>`<th>${n}</th>`).join("")}<th>合計</th></tr></thead><tbody>${yr(0)}${yr(1)}</tbody></table>
+    <p class="note">大会で優勝したときに上がる量。＊は属性が合えば出る大会</p>
   </div>`;
 }
 const SIM_KEY="dragon-sim-v3";
