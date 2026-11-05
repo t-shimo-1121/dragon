@@ -455,48 +455,11 @@ mark{background:hsl(45 95% 62% / .55);color:inherit;border-radius:3px;padding:0 
 .lab-t .ar{color:var(--mute);font-weight:400;margin:0 2px}
 .lab-cond{margin:-4px 0 12px;font-size:var(--fs-s);color:var(--mute)}
 .dmg-f{font-weight:700;border:1px solid var(--line);border-radius:9px;padding:8px 10px;background:var(--sheet)}
-/* 育成シミュレーター */
+/* 育成タブ */
 .sim-b{padding:10px 12px}
 .sim-b .sorter{margin:0 0 10px}
-.sim-in{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
-.sim-in th{font-size:var(--fs-s);font-weight:400;color:var(--mute);text-align:center;padding:2px 2px 4px;line-height:1.25;white-space:nowrap}
-.sim-in th:first-child{text-align:left}
-.sim-in td{padding:3px 2px;border-bottom:1px solid var(--line);text-align:center}
-.sim-in th{border-bottom:1px solid var(--line)}
-.sim-in td.nm{text-align:left;font-weight:700;white-space:nowrap}
-.sim-in td.nm .ic{color:var(--accent);margin-right:4px;vertical-align:-2px}
-.sim-in td.pr{font-size:var(--fs-s);color:var(--mute);white-space:nowrap}
-.sim-in input{width:3.2em;font:inherit;font-variant-numeric:tabular-nums;text-align:right;padding:4px 4px;border:1px solid var(--line);border-radius:8px;background:var(--paper);color:var(--ink)}
-.sim-row{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 0;border-top:1px solid var(--line)}
-.sim-row:first-child{border-top:0}
-.sim-row .lb{font-weight:700}
-.sim-row .lb small{display:block;font-weight:400;font-size:var(--fs-s);color:var(--mute)}
-.stp{display:inline-flex;align-items:center;gap:6px;flex:none}
-.stp button{width:2.2rem;height:2.2rem;border:1px solid var(--line);border-radius:10px;background:var(--sheet);font-weight:700;font-size:var(--fs-l);line-height:1;display:grid;place-items:center;padding:0}
-.stp button:disabled{opacity:.35}
-.stp b{min-width:2.2em;text-align:center;font-family:var(--f-head);font-size:var(--fs-l);font-variant-numeric:tabular-nums}
-.sim-sum{background:var(--tint);border-radius:10px;padding:8px 10px;margin-top:8px;font-size:var(--fs-s);line-height:1.6}
-.sim-sum b{font-size:var(--fs-m)}
-.sim-left{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin:0 0 8px}
-.sim-left .n{font-family:var(--f-head);font-weight:700;font-size:var(--fs-l)}
-.sim-left .n.over{color:var(--hi)}
-.sim-act{display:flex;gap:6px}
-.sim-act button{border:1px solid var(--accent);background:var(--accent);color:var(--sheet);border-radius:11px;padding:6px 12px;font-weight:700}
-.sim-act button.sub{background:var(--sheet);color:var(--accent)}
-.sim-want{display:flex;flex-wrap:wrap;gap:5px;margin:4px 0 0}
-.sim-want button{border:1px solid var(--line);background:var(--sheet);border-radius:9px;padding:3px 9px;font-size:var(--fs-s);font-weight:700;color:var(--mute)}
-.sim-want button[aria-pressed="true"]{border-color:var(--accent);color:var(--accent);background:var(--soft)}
-.sim-res{display:grid;grid-template-columns:minmax(0,1fr);gap:4px}
-.sim-res .radar{max-width:300px;margin:0 auto}
-.sim-out{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
-.sim-out th{font-size:var(--fs-s);font-weight:400;color:var(--mute);text-align:right;padding:2px 4px}
-.sim-out th:first-child{text-align:left}
-.sim-out td{padding:5px 4px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap;background:none;box-shadow:none}
-.sim-out tr.tot td{border-bottom:0}
-.sim-out td.nm{text-align:left;font-weight:700}
-.sim-out td.pv{font-family:var(--f-head);font-weight:700;font-size:var(--fs-l)}
-.sim-out td .rk{font-size:var(--fs-s);vertical-align:2px;margin-left:4px}
-.sim-out tr.tot td{font-weight:700}
+.lab-t .spv-t{padding-left:10px}
+.spv-src{margin:8px 0 0;padding-left:1.1em;font-size:var(--fs-s);color:var(--mute);line-height:1.6}
 /* 育て方 */
 .way{padding:8px 0;border-bottom:1px solid var(--line)}
 .way:first-child{padding-top:0}
@@ -571,7 +534,7 @@ details.cup{display:block}
 .pl-phase{margin:0 0 6px;font-size:var(--fs-s);font-weight:700;color:var(--accent);background:var(--soft);border-radius:9px;padding:6px 10px}
 .cup.tgt{box-shadow:inset 0 0 0 2px var(--hi)}
 .sim-b .sorter.mo button{padding:4px 0;text-align:center;letter-spacing:-.04em}
-@media (min-width:640px){.sim-res{grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);align-items:center}}
+
 /* 情報 */
 .foot{margin-top:26px;color:var(--mute);font-size:var(--fs-s)}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
@@ -1812,14 +1775,33 @@ function viewDmg(){
       <li>弱点の1.6倍は大きい。属性を合わせられるなら優先する</li>
     </ul>`)}`;
 }
-/* ===== 育成シミュレーター =====
-   GROW：種族ごとの伸び率。T＝6種類の特訓それぞれの [主に上がる量, ペアが一緒に上がる量]（アイテムなし・育成1週目の画面の数値）
-   順番は 体力・攻撃・防御・素早さ・命中・回避。init＝初期値（分からなければ null） */
-const GROW=[
-  {nm:"蜃変異種",note:"育成2週目（4月2週・絶好調）の数値",init:[78,120,93,140,97,152],T:[[17,11],[12,9],[25,6],[33,12],[27,5],[32,14]]},
-  {nm:"リントヴルム変異種",note:"育成2週目（4月2週・絶好調）の予測値。スペシャル特訓だった攻撃・素早さ・命中は+2を引いた値",init:[108,46,125,120,95,129],T:[[24,15],[15,9],[37,8],[24,10],[29,5],[27,11]]},
+/* ===== 種族値 =====
+   種族ごとの、アイテムなし・極限集中の特訓で「主に上がる量」の絶対量。鈍化の影響を除いた値。
+   v=[体,攻,防,早,命,避]、fix＝補正した番号、src＝元にしたデータ */
+const KZ=1.8;   /* 極限集中は絶好調の約1.8倍（リントヴルム変異種の鈍化していない5つの比） */
+const SPV=[
+  {sp:"リントヴルム変異種",nk:"デカミミズ",v:[38,25,70,45,44,45],fix:[2],
+   src:"極限集中の実測5回の平均（1年12月4週）。防は鈍化しているので、絶好調の2回（4月2週37・11月4週41）×1.8で補正"},
+  {sp:"ケツァルコアトル変異種",nk:"カオガコワイ",v:[43,44,23,41,43,43],fix:[1],
+   src:"絶好調（1年3月2週）×1.8で換算。攻は鈍化（約0.7倍）を戻した値"},
+  {sp:"蜃変異種",nk:"シンゴジラ",v:[31,22,45,59,49,58],fix:[],
+   src:"絶好調（1年4月2週）×1.8で換算"},
+  {sp:"クエレブレ変異種",nk:"ゴツオ",v:[63,46,65,22,42,28],fix:[0],
+   src:"極限集中の実測1回（2年8月3週、スペシャル特訓の+2を含むかも）。体は999で頭打ちだったので、一緒に上がった量（+25）÷0.4で推定"},
 ];
-const PAIR=[2,4,0,5,1,3];   /* 体力↔防御・攻撃↔命中・素早さ↔回避 */
+function spvView(){
+  const rows=SPV.map(r=>{const mx=Math.max(...r.v),mn=Math.min(...r.v);
+    return `<tr><td class="nm">${esc(spn(r.sp))}<small class="cnt">${esc(r.nk)}</small></td>${r.v.map((v,i)=>{
+      const t=`${v}${r.fix.includes(i)?"＊":""}`;
+      return `<td class="c">${v===mx?`<span class="up">${t}</span>`:v===mn?`<span class="dn">${t}</span>`:t}</td>`}).join("")}<td class="c spv-t"><b>${r.v.reduce((a,b)=>a+b,0)}</b></td></tr>`}).join("");
+  return `<h2><span class="tg">${ico("list")}</span>種族値</h2>
+  <p class="hint">アイテムなし・極限集中の特訓で、<b>主に上がる量</b>。鈍化の影響を除いた値です。いちばん伸びるパラメータを赤、いちばん伸びないパラメータを青にしています</p>
+  <div class="box sim-b">
+    <div class="xtbl"><table class="lab-t gr-t"><thead><tr><th>種族</th>${STATS.map(t=>`<th class="c">${t}</th>`).join("")}<th class="c spv-t">合計</th></tr></thead><tbody>${rows}</tbody></table></div>
+    <ul class="spv-src">${SPV.map(r=>`<li><b>${esc(spn(r.sp))}</b>：${esc(r.src)}</li>`).join("")}</ul>
+    <p class="note">＊は鈍化などを補正した値。ふだん（絶好調）は約${(1/KZ).toFixed(2)}倍、一緒に上がる量は約0.4倍。ロードごとに±1割くらいぶれる。極限集中の実測がそろうほど正確になります</p>
+  </div>`;
+}
 const CUP_MO=[4,5,6,7,8,9,10,11,12,1,2,3];
 /* 大会の優勝で上がる量（検証タブ「大会で上がるパラメータ」）。体力・攻撃・防御・素早さ・命中・回避。
    新人王は6つ全部が約+12、地形・属性の最強王は6つ全部が約+17、ドラゴン最強王は6つ全部が約+22、自慢大会は名前に合ったペアが約+28。up:null は自慢大会のどれかを選ぶ週 */
@@ -1857,109 +1839,9 @@ function cupView(){
     <p class="note">大会で優勝したときに上がる量。＊は属性が合えば出る大会</p>
   </div>`;
 }
-const SIM_KEY="dragon-sim-v3";
-const SIM_G0=GROW.findIndex(x=>x.init);
-const sim=(()=>{const g=GROW[SIM_G0];const d={g:SIM_G0,init:[...g.init],T:g.T.map(x=>[...x]),snackT:1,cupT:11,cupWin:11,cupGain:20,cnt:[0,0,0,0,0,0],want:[1,1,1,1,1,1]};
-  try{const s=JSON.parse(localStorage.getItem(SIM_KEY)||"{}");Object.keys(d).forEach(k=>{if(s[k]!=null)d[k]=s[k]})}catch(e){}if(!GROW[d.g])d.g=SIM_G0;return d})();
-const simSave=()=>{try{localStorage.setItem(SIM_KEY,JSON.stringify(sim))}catch(e){}};
-const SIM_WEEK=48,SIM_YEAR=2,ITEM=1.25;
-function simWeeks(){
-  const A=SIM_YEAR*SIM_WEEK-sim.snackT-sim.cupT;
-  const [t,r]=[5,2],c=t+r;   /* まったり育成：特訓5回ごとに休み2回 */
-  const n=Math.floor(A/c)*t+Math.min(A%c,t);
-  return {A,n,r:A-n,lb:`特訓${t}回ごとに${r}回休み`};
-}
-const simGain=t=>[sim.T[t][0]*ITEM,sim.T[t][1]];   /* 単体アイテム：主に上がる方だけ×1.25 */
-const simCupAdd=()=>sim.cupWin*sim.cupGain;
-function simRun(cnt){
-  const v=sim.init.map(x=>Number(x)+simCupAdd());
-  cnt.forEach((k,t)=>{const [m,sb]=simGain(t);v[t]+=k*m;v[PAIR[t]]+=k*sb});
-  return v.map(x=>Math.min(999,Math.round(x)));
-}
-/* おまかせ：伸ばしたいパラメータの上がる量（999で頭打ち）がいちばん多い特訓を、1回ずつ選んでいく */
-function simAuto(){
-  const {n}=simWeeks(),v=sim.init.map(x=>Number(x)+simCupAdd()),cnt=[0,0,0,0,0,0];
-  const want=sim.want.some(Boolean)?sim.want:[1,1,1,1,1,1];
-  for(let k=0;k<n;k++){
-    let best=-1,bv=0;
-    for(let t=0;t<6;t++){const [m,sb]=simGain(t),p=PAIR[t];
-      const g=(want[t]?Math.min(m,999-v[t]):0)+(want[p]?Math.min(sb,999-v[p]):0);
-      if(g>bv+1e-9){bv=g;best=t}}
-    if(best<0)break;
-    const [m,sb]=simGain(best);v[best]+=m;v[PAIR[best]]+=sb;cnt[best]++;
-  }
-  sim.cnt=cnt;
-}
-const RANK_AT=[[900,"S"],[800,"A"],[700,"B"],[550,"C"],[400,"D"],[300,"E"],[200,"F"],[0,"G"]];
-const rankOfV=v=>RANK_AT.find(([x])=>v>=x)[1];
-function simPlan(){
-  const w=simWeeks(),used=sim.cnt.reduce((a,b)=>a+b,0),left=w.n-used,res=simRun(sim.cnt);
-  const init=sim.init.map(Number),tot=res.reduce((a,b)=>a+b,0),tot0=init.reduce((a,b)=>a+b,0);
-  const rows=STATS.map((n,t)=>{const [m,sb]=simGain(t);return `<div class="sim-row"><span class="lb">${ico(ST_ICON[t])} ${n}特訓<small>${n}+${+m.toFixed(1)}・${STATS[PAIR[t]]}+${+sb.toFixed(1)}</small></span>
-    <span class="stp"><button data-simc="${t}|-1" aria-label="${n}特訓を1回へらす"${sim.cnt[t]?"":" disabled"}>−</button><b>${sim.cnt[t]}</b><button data-simc="${t}|1" aria-label="${n}特訓を1回ふやす"${left>0?"":" disabled"}>＋</button></span></div>`}).join("");
-  const d={nk:"予想",st:res.map(v=>({v})),total:tot};
-  return `<h2><span class="tg">${ico("dumbbell")}</span>特訓の回数</h2>
-    <div class="box sim-b">
-      <div class="sim-left"><span>のこり <span class="n${left<0?" over":""}">${left}</span> 回 <small style="color:var(--mute)">／ ${w.n}回</small></span>
-        <span class="sim-act"><button data-simauto>おまかせ</button><button class="sub" data-simclr>0にする</button></span></div>
-      <p class="note" style="margin:0 0 4px">おまかせで伸ばすパラメータ</p>
-      <div class="sim-want">${STATS.map((n,t)=>`<button data-simw="${t}" aria-pressed="${!!sim.want[t]}">${n}</button>`).join("")}</div>
-      <div style="margin-top:8px">${rows}</div>
-      ${left<0?`<p class="note" style="color:var(--hi)">特訓の回数が ${-left}回 多すぎます</p>`:""}
-    </div>
-    <h2><span class="tg">${ico("hex")}</span>2年後の予想</h2>
-    <div class="box sim-b"><div class="sim-res">${radar(d,{W:280,R:84})}
-      <table class="sim-out"><thead><tr><th>パラメータ</th><th>はじめ</th><th>予想</th><th>ふえる</th></tr></thead><tbody>${
-        res.map((v,t)=>`<tr><td class="nm">${STATS[t]}</td><td>${init[t]}</td><td class="pv">${v}${rk(rankOfV(v))}</td><td class="${v>init[t]?"up":""}">${v>init[t]?"+"+(v-init[t]):"0"}</td></tr>`).join("")
-      }<tr class="tot"><td class="nm">合計</td><td>${tot0}</td><td class="pv">${tot}</td><td class="up">+${tot-tot0}</td></tr></tbody></table></div>
-      <p class="note">まったり育成で、単体アイテムを毎週使う前提（主に上がる方だけ×1.25、鈍化はアイテムで消える）。大会の優勝で上がる分（各+${simCupAdd()}）を含む。999で頭打ち。極限集中（3週間、約2倍）とスペシャル特訓（+2）は入れていないので、そのぶん上ぶれします。ランクの境目は魔石表の数値からの目安</p></div>`;
-}
 function viewSim(){
-  const w=simWeeks(),g=GROW[sim.g];
-  const inRows=STATS.map((n,t)=>`<tr><td class="nm">${ico(ST_ICON[t])}${n}</td>
-    <td><input type="number" inputmode="numeric" min="0" max="999" data-simi="init|${t}" value="${sim.init[t]??""}" aria-label="${STATS_L[t]}の初期値"></td>
-    <td><input type="number" inputmode="numeric" min="0" max="99" data-simi="m|${t}" value="${sim.T[t][0]}" aria-label="${STATS_L[t]}特訓で${STATS_L[t]}が上がる量"></td>
-    <td><input type="number" inputmode="numeric" min="0" max="99" data-simi="s|${t}" value="${sim.T[t][1]}" aria-label="${STATS_L[t]}特訓で${STATS_L[PAIR[t]]}が上がる量"></td>
-    <td class="pr">${STATS[PAIR[t]]}</td></tr>`).join("");
-  const step=(k,lab,sub,min,max)=>`<div class="sim-row"><span class="lb">${lab}<small>${sub}</small></span><span class="stp"><button data-sims="${k}|-1"${sim[k]>min?"":" disabled"} aria-label="${lab}をへらす">−</button><b>${sim[k]}</b><button data-sims="${k}|1"${sim[k]<max?"":" disabled"} aria-label="${lab}をふやす">＋</button></span></div>`;
-  return `<div id="cupcal">${cupView()}</div>
-  <h2><span class="tg">${ico("dumbbell")}</span>育成シミュレーター</h2>
-  <p class="hint">はじめのパラメータと、育成1週目の上がる量（アイテムなし）から、2年後のパラメータを予想します。<b>ずっと絶好調で育てる前提</b>なので、上がる量は絶好調の時の画面の数値を入れてください（普通の時の数値だと約1.2倍低く出ます）</p>
-  <h2><span class="tg">${ico("list")}</span>ドラゴン</h2>
-  <div class="box sim-b">
-    ${GROW.length>1?`<div class="sorter">${GROW.map((x,i)=>`<button data-simg="${i}" aria-pressed="${sim.g===i}">${esc(x.nm)}</button>`).join("")}</div>`:`<p style="margin:0 0 4px"><b>${esc(g.nm)}</b></p>`}
-    <p class="note" style="margin:-4px 0 8px">${esc(g.note)}${g.init?"":"。初期値は分からないので入れてください"}</p>
-    <table class="sim-in"><thead><tr><th>パラメータ</th><th>はじめ</th><th>特訓で<br>上がる</th><th colspan="2">一緒に<br>上がる</th></tr></thead><tbody>${inRows}</tbody></table>
-    <p class="note">数値は書きかえられます。「一緒に上がる」は、その特訓でペアのパラメータが上がる量</p>
-  </div>
-  <h2><span class="tg">${ico("book")}</span>2年間の予定</h2>
-  <div class="box sim-b">
-    ${step("snackT","おやつ","2年間の週",0,10)}
-    ${step("cupT","大会","2年間の週",0,40)}
-    ${step("cupWin","パラメータが上がる大会","優勝した大会の回数",0,sim.cupT)}
-    ${step("cupGain","大会1回で上がる量","6つのパラメータそれぞれ",0,40)}
-    <p class="note">育成カレンダーの予定どおりなら、大会11回（どれも優勝で各パラメータ約+20）、おやつ1回。途中で999を超えないように、カレンダーの「〜まで」の値に気をつけてください</p>
-    <div class="sim-sum">行動 ${SIM_YEAR*SIM_WEEK}週 − おやつ ${sim.snackT}週 − 大会 ${sim.cupT}週 ＝ ${w.A}週<br><b>特訓 ${w.n}回</b>・休み ${w.r}回（${w.lb}）<br><b>大会で各パラメータ +${simCupAdd()}</b>（+${sim.cupGain}×${sim.cupWin}回）</div>
-  </div>
-  <div id="simplan">${simPlan()}</div>
-`;
+  return `<div id="cupcal">${cupView()}</div>${spvView()}`;
 }
-const simRe=()=>{simSave();const el=document.getElementById("simplan");if(el)el.innerHTML=simPlan()};
-document.addEventListener("input",e=>{
-  const t=e.target.closest("[data-simi]");if(!t)return;
-  const [k,i]=t.dataset.simi.split("|"),v=Math.max(0,Math.min(999,Math.round(+t.value||0)));
-  if(k==="init")sim.init[+i]=v;else sim.T[+i][k==="m"?0:1]=v;
-  simRe();
-});
-document.addEventListener("click",e=>{
-  const t=e.target.closest("[data-simg],[data-sims],[data-simc],[data-simw],[data-simauto],[data-simclr]");if(!t)return;const ds=t.dataset;
-  if(ds.simg){const g=GROW[+ds.simg];sim.g=+ds.simg;sim.T=g.T.map(x=>[...x]);if(g.init)sim.init=[...g.init];simSave();return render()}
-  if(ds.sims){const [k,d]=ds.sims.split("|");sim[k]=Math.max(0,sim[k]+ +d);if(sim.cupWin>sim.cupT)sim.cupWin=sim.cupT;simSave();return render()}
-  if(ds.simc){const [i,d]=ds.simc.split("|");sim.cnt[+i]=Math.max(0,sim.cnt[+i]+ +d);return simRe()}
-  if(ds.simw){const i=+ds.simw;sim.want[i]=sim.want[i]?0:1;return simRe()}
-  if("simauto" in ds){simAuto();return simRe()}
-  if("simclr" in ds){sim.cnt=[0,0,0,0,0,0];return simRe()}
-});
 const VIEWS={dragon:viewDragon,status:viewStatus,skill:viewSkill,ability:viewAbility,card:viewCard,battle:viewBattle,lab:viewLab,sim:viewSim};
 const view=document.getElementById("view");
 function render(){
