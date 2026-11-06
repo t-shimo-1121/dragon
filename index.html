@@ -999,8 +999,8 @@ function illust(d){
 
 /* ===== 六角形グラフ：外側にアイコン、内側の角に数値（800以上は赤、400未満は青） ===== */
 const ST_ICON=["heart","sword","shield","bolt","target","wing"];
-function radar(d,{W=240,R=74,total=true,sq=false,icons=true,max=999,hi=800,lo=400}={}){
-  const IS=17,GAP=5,FV=icons?18:16.2,TV=icons?18:16.2;              // アイコンの大きさ・数値の文字サイズ（画面上で本文の段階に合わせる：数値＝小、合計＝中）・枠とアイコンの間
+function radar(d,{W=240,R=74,total=true,sq=false,icons=true,max=999,hi=800,lo=400,fs=0}={}){
+  const IS=17,GAP=5,FV=fs||(icons?18:16.2),TV=fs||(icons?18:16.2);              // アイコンの大きさ・数値の文字サイズ（画面上で本文の段階に合わせる：数値＝小、合計＝中）・枠とアイコンの間
   const H=Math.round(R*2+(icons?(IS+GAP+2)*2:4));if(sq)W=H;const cx=W/2,cy=H/2;
   const pt=(i,f)=>{const a=(-90+60*i)*Math.PI/180;return[cx+Math.cos(a)*R*f,cy+Math.sin(a)*R*f]};
   const poly=f=>[0,1,2,3,4,5].map(i=>pt(i,f).map(n=>n.toFixed(1)).join(",")).join(" ");
@@ -1932,7 +1932,7 @@ function viewSim(){
 const RR_ORD=["N","R","SR","UR"];
 const spvTot=r=>r.v.reduce((a,b)=>a+b,0);
 function viewBook(){
-  const card=r=>`<div class="bk-c"><div class="bk-n">${esc(spn(r.sp))}</div>${radar({nk:r.sp,st:r.v.map(v=>({v})),total:spvTot(r)},{W:170,R:64,sq:true,icons:false,max:75,hi:60,lo:25})}</div>`;
+  const card=r=>`<div class="bk-c"><div class="bk-n">${esc(spn(r.sp))}</div>${radar({nk:r.sp,st:r.v.map(v=>({v})),total:spvTot(r)},{W:170,R:64,sq:true,icons:false,max:75,hi:60,lo:25,fs:12})}</div>`;
   const groups=RR_ORD.map(rr=>{const L=SPV.filter(r=>r.rr===rr);if(!L.length)return"";
     const avg=Math.round(L.reduce((a,r)=>a+spvTot(r),0)/L.length);
     return `<h3 class="bk-h"><span class="rr rr-${rr}">${rr}</span><span class="n">${L.length}種・合計の平均 ${avg}</span></h3><div class="bk-g">${L.map(card).join("")}</div>`}).join("");
