@@ -1,6 +1,6 @@
 <!doctype html>
 <!--
-  ドラゴン魔石表（GitHub Pages：index.html）
+  ドラゴン育成ガイド（GitHub Pages：index.html）
   ・ドラゴンを足す時は script 内の D の配列に1行足すだけ。ランキングや比較は自動で計算されます
   ・画像は images/ の中に No. と同じ2桁の番号で置きます
       images/illust/01.png … イラスト　images/chibi/01.png … デフォルメイラスト
@@ -12,7 +12,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#f5f1ea">
-<title>ドラゴン魔石表</title>
+<title>ドラゴン育成ガイド</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=BIZ+UDPGothic:wght@400;700&display=swap">
@@ -144,6 +144,11 @@ h2 .n{font-family:var(--f-body);font-size:var(--fs-m);color:var(--mute);font-wei
 .card-h .nk.long .nm{letter-spacing:-.08em}
 .card-h .nk .nm{overflow:hidden;text-overflow:ellipsis;min-width:0}
 .card-h .nk .no{flex:none;font-family:var(--f-body);font-size:var(--fs-s);font-weight:400;color:var(--mute);margin-left:4px;letter-spacing:0}
+.card .cr .nospv{display:grid;place-items:center;width:100%;aspect-ratio:1;border:2px dashed var(--line);border-radius:12px;color:var(--mute);font-size:var(--fs-s);text-align:center;line-height:1.4}
+.card-h .shape.un{color:var(--mute)}
+.g-full{margin:0 2px 6px;font-weight:700;font-size:var(--fs-m)}
+.pr-g{margin:2px 2px 6px;font-size:var(--fs-s);font-weight:700;color:var(--accent)}
+.pr-g.none{color:var(--mute)}
 .card-h .shape{flex:none;font-size:var(--fs-s);font-weight:700;color:var(--accent);background:var(--tint);border-radius:99px;padding:1px 8px;white-space:nowrap}
 .card .ct{grid-area:t;display:flex;flex-direction:column;gap:3px;min-width:0}
 .card .ct-a{display:flex;align-items:baseline;gap:8px;min-width:0}
@@ -562,6 +567,7 @@ details.cup{display:block}
   <symbol id="i-target" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M12 2a10 10 0 1 1 0 20 10 10 0 0 1 0-20Zm0 2.6a7.4 7.4 0 1 0 0 14.8 7.4 7.4 0 0 0 0-14.8Zm0 2.8a4.6 4.6 0 1 1 0 9.2 4.6 4.6 0 0 1 0-9.2Zm0 2.4a2.2 2.2 0 1 0 0 4.4 2.2 2.2 0 0 0 0-4.4Z"/></symbol>
   <symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13.6 1.8 4.4 13.6h6.2l-1.4 8.6 9.6-12.4h-6.3Z"/></symbol>
   <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 1.8 20.4 5v6.3c0 5.2-3.6 9.3-8.4 10.9-4.8-1.6-8.4-5.7-8.4-10.9V5Z"/></symbol>
+  <symbol id="i-gem" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M6.8 3h10.4l4.9 6.3L12 21.8 1.9 9.3Zm1 2-2.6 3.4h4.3L10.6 5Zm5.6 0 1.1 3.4h4.3L16.2 5Zm-3.9 5.4 2.5 6.9 2.5-6.9Z"/></symbol>
   <symbol id="i-crown" viewBox="0 0 24 24"><path d="M3 7.5 8 11l4-6.5 4 6.5 5-3.5-1.8 11.2H4.8ZM5 20h14v2H5Z"/></symbol>
   <symbol id="i-sword" viewBox="0 0 24 24"><path d="M20.8 2.2 21 7.4 11.6 16.8 7.2 12.4 16.6 3Zm-15 11.6 4.4 4.4-1.6 1.6-1.3-1.3-2.8 2.8a1.4 1.4 0 0 1-2-2l2.8-2.8-1.3-1.3Z"/></symbol>
   <symbol id="i-wing" viewBox="0 0 24 24"><path d="M2.5 5.5c6 0 11 1.6 14.5 5.6 1.8 2 3 4.6 4.5 7.9-3.3-1.7-6.4-2.3-9.5-2.2 1.2 1 2 2.2 2.6 3.7-4.6-1.2-8-4-10-7.6 1.5.4 3 .5 4.4.3C6 11.6 3.8 9 2.5 5.5Z"/></symbol>
@@ -575,12 +581,12 @@ details.cup{display:block}
 
 <div class="wrap">
 <header>
-  <h1>ドラゴン魔石表</h1>
+  <h1>ドラゴン育成ガイド</h1>
 </header>
 
 <nav class="views" role="tablist" aria-label="表示切り替え">
-  <button role="tab" data-tab="dragon" aria-label="ドラゴン" title="ドラゴン"><svg class="ic" aria-hidden="true"><use href="#i-hex"/></svg></button>
-  <button role="tab" data-tab="status" aria-label="パラメータ" title="パラメータ"><svg class="ic" aria-hidden="true"><use href="#i-crown"/></svg></button>
+  <button role="tab" data-tab="dragon" aria-label="育成ガイド" title="育成ガイド"><svg class="ic" aria-hidden="true"><use href="#i-hex"/></svg></button>
+  <button role="tab" data-tab="maseki" aria-label="魔石" title="魔石"><svg class="ic" aria-hidden="true"><use href="#i-gem"/></svg></button>
   <button role="tab" data-tab="skill" aria-label="スキル" title="スキル"><svg class="ic" aria-hidden="true"><use href="#i-bolt"/></svg></button>
   <button role="tab" data-tab="ability" aria-label="アビリティ" title="アビリティ"><svg class="ic" aria-hidden="true"><use href="#i-shield"/></svg></button>
   <button role="tab" data-tab="card" aria-label="カード" title="カード"><svg class="ic" aria-hidden="true"><use href="#i-book"/></svg></button>
@@ -982,9 +988,9 @@ const AB={
 
 /* ===== 状態（並べ替えと画像の種類は端末に保存） ===== */
 const state={tab:"dragon",detail:null,img:"illust",
-  dSort:{key:"no",dir:1},sSort:{key:"total",dir:-1},kSort:{key:"no",dir:1},aSort:{key:"no",dir:1},abCat:"all",dGrp:"all",skMana:"all",skCat:"all",skPow:"all",skAcc:"all",skEl:"all",skSort:{key:"no",dir:1},bkSort:{key:"rr",dir:1},dScroll:0,dMiss:false,dOpen:[],
+  dSort:{key:"no",dir:1},sSort:{key:"total",dir:-1},kSort:{key:"no",dir:1},aSort:{key:"no",dir:1},abCat:"all",gTy:"all",skMana:"all",skCat:"all",skPow:"all",skAcc:"all",skEl:"all",skSort:{key:"no",dir:1},bkSort:{key:"rr",dir:1},dScroll:0,dMiss:false,dOpen:[],
   rk:{status:"total",skill:"pow",ability:"all"}};
-const KEEP=["bkSort","dSort","sSort","img","abCat","dGrp","rk","skMana","skCat","skPow","skAcc","skEl","dMiss"];
+const KEEP=["bkSort","dSort","sSort","img","abCat","gTy","rk","skMana","skCat","skPow","skAcc","skEl","dMiss"];
 try{const s=JSON.parse(localStorage.getItem("dragon-maseki-v2")||"{}");KEEP.forEach(k=>{if(s[k])state[k]=s[k]})}catch(e){}
 state.img="illust";  // 画像はイラストに固定
 const save=()=>{try{localStorage.setItem("dragon-maseki-v2",JSON.stringify(Object.fromEntries(KEEP.map(k=>[k,state[k]]))))}catch(e){}};
@@ -1059,52 +1065,80 @@ function rankSel(tab,opts){
   return `<div class="sorter rksel">${ok.map(([k,n])=>`<button data-rk="${tab}|${esc(k)}" aria-pressed="${cur[0]===k}">${esc(n)}</button>`).join("")}</div><div class="ranks one">${cur[2]}</div>`;
 }
 
-/* ===== ドラゴン（一覧・個別） ===== */
-const D_KEYS=[["no","No"],["total","合計"],...STATS.map((n,i)=>["s"+i,n])];
-/* グラフの形での分類。魔石No. を並べる。ここにないドラゴンは「その他」 */
-const SHAPES=[
-  ["高火力耐久型",[37,41,33]],
-  ["中火力耐久型",[13,47,29]],
-  ["低防御バランス型",[44,40,35,45,36,1]],
-  ["中体力バランス型",[46,42,22]],
-  ["完全バランス型",[48,24,34]],
-  ["速攻特化型",[15,19]],
-];
-const shapeOf=d=>(SHAPES.find(([,ns])=>ns.includes(msNo(d.sp)))||["その他"])[0];
-function imgSwitch(){
-  return `<div class="imgset">画像<div class="sorter">${Object.entries(IMG_SETS).map(([k,[n]])=>`<button data-img="${k}" aria-pressed="${state.img===k}">${n}</button>`).join("")}</div></div>`;
+/* ===== 育成ガイド（種族ごと） =====
+   種族名・イラスト・種族値（魔導書の六角形）・スキルの最大効果・優先アビリティ・相性。
+   型は魔導書の種族値（spvType）から決める */
+const nsp=s=>String(s||"").replace(/・/g,"");
+const byN=o=>Object.fromEntries(Object.keys(o).map(k=>[nsp(k),k]));
+let GS=null;
+function guideList(){
+  if(GS)return GS;
+  const skK=byN(SK),spK=byN(SP),spv=Object.fromEntries(SPV.map(r=>[nsp(r.sp),r]));
+  GS=MASEKI.map(sp=>{const k=nsp(sp);
+    return {sp,no:msNo(sp),rr:rarOf(sp),skKey:skK[k],spKey:spK[k],spv:spv[k],d:D.find(d=>nsp(d.sp)===k)}})
+    .filter(g=>g.skKey||g.spv);
+  GS.forEach(g=>{g.ty=g.spv?spvType(g.spv):"未調査";g.p=SP[g.spKey]||{}});
+  return GS;
+}
+/* 種族のイラスト：その種族の魔石（相棒）の画像を使う。無ければ準備中の枠 */
+const gIllust=g=>g.d?illust(g.d):`<div class="illust ${state.img} empty"><span class="ph">${ico("img")}イラスト準備中</span></div>`;
+const gRadar=g=>g.spv?radar({nk:g.sp,st:g.spv.v.map(v=>({v})),total:spvTot(g.spv)},{sq:true,icons:false,max:75,hi:60,lo:25}):`<div class="nospv">種族値は<br>まだ調べていません</div>`;
+/* スキル：データのあるスキルを全部、Max（無ければ分かっている一番高いLv）で */
+const gSkills=g=>g.skKey?skillTable(g.skKey,Object.keys(SK[g.skKey]).map(n=>({n}))):`<p class="nodata">スキルはまだ調べていません</p>`;
+/* 優先アビリティ：デトックス（固定枠）＋タイプ別おすすめ（PRIO）から */
+function prioOf(g){
+  const k=nsp(g.sp),gs=PRIO.filter(x=>x.sp.some(s=>nsp(s)===k));
+  const rows=[{n:AB_FIX,tag:"固定"}],seen=new Set([AB_FIX]);
+  gs.forEach(x=>(x.alt&&x.alt[k]||x.ab).forEach(set=>set.forEach(n=>{if(seen.has(n))return;seen.add(n);
+    rows.push({n,tag:set.length>1?"どれか1つ":x.t})})));
+  return {gs,rows};
+}
+function prioTable(g){
+  const {gs,rows}=prioOf(g);
+  const tb=`<div class="xtbl"><table class="abtbl"><thead><tr><th>アビリティ</th><th>効果</th></tr></thead><tbody>${
+    rows.map(r=>`<tr><td class="nm"><b>${esc(abn(r.n))}</b><small class="cnt">${esc(r.tag)}</small></td><td class="ef">${abEff(r.n)}</td></tr>`).join("")}</tbody></table></div>`;
+  return (gs.length?`<p class="pr-g">${gs.map(x=>esc(x.t)).join("・")}</p>`:`<p class="pr-g none">タイプ別のおすすめは考察中</p>`)+tb;
 }
 function viewDragon(){
+  const L=guideList();
+  const tys=[...new Set(L.map(g=>g.ty))].sort((a,b)=>tyOrd(a)-tyOrd(b));
+  if(state.gTy!=="all"&&!tys.includes(state.gTy))state.gTy="all";
+  const chips=`<div class="sorter shp"><button data-gty="all" aria-pressed="${state.gTy==="all"}">すべて<small>${L.length}</small></button>${tys.map(t=>`<button data-gty="${esc(t)}" aria-pressed="${state.gTy===t}">${esc(t)}<small>${L.filter(g=>g.ty===t).length}</small></button>`).join("")}</div>`;
+  const cards=L.filter(g=>state.gTy==="all"||g.ty===state.gTy).map(g=>{const id="g"+g.no,op=state.dOpen.includes(id),nm=spn(g.sp);return `
+    <div class="card box fold${op?" open":""}" data-acc="${id}" role="button" tabindex="0" aria-expanded="${op}" aria-label="${esc(g.sp)}のくわしい情報">
+      <div class="card-h">
+        <div class="tt"><b class="nk${[...nm].length>=7?" long":""}"><span class="nm">${esc(nm)}</span><small class="no">No.${g.no}・${g.rr}</small></b><span class="shape${g.spv?"":" un"}">${esc(g.ty)}</span></div>
+        <div class="ci">${gIllust(g)}</div><div class="cr">${gRadar(g)}</div>
+        <span class="chev" aria-hidden="true">${ico("chev")}</span></div>
+      <div class="fold-b">${nm!==g.sp?`<p class="g-full">${esc(g.sp)}</p>`:""}${fieldRow({sp:g.spKey||""},true)}
+        <h4 class="d-sec">${ico("bolt")}スキル</h4>${gSkills(g)}
+        <h4 class="d-sec">${ico("shield")}優先アビリティ</h4>${prioTable(g)}
+        <h4 class="d-sec">${ico("target")}相性</h4>${matchup(g)}</div>
+    </div>`}).join("");
+  return `<p class="hint">種族ごとの育て方の目安です。六角形は魔導書の種族値（アイテムなし・極限集中の特訓で主に上がる量）。60以上を赤、25未満を青にしています。型は種族値から決めています</p>${chips}<div class="grid">${cards}</div>`;
+}
+/* ===== 魔石（これまで育てた相棒の記録） ===== */
+function viewMaseki(){
   if(state.detail)return viewDetail(D.find(d=>d.no===state.detail));
-  if(state.dGrp!=="all"&&state.dGrp!=="その他"&&!SHAPES.some(([n])=>n===state.dGrp))state.dGrp="all";
-  const grps=[...SHAPES.map(([n])=>n),"その他"].map(n=>[n,D.filter(d=>shapeOf(d)===n).length]);
-  const gchips=`<div class="sorter shp"><button data-dgrp="all" aria-pressed="${state.dGrp==="all"}">すべて<small>${D.length}</small></button>${grps.map(([n,c])=>`<button data-dgrp="${esc(n)}" aria-pressed="${state.dGrp===n}">${esc(n)}<small>${c}</small></button>`).join("")}</div>`;
-  const list=dList();
+  const list=orderD();
   const have=new Set(D.map(d=>d.sp));
-  const miss=state.dMiss&&state.dGrp==="all"?MASEKI.map((sp,i)=>({sp,n:i+1})).filter(x=>!have.has(x.sp)):[];
-  /* No.順の時は未取得もNo.の位置に混ぜる。パラメータ順の時は最後にまとめる */
-  const items=[...list.map(d=>({d})),...miss];
+  const miss=state.dMiss?MASEKI.map((sp,i)=>({sp,n:i+1})).filter(x=>!have.has(x.sp)):[];
   const missN=MASEKI.filter(sp=>!have.has(sp)).length;
   const missBtn=`<label class="miss-t"><input type="checkbox" data-dmiss ${state.dMiss?"checked":""}>未取得の魔石も表示<small>${missN}</small></label>`;
-  const cards=items.map(({d,sp,n})=>!d?`
-    <div class="card box miss"><div class="cl"><b class="nk">${esc(spn(sp))}</b><span class="sp">No.${n}・${rarOf(sp)}</span>${SP[sp]?fieldRow({sp}):""}</div><span class="miss-l">未取得</span></div>`:`
-    <div class="card box fold${state.dOpen.includes(d.no)?" open":""}" data-acc="${d.no}" role="button" tabindex="0" aria-expanded="${state.dOpen.includes(d.no)}" aria-label="${esc(d.nk)}のくわしい情報">
+  const cards=[...list.map(d=>({d})),...miss].map(({d,sp,n})=>!d?`
+    <div class="card box miss"><div class="cl"><b class="nk">${esc(spn(sp))}</b><span class="sp">No.${n}・${rarOf(sp)}</span>${SP[sp]?fieldRow({sp}):""}</div><span class="miss-l">未取得</span></div>`:(()=>{const id="m"+d.no,op=state.dOpen.includes(id);return `
+    <div class="card box fold${op?" open":""}" data-acc="${id}" role="button" tabindex="0" aria-expanded="${op}" aria-label="${esc(d.nk)}のくわしい情報">
       <div class="card-h">
-        <div class="tt"><b class="nk${[...d.nk].length>=7?" long":""}"><span class="nm">${esc(d.nk)}</span><small class="no">No.${msNo(d.sp)||d.no}</small></b><span class="shape">${esc(shapeOf(d))}</span></div>
+        <div class="tt"><b class="nk${[...d.nk].length>=7?" long":""}"><span class="nm">${esc(d.nk)}</span><small class="no">No.${msNo(d.sp)||d.no}</small></b><span class="shape">${esc(spn(d.sp))}</span></div>
         <div class="ci">${illust(d)}</div><div class="cr">${radar(d,{sq:true,icons:false})}</div>
         <span class="chev" aria-hidden="true">${ico("chev")}</span></div>
       <div class="fold-b">${fieldRow(d,true)}
         <h4 class="d-sec">${ico("bolt")}スキル</h4>${skillTable(d.sp,d.sk)}
-        <h4 class="d-sec">${ico("shield")}アビリティ</h4>${abilityTable(d.ab)}
-        <h4 class="d-sec">${ico("target")}相性</h4>${matchup(d)}</div>
-    </div>`).join("");
-  return `${gchips}${missBtn}${state.dMiss&&state.dGrp!=="all"?`<p class="hint">未取得の魔石は「すべて」の時に表示します</p>`:""}<div class="grid">${cards}</div>`;
+        <h4 class="d-sec">${ico("shield")}アビリティ</h4>${abilityTable(d.ab)}</div>
+    </div>`})()).join("");
+  return `<h2><span class="tg">${ico("gem")}</span>相棒の魔石<span class="n">${D.length}体</span></h2><p class="hint">これまで育てた相棒の記録です。合計の高い順</p>${missBtn}<div class="grid">${cards}</div>${viewRank()}`;
 }
-/* 一覧はNo.順。グラフの形で絞り込んでいる時は、その中で前後に移る */
-/* ドラゴンタブはNo.か合計の2通り。パラメータやスキルの並び順を選んでいる時は合計の大きい順 */
-/* ドラゴンタブは合計の大きい順で固定 */
-const dOrd=()=>({key:"total",dir:-1});
-const dList=()=>sorted(dOrd(),D.filter(d=>state.dGrp==="all"||shapeOf(d)===state.dGrp));
+const dList=()=>orderD();
 /* Maxのデータが無ければ、分かっている一番高いレベルのデータを使う。[値, "Lv3"などの札（Maxなら空）] */
 function bestLv(L){
   if(!L)return [null,""];
@@ -1113,31 +1147,26 @@ function bestLv(L){
   return k?[L[k],"Lv"+k]:[null,""];
 }
 const lvNote=t=>t?`<span class="lvb">${t}</span>`:"";
-/* ===== 得意な相手・苦手な相手 =====
-   攻撃属性＝威力のあるスキルの属性。得意＝自分の攻撃属性が弱点の相手、苦手＝自分の弱点の属性で攻撃してくる相手 */
-function atkEls(d){
+/* ===== 相性（種族ごと） =====
+   攻撃属性＝威力のあるスキルの属性。得意＝自分の攻撃属性が弱点の種族、苦手＝自分の弱点の属性で攻撃してくる種族 */
+function atkEls(skKey){
   const set=new Set();
-  d.sk.forEach(x=>{const db=(SK[d.sp]||{})[x.n],[v]=bestLv(db&&db.L);if(db&&db.at&&v&&+v[2]>0)set.add(db.at)});
+  Object.entries(SK[skKey]||{}).forEach(([,db])=>{const[v]=bestLv(db&&db.L);if(db&&db.at&&v&&+v[2]>0)set.add(db.at)});
   return set;
 }
 const EL_ORDER=["火","水","土","風","光","闇"];
-function matchup(d){
-  const mine=EL_ORDER.filter(a=>atkEls(d).has(a));
-  const head=(ic,a,t)=>`<p class="mu-hd">${elTag(a)}<span>${t}</span></p>`;
-  /* 自分の攻撃属性が弱点の相手：種族名を並べる */
-  const good=mine.map(a=>{const os=D.filter(o=>o!==d&&spOf(o).w===a);
-    return head("sword",a,"が弱点")+`<p class="mu-l">${os.length?os.map(o=>esc(spn(o.sp))).join("・"):`<span class="none">なし</span>`}</p>`}).join("");
-  /* 自分の弱点の属性で攻撃してくる相手：種族名・スキル・マナ・命中・威力 */
-  const w=spOf(d).w;let bad="";
+function matchup(g){
+  const L=guideList().filter(o=>o!==g);
+  const mine=EL_ORDER.filter(a=>atkEls(g.skKey).has(a));
+  const head=(a,t)=>`<p class="mu-hd">${elTag(a)}<span>${t}</span></p>`;
+  const names=os=>os.length?os.map(o=>esc(spn(o.sp))).join("・"):`<span class="none">なし</span>`;
+  const good=mine.map(a=>head(a,"が弱点")+`<p class="mu-l">${names(L.filter(o=>o.p.w===a))}</p>`).join("");
+  const w=g.p.w;let bad="";
   if(w){
-    const rows=[];
-    D.filter(o=>o!==d).forEach(o=>o.sk.forEach(x=>{const db=(SK[o.sp]||{})[x.n],[v,lt]=bestLv(db&&db.L);
-      if(db&&db.at===w&&v&&+v[2]>0)rows.push({o,n:x.n,v,lt,at:db.at})}));
-    /* 種族名だけを1回ずつ、合計の高い順に。スキルの中身はスキルタブで */
-    const os=[...new Set(rows.sort((a,b)=>b.o.total-a.o.total||a.o.no-b.o.no).map(r=>r.o))];
-    bad=head("shield",w,"スキル持ち")+`<p class="mu-l">${os.length?os.map(o=>esc(spn(o.sp))).join("・"):`<span class="none">なし</span>`}</p>`
+    bad=head(w,"スキル持ち")+`<p class="mu-l">${names(L.filter(o=>atkEls(o.skKey).has(w)))}</p>`
       +`<button class="mu-go" data-skel="${esc(w)}">${esc(w)}スキル一覧へ ›</button>`;
   }
+  if(!good&&!bad)return `<p class="nodata">属性・弱点がまだ分かっていません</p>`;
   return `<div class="mu">${good}${bad}</div>`;
 }
 /* 持続：数値の時だけ効果の後ろに付ける */
@@ -1170,13 +1199,15 @@ function abDur(d,t){
   if(/アップ|必中/.test(t||""))return `<span class="dur">(そのターンだけ)</span>`;
   return "";
 }
+/* Maxの効果を出す。Maxが分からない時だけ、分かっている一番高いLvの効果 */
+function abEff(n){
+  const [v,lt]=bestLv((AB[n]||{}).L||{});
+  return v?(v[1]?arrows(esc(fxShort(v[1]).replace(/体力(\d+)%以下で/,(m,n)=>n==="0"?"体力0を切る時":`体力${n}%を切る時`))):"")+abDur(v[0],v[1])+(lt?`<span class="dur">${lt}の効果</span>`:""):`<span class="none">効果はまだ確かめていません</span>`;
+}
 function abilityTable(list,extra=abilityTable.none){
   const rows=list.map(x=>{
     if(x.none)return `<tr><td class="nm" colspan="2"><span class="none">ー（空き）</span></td></tr>`;
-    /* Maxの効果を出す。Maxが分からない時だけ、分かっている一番高いLvの効果 */
-    const L=(AB[x.n]||{}).L||{};
-    const [v,lt]=bestLv(L);
-    const eff=v?(v[1]?arrows(esc(fxShort(v[1]).replace(/体力(\d+)%以下で/,(m,n)=>n==="0"?"体力0を切る時":`体力${n}%を切る時`))):"")+abDur(v[0],v[1])+(lt?`<span class="dur">${lt}の効果</span>`:""):`<span class="none">効果はまだ確かめていません</span>`;
+    const eff=abEff(x.n);
     return `<tr><td class="nm"><b>${esc(abn(x.n))}</b>${x.cnt?`<small class="cnt">${x.cnt}体</small>`:x.cnt===0?`<small class="cnt">未習得</small>`:""}</td><td class="ef">${eff}${extra(x.n)}</td></tr>`;
   }).join("");
   const wide=extra!==abilityTable.none;
@@ -1187,7 +1218,7 @@ function viewDetail(d){
   const list=dList().some(x=>x.no===d.no)?dList():D,idx=list.findIndex(x=>x.no===d.no);
   const prev=list[(idx-1+list.length)%list.length],next=list[(idx+1)%list.length];
   const empty=`<div class="sk"><p class="nodata">ー（空き）</p></div>`;
-  return `<div class="dnav"><button class="btn" data-back>‹ 一覧</button><span class="sp"></span>
+  return `<div class="dnav"><button class="btn" data-back>‹ 魔石</button><span class="sp"></span>
       <button class="btn" data-open="${prev.no}" aria-label="前のドラゴン">‹</button><button class="btn" data-open="${next.no}" aria-label="次のドラゴン">›</button></div>
     <div class="detail">
       <section class="dpanel box">
@@ -1219,13 +1250,13 @@ const GROUPS=[
   ["shield","防御系","体＋防",d=>d.st[0].v+d.st[2].v,d=>`体 ${d.st[0].v}・防 ${d.st[2].v}`],
   ["wing","スピード系","早＋避",d=>d.st[3].v+d.st[5].v,d=>`早 ${d.st[3].v}・避 ${d.st[5].v}`],
 ];
-function viewStatus(){
+function viewRank(){
   const card=(ic,t,u,f,sub)=>()=>rankCard(ic,t+"ランキング",u,topN(D.map(d=>({d,name:d.nk,v:f(d),sub:sub(d),more:()=>`${paramTable(d)}${skillTable(d.sp,d.sk)}`,tie:d.no})),D.length));
   const ST_IC=ST_ICON;
   const ranks=rankSel("status",[
     ...GROUPS.map(([ic,t,u,f,sub],i)=>[["total","atk","def","spd"][i],t,card(ic,t,u,f,sub)]),
     ...STATS.map((n,i)=>["s"+i,n,card(ST_IC[i],n,n+"の値",d=>d.st[i].v,d=>`ランク ${esc(d.st[i].r)}・${esc(spn(d.sp))}`)])]);
-  return `<h2><span class="tg">${ico("crown")}</span>ランキング</h2>${ranks}`;
+  return `<h2><span class="tg">${ico("crown")}</span>相棒のランキング</h2>${ranks}`;
 }
 
 /* ===== スキル・アビリティ共通 ===== */
@@ -1395,7 +1426,29 @@ function abCat(n){
 /* 名前別の分類：名前の付き方で分ける（上から順に当てはめる） */
 const AB_NAMES=[["フクツ",n=>/^フクツ/.test(n)],["構え",n=>/構え$/.test(n)],["アップ",n=>/アップ$/.test(n)],["チャージ",n=>/チャージ$/.test(n)],["気合",n=>/^気合/.test(n)],["その他",()=>true]];
 const abName=n=>AB_NAMES.find(([,f])=>f(n))[0];
-/* ===== タイプ別おすすめアビリティ（考察。オンライン対戦を想定） ===== */
+/* ===== タイプ別おすすめアビリティ（考察。オンライン対戦を想定） =====
+   育成ガイドの「優先アビリティ」もここから作る。ab は優先の順。[a,b] は「どれか1つ」。alt は種族ごとの差し替え */
+const AB_FIX="デトックス";
+const PRIO=[
+  {t:"耐久型",txt:"フクツの守り＋リカバリー（＋ふんばる）",ab:[["フクツの守り"],["リカバリー"],["ふんばる"]],
+   sp:["イルルヤンカシュ","イルルヤンカシュ変異種","ヴィーヴル変異種","ヒュドラー変異種","レヴィアタン変異種","クエレブレ変異種"],
+   alt:{"クエレブレ変異種":[["リカバリー"],["ふんばる"]]},
+   nt:"防御アップ・守りの構えはフクツの守りと重なるので入れない。クエレブレ変異種は鱗の守り（防御大）がフクツの守りと重なるので、リカバリー＋ふんばるが向く"},
+  {t:"状態異常型",txt:"健康キラー",ab:[["健康キラー"]],
+   sp:["タラスク変異種","ファイヤー・ドレイク変異種","フェルニゲシュ変異種","九頭龍変異種","ワイヴァーン変異種","ヒュドラー変異種","ベーオウルフ・ドラゴン変異種","レヴィアタン変異種","ゴルィニシチェ変異種"],
+   nt:"健康キラーはMaxで70%と発動しやすい。リントヴルムは猛毒生成（付与率中アップ）が健康キラーと重なる"},
+  {t:"高攻撃・高命中型",txt:"攻撃アップ・速攻の構え・クリティカル",ab:[["攻撃アップ"],["速攻の構え"],["クリティカル"]],
+   sp:["ワイヴァーン","ヴリトラ変異種","九頭龍変異種","イルルヤンカシュ変異種","ケツァルコアトル変異種","アジ・ダハーカ変異種"],
+   alt:{"ケツァルコアトル変異種":[["クリティカル"]],"イルルヤンカシュ変異種":[["クリティカル"]]},
+   nt:"主力が3マナ以下の技なら速攻の構え（40%で大）が攻撃アップより発動しやすい：タラスク変異種（切り裂く）、ヴリトラ（かまいたち）、ヴィーヴル変異種（頭突き）。クリティカルは攻撃のバフと重ならない。ケツァルコアトル変異種（尻尾払い）、イルルヤンカシュ変異種（大渦）は攻撃バフの技があるので、攻撃アップよりクリティカル"},
+  {t:"低命中技の高火力型",txt:"命中アップ＋狙い撃ち",ab:[["命中アップ"],["狙い撃ち"]],
+   sp:["メスター・ストゥアワーム","レインボー・サーペント","レインボー・サーペント変異種","ファイヤー・ドレイク変異種","フェルニゲシュ"],
+   nt:"命中アップ（命中の上昇）と狙い撃ち（必中）は重ならない。命中アップは発動したターンを含めて2ターン続き、2ターン目に発動すると上書きで延長。攻撃のおよそ49%がどちらかで助けられる（狙いの構え＋狙い撃ちは約44%）。命中アップと狙いの構えは重なる。フェルニゲシュ変異種は挑発（命中中アップ）が命中アップと重なる"},
+  {t:"速さ・回避型",txt:"素早さアップ、回避アップかフクツの見切り（どちらか1つ）",ab:[["素早さアップ"],["回避アップ","フクツの見切り"]],
+   sp:["ワイヴァーン変異種","ヴリトラ","ヴリトラ変異種","ゴルィニシチェ変異種"],
+   alt:{"ゴルィニシチェ変異種":[["回避アップ","フクツの見切り"]]},
+   nt:"同じ素早さ（999どうし）だと交互に先手。少しでも素早さが上がれば先手なので、ターン開始時に判定され1ターン目から効く素早さアップが一番。フクツの素早さは体力50%を切った次のターンから2ターン。ゴルィニシチェ変異種は急降下ひっかき（素早さ中アップ）が素早さアップと重なる。回避アップの技を持つ種族（ベーオウルフ・ドラゴン、聖ゲオルギウス・ドラゴン、ムシュフシュ、蜃）は、回避のアビリティと重なる"},
+];
 function abRecommend(){
   const T=(t,ab,sp,nt)=>`<p class="abgrp"><b>${t}</b></p><p><b>${ab}</b></p><p>当てはまる種族：${sp}</p>${nt?`<p class="note">${nt}</p>`:""}`;
   return `<h2><span class="tg">${ico("shield")}</span>タイプ別おすすめ</h2>
@@ -1414,16 +1467,7 @@ function abRecommend(){
     <p><b>ティア1</b>：デトックス・フクツの守り・リカバリー・ふんばる・緊急チャージ、状態異常型なら健康キラー</p>
     <p class="note">ふんばるは決着の1撃を40%で耐え、ほかのアビリティやバフと重ならない。緊急チャージは被弾のたびに25%で判定され、5ターンで3回受けると約6割で1回は発動する</p></div>
     <div class="box lab-b">
-    ${T("耐久型","フクツの守り＋リカバリー（＋ふんばる）","イルルヤンカシュ、イルルヤンカシュ変異種、ヴィーヴル変異種、ヒュドラー変異種、レヴィアタン変異種、クエレブレ変異種",
-      "防御アップ・守りの構えはフクツの守りと重なるので入れない。クエレブレ変異種は鱗の守り（防御大）がフクツの守りと重なるので、リカバリー＋ふんばるが向く")}
-    ${T("状態異常型","健康キラー","タラスク変異種、ファイヤー・ドレイク変異種、フェルニゲシュ変異種、九頭龍変異種、ワイヴァーン変異種、ヒュドラー変異種、ベーオウルフ・ドラゴン変異種、レヴィアタン変異種、ゴルィニシチェ変異種",
-      "健康キラーはMaxで70%と発動しやすい。リントヴルムは猛毒生成（付与率中アップ）が健康キラーと重なる")}
-    ${T("高攻撃・高命中型","攻撃アップ・速攻の構え・クリティカル","ワイヴァーン、ヴリトラ変異種、九頭龍変異種、イルルヤンカシュ変異種、ケツァルコアトル変異種、アジ・ダハーカ変異種",
-      "主力が3マナ以下の技なら速攻の構え（40%で大）が攻撃アップより発動しやすい：タラスク変異種（切り裂く）、ヴリトラ（かまいたち）、ヴィーヴル変異種（頭突き）。クリティカルは攻撃のバフと重ならない。ケツァルコアトル変異種（尻尾払い）、イルルヤンカシュ変異種（大渦）は攻撃バフの技があるので、攻撃アップよりクリティカル")}
-    ${T("低命中技の高火力型","命中アップ＋狙い撃ち","メスター・ストゥアワーム、レインボー・サーペント、レインボー・サーペント変異種、ファイヤー・ドレイク変異種、フェルニゲシュ",
-      "命中アップ（命中の上昇）と狙い撃ち（必中）は重ならない。命中アップは発動したターンを含めて2ターン続き、2ターン目に発動すると上書きで延長。攻撃のおよそ49%がどちらかで助けられる（狙いの構え＋狙い撃ちは約44%）。命中アップと狙いの構えは重なる。フェルニゲシュ変異種は挑発（命中中アップ）が命中アップと重なる")}
-    ${T("速さ・回避型","素早さアップ、回避アップかフクツの見切り（どちらか1つ）","ワイヴァーン変異種、ヴリトラ、ヴリトラ変異種、ゴルィニシチェ変異種",
-      "同じ素早さ（999どうし）だと交互に先手。少しでも素早さが上がれば先手なので、ターン開始時に判定され1ターン目から効く素早さアップが一番。フクツの素早さは体力50%を切った次のターンから2ターン。ゴルィニシチェ変異種は急降下ひっかき（素早さ中アップ）が素早さアップと重なる。回避アップの技を持つ種族（ベーオウルフ・ドラゴン、聖ゲオルギウス・ドラゴン、ムシュフシュ、蜃）は、回避のアビリティと重なる")}
+    ${PRIO.map(x=>T(x.t,x.txt,x.sp.join("、"),x.nt)).join("")}
     </div>`;
 }
 function viewAbility(){
@@ -1895,7 +1939,7 @@ const UP_NEW=[12,12,12,12,12,12],UP_ALL=[17,17,17,17,17,17],UP_DK=[22,22,22,22,2
 /* 決まっている育成の予定。y＝0:1年生 1:2年生。k＝must（出る）・opt（属性が合えば出る）・plan（予定）。cups＝出る大会の候補 */
 const PLAN=[
   {y:0,m:4,w:1,k:"plan",t:"おやつ",d:"調子アップのアイテムを使ってから、おやつ"},
-  {y:0,m:4,w:2,k:"plan",t:"伸び率を記録",d:"絶好調で6種類の特訓画面を撮り、魔石表に記録する"},
+  {y:0,m:4,w:2,k:"plan",t:"伸び率を記録",d:"絶好調で6種類の特訓画面を撮り、育成ガイドに記録する"},
   {y:0,m:1,w:4,k:"must",t:"新人王",cups:["森林 新人王決定戦","荒野 新人王決定戦"],up:UP_NEW,d:"どちらかに出る。優勝で6つ全部が約+12"},
   {y:0,m:2,w:4,k:"must",t:"新人王",cups:["岩場 新人王決定戦","水辺 新人王決定戦"],up:UP_NEW,d:"優勝でゴールドに上がる。6つ全部が約+12"},
   {y:1,m:7,w:4,k:"must",t:"アタック自慢",cups:["アタック自慢大会"],up:UP_A,d:"優勝で攻撃・命中が約+28。元気が減らない"},
@@ -1969,7 +2013,7 @@ function viewBook(){
   ${tbl}`;
 }
 document.addEventListener("click",e=>{const t=e.target.closest("[data-bksort]");if(!t)return;const k=t.dataset.bksort;toggle(state.bkSort,k,k==="rr"||k==="sp"?1:-1)});
-const VIEWS={dragon:viewDragon,status:viewStatus,skill:viewSkill,ability:viewAbility,card:viewCard,battle:viewBattle,lab:viewLab,sim:viewSim,book:viewBook};
+const VIEWS={dragon:viewDragon,maseki:viewMaseki,skill:viewSkill,ability:viewAbility,card:viewCard,battle:viewBattle,lab:viewLab,sim:viewSim,book:viewBook};
 const view=document.getElementById("view");
 function render(){
   document.querySelectorAll("nav.views button").forEach(t=>t.setAttribute("aria-selected",t.dataset.tab===state.tab));
@@ -1978,11 +2022,11 @@ function render(){
 }
 function go(tab,detail=null){
   const same=state.tab===tab&&!detail&&!state.detail;
-  if(state.tab==="dragon"&&!same)state.dScroll=window.scrollY;  /* ドラゴンタブの位置を覚えておく */
+  if(state.tab==="maseki"&&!same)state.dScroll=window.scrollY;  /* 魔石タブの一覧の位置を覚えておく */
   state.tab=tab;state.detail=detail;
   try{history.replaceState(null,"","#"+(detail?"d"+detail:tab))}catch(e){}
   render();
-  if(tab==="dragon"&&!detail&&!same&&state.dScroll){window.scrollTo({top:state.dScroll});return}
+  if(tab==="maseki"&&!detail&&!same&&state.dScroll){window.scrollTo({top:state.dScroll});return}
   if(!same){const nav=document.querySelector("nav.views"),top=Math.max(0,view.getBoundingClientRect().top+window.scrollY-nav.offsetHeight-8);if(window.scrollY>top)window.scrollTo({top})}
 }
 document.addEventListener("change",e=>{
@@ -1990,16 +2034,16 @@ document.addEventListener("change",e=>{
 });
 document.addEventListener("click",e=>{
   if(e.target.closest("[data-skjump]")){const el=document.getElementById("sk-list"),nav=document.querySelector("nav.views");if(el)window.scrollTo({top:el.getBoundingClientRect().top+window.scrollY-nav.offsetHeight-8,behavior:"smooth"});return}
-  const t=e.target.closest("[data-tab],[data-open],[data-back],[data-dsort],[data-abcat],[data-dgrp],[data-img],[data-rk],[data-skmana],[data-skpow],[data-skacc],[data-skel],[data-sksort],[data-skcat],[data-acc],[data-rx]");
+  const t=e.target.closest("[data-tab],[data-open],[data-back],[data-dsort],[data-abcat],[data-img],[data-rk],[data-skmana],[data-skpow],[data-skacc],[data-skel],[data-sksort],[data-skcat],[data-gty],[data-acc],[data-rx]");
   if(!t)return;const ds=t.dataset;
   /* アコーディオン：その場で開け閉めする（描き直さない） */
   if(ds.rx){const on=!t.classList.contains("open");t.classList.toggle("open",on);t.setAttribute("aria-expanded",on);return}
-  if(ds.acc){const n=+ds.acc,card=t,on=!card.classList.contains("open");
+  if(ds.acc){const n=ds.acc,card=t,on=!card.classList.contains("open");
     card.classList.toggle("open",on);t.setAttribute("aria-expanded",on);
     state.dOpen=on?[...state.dOpen,n]:state.dOpen.filter(x=>x!==n);return}
   if(ds.tab)return go(ds.tab);
-  if(ds.open)return go("dragon",+ds.open);
-  if("back" in ds)return go("dragon");
+  if(ds.open)return go("maseki",+ds.open);
+  if("back" in ds)return go("maseki");
   if(ds.sksort)return toggle(state.skSort,ds.sksort,ds.sksort==="at"||ds.sksort==="no"?1:-1);
   if(ds.skel){state.skEl=ds.skel;
     if(state.tab!=="skill"){state.skMana="all";state.skCat="all";state.skPow="all";state.skAcc="all";save();return go("skill")}  /* カードから来た時は属性だけで絞る */
@@ -2012,11 +2056,11 @@ document.addEventListener("click",e=>{
   if(ds.img){state.img=ds.img;save();return render()}
   if(ds.dsort)return toggle(state.dSort,ds.dsort,ds.dsort==="no"?1:-1);
   if(ds.abcat){state.abCat=ds.abcat;save();return render()}
-  if(ds.dgrp){state.dGrp=ds.dgrp;save();return render()}
+  if(ds.gty){state.gTy=ds.gty;save();return render()}
 });
-/* #status #skill #ability #d4 などで直接ひらける */
-const h=(location.hash||"").slice(1);
-if(VIEWS[h])state.tab=h;else if(/^d\d+$/.test(h)&&D.find(d=>d.no===+h.slice(1))){state.detail=+h.slice(1)}
+/* #maseki #skill #ability #d4 などで直接ひらける（#status は前の名前） */
+const h=(location.hash||"").slice(1).replace(/^status$/,"maseki");
+if(VIEWS[h])state.tab=h;else if(/^d\d+$/.test(h)&&D.find(d=>d.no===+h.slice(1))){state.tab="maseki";state.detail=+h.slice(1)}
 render();
 </script>
 </body>
