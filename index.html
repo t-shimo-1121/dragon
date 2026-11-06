@@ -1465,7 +1465,7 @@ function abRecommend(){
       <li>ガチャでデトックスが付けば、魔石の枠を別のティア1に回せる</li>
     </ul>
     <p><b>ティア1</b>：デトックス・フクツの守り・リカバリー・ふんばる・緊急チャージ、状態異常型なら健康キラー</p>
-    <p class="note">ふんばるは決着の1撃を40%で耐え、ほかのアビリティやバフと重ならない。緊急チャージは被弾のたびに25%で判定され、5ターンで3回受けると約6割で1回は発動する</p></div>
+    <p class="note">ふんばるは決着の1撃を40%で耐え、ほかのアビリティやバフと重ならない。緊急チャージは被弾のたびに25%で判定され、5ターンで4回受けると約7割で1回は発動する</p></div>
     <div class="box lab-b">
     ${PRIO.map(x=>T(x.t,x.txt,x.sp.join("、"),x.nt)).join("")}
     </div>`;
@@ -1501,8 +1501,8 @@ function viewAbility(){
     ${abExpect()}`;
 }
 /* ===== 発動回数の目安 =====
-   想定する対戦：5ターン。攻撃3回・マナチャージ2回、被弾3回、状態異常3ターン、体力50%を下回った被弾から3ターン（持続2） */
-const BATTLE={turn:5,atk:3,charge:2,hit:3,ail:3,low:3};
+   想定する対戦：5ターン。スキル4回・マナチャージ1回、被弾4回、状態異常3ターン、体力50%を下回った被弾から3ターン（持続2） */
+const BATTLE={turn:5,atk:4,charge:1,hit:4,ail:3,low:3};
 function abChance(t){
   const p=+((String(t).match(/(\d+)%の確率/)||[])[1]||0)/100;
   const B=BATTLE;
@@ -1527,7 +1527,7 @@ function abExpect(){
   const pc=x=>Math.round(x*100)+"%";
   const tr=rows.map(r=>`<tr><td class="nm"><b>${esc(abn(r.n))}</b><small class="cnt">${r.c.always?`${r.c.k}`:`${r.c.k} ${Math.round(r.c.p*100)}%×${r.c.n}回${r.c.max?"（最大）":""}`}</small></td><td class="c">${r.c.always?`${r.c.n}<small>ターン</small>`:`${r.e.toFixed(1)}<small>回</small>`}</td><td class="c">${pc(r.one)}</td></tr>`).join("");
   return `<h2><span class="tg">${ico("target")}</span>発動回数の目安</h2>
-    <p class="hint">5ターンの対戦で、攻撃3回・マナチャージ2回、攻撃を受ける3回、状態異常3ターン、フクツ系は50%を切った被弾から3ターンとした時の目安です。効果はMaxの値（分からないものは分かっている一番高いレベル）。「1回以上」は1度でも発動する確率</p>
+    <p class="hint">5ターンの対戦で、スキル4回・マナチャージ1回（チャージはなるべく使わない立ち回り）、攻撃を受ける4回、状態異常3ターン、フクツ系は50%を切った被弾から3ターンとした時の目安です。効果はMaxの値（分からないものは分かっている一番高いレベル）。「1回以上」は1度でも発動する確率</p>
     <div class="box" style="padding:4px 10px"><div class="xtbl"><table class="extbl"><thead><tr><th>アビリティ・きっかけ</th><th class="c">回数</th><th class="c">1回以上</th></tr></thead><tbody>${tr}</tbody></table></div></div>
     ${skip.length?`<p class="hint" style="margin-top:8px">今の想定では数えないもの：${skip.join("・")}</p>`:""}`;
 }
