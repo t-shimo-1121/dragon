@@ -465,7 +465,6 @@ mark{background:hsl(45 95% 62% / .55);color:inherit;border-radius:3px;padding:0 
 .rr{display:inline-block;min-width:2.2em;text-align:center;border-radius:6px;padding:1px 5px;font-weight:700;font-size:var(--fs-s);border:1px solid var(--line);background:var(--sheet)}
 .rr-SR{border-color:var(--accent);color:var(--accent)}
 .rr-UR{background:var(--accent);border-color:var(--accent);color:var(--sheet)}
-.bk-ty{margin:10px 0 6px;font-size:var(--fs-s);font-weight:700;color:var(--mute);border-left:3px solid var(--accent);padding-left:7px}
 .bk-g{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
 .bk-c{background:var(--sheet);border:1px solid var(--line);border-radius:12px;padding:6px 4px 2px;text-align:center}
 .bk-n{font-weight:700;font-size:var(--fs-s);line-height:1.3}
@@ -1945,12 +1944,13 @@ function spvType(r){
 const TY_ORDER=["低速高耐久","低火力高耐久","高耐久","低火力高速","低耐久高速","高速","低耐久高火力","低速高火力","高火力","バランス"];
 const tyOrd=t=>{const i=TY_ORDER.indexOf(t);return i<0?99:i};
 function viewBook(){
-  const card=r=>`<div class="bk-c"><div class="bk-n">${esc(spn(r.sp))}</div>${radar({nk:r.sp,st:r.v.map(v=>({v})),total:spvTot(r)},{W:170,R:64,sq:true,icons:false,max:75,hi:60,lo:25,fs:12})}</div>`;
+  const card=(r,b)=>`<div class="bk-c"><div class="bk-n">${b?`<span class="rr rr-${r.rr}">${r.rr}</span> `:""}${esc(spn(r.sp))}</div>${radar({nk:r.sp,st:r.v.map(v=>({v})),total:spvTot(r)},{W:170,R:64,sq:true,icons:false,max:75,hi:60,lo:25,fs:12})}</div>`;
   const groups=RR_ORD.map(rr=>{const L=SPV.filter(r=>r.rr===rr);if(!L.length)return"";
     const avg=Math.round(L.reduce((a,r)=>a+spvTot(r),0)/L.length);
-    const ty=[...new Set(L.map(spvType))].sort((a,b)=>tyOrd(a)-tyOrd(b));
-    return `<h3 class="bk-h"><span class="rr rr-${rr}">${rr}</span><span class="n">${L.length}種・合計の平均 ${avg}</span></h3>${
-      ty.map(t=>`<h4 class="bk-ty">${t}</h4><div class="bk-g">${L.filter(r=>spvType(r)===t).map(card).join("")}</div>`).join("")}`}).join("");
+    return `<h3 class="bk-h"><span class="rr rr-${rr}">${rr}</span><span class="n">${L.length}種・合計の平均 ${avg}</span></h3><div class="bk-g">${L.map(r=>card(r)).join("")}</div>`}).join("");
+  const ty=[...new Set(SPV.map(spvType))].sort((a,b)=>tyOrd(a)-tyOrd(b));
+  const types=ty.map(t=>{const L=SPV.filter(r=>spvType(r)===t).sort((a,b)=>RR_ORD.indexOf(a.rr)-RR_ORD.indexOf(b.rr));
+    return `<h3 class="bk-h">${t}<span class="n">${L.length}種</span></h3><div class="bk-g">${L.map(r=>card(r,1)).join("")}</div>`}).join("");
   const ss=state.bkSort,val=(r,k)=>k==="rr"?RR_ORD.indexOf(r.rr):k==="sp"?SPV.indexOf(r):k==="t"?spvTot(r):r.v[+k];
   const L=[...SPV].sort((a,b)=>(val(a,ss.key)-val(b,ss.key))*ss.dir||RR_ORD.indexOf(a.rr)-RR_ORD.indexOf(b.rr)||SPV.indexOf(a)-SPV.indexOf(b));
   const col=ss.key.length===1?+ss.key:-1;
@@ -1958,9 +1958,12 @@ function viewBook(){
   const tbl=`<div class="box"><div class="xtbl"><table class="lab-t bk-t"><thead><tr><th${ariaSort(ss,"sp")}><button data-bksort="sp">種族</button></th>${th("rr","レア")}${STATS.map((t,i)=>th(String(i),t)).join("")}${th("t","合計")}</tr></thead><tbody>${
     L.map(r=>`<tr><td class="nm">${esc(spn(r.sp))}</td><td class="c"><span class="rr rr-${r.rr}">${r.rr}</span></td>${r.v.map((v,i)=>`<td class="c${i===col?" on":""}">${v}</td>`).join("")}<td class="c${ss.key==="t"?" on":""}"><b>${spvTot(r)}</b></td></tr>`).join("")
   }</tbody></table></div></div>`;
-  return `<h2><span class="tg">${ico("tome")}</span>レアリティと種族値</h2>
-  <p class="hint">魔導書のレアリティごとに、種族値（アイテムなし・極限集中の特訓で主に上がる量）を六角形にしました。60以上を赤、25未満を青にしています。タイプは、耐久（体＋防）・火力（攻＋命）・速さ（早＋避）のどれが高くてどれが低いかで分けています。くわしい出し方は育成タブの「種族値」</p>
+  return `<h2><span class="tg">${ico("tome")}</span>レアリティ別の種族値</h2>
+  <p class="hint">魔導書のレアリティごとに、種族値（アイテムなし・極限集中の特訓で主に上がる量）を六角形にしました。60以上を赤、25未満を青にしています。くわしい出し方は育成タブの「種族値」</p>
   ${groups}
+  <h2><span class="tg">${ico("hex")}</span>タイプ別の種族値</h2>
+  <p class="hint">耐久（体＋防）・火力（攻＋命）・速さ（早＋避）のどれが高くてどれが低いかで分けています。名前の左はレアリティ</p>
+  ${types}
   <h2><span class="tg">${ico("list")}</span>種族値の一覧</h2>
   <p class="hint">見出しを押すと並べ替えます。もう一度押すと逆の順になります</p>
   ${tbl}`;
