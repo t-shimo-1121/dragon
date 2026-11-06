@@ -459,6 +459,19 @@ mark{background:hsl(45 95% 62% / .55);color:inherit;border-radius:3px;padding:0 
 .sim-b{padding:10px 12px}
 .sim-b .sorter{margin:0 0 10px}
 .lab-t .spv-t{padding-left:10px}
+.bk-h{display:flex;align-items:center;gap:8px;margin:16px 0 6px;font-size:var(--fs-m)}
+.bk-h .n{font-weight:400;font-size:var(--fs-s);color:var(--mute)}
+.rr{display:inline-block;min-width:2.2em;text-align:center;border-radius:6px;padding:1px 5px;font-weight:700;font-size:var(--fs-s);border:1px solid var(--line);background:var(--sheet)}
+.rr-SR{border-color:var(--accent);color:var(--accent)}
+.rr-UR{background:var(--accent);border-color:var(--accent);color:var(--sheet)}
+.bk-g{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.bk-c{background:var(--sheet);border:1px solid var(--line);border-radius:12px;padding:6px 4px 2px;text-align:center}
+.bk-n{font-weight:700;font-size:var(--fs-s);line-height:1.3}
+.bk-c .radar{width:100%;max-width:190px;display:block;margin:0 auto}
+.bk-t td.on{font-weight:700;background:var(--tint)}
+.bk-t td.nm,.gr-t td.nm{white-space:normal;word-break:keep-all;overflow-wrap:anywhere;font-size:var(--fs-s)}
+.bk-t td.c{font-family:var(--f-body);font-weight:400}
+.bk-t th button::after{margin-left:-2px}
 .spv-src{margin:8px 0 0;padding-left:1.1em;font-size:var(--fs-s);color:var(--mute);line-height:1.6}
 /* 育て方 */
 .way{padding:8px 0;border-bottom:1px solid var(--line)}
@@ -554,6 +567,7 @@ details.cup{display:block}
   <symbol id="i-lab" viewBox="0 0 24 24"><path d="M8.6 2h6.8v2h-1.2v5.1l5.7 9.6A2.2 2.2 0 0 1 18 22H6a2.2 2.2 0 0 1-1.9-3.3l5.7-9.6V4H8.6Zm-.9 13.5h8.6l-2.1-3.6H9.8Z"/></symbol>
   <symbol id="i-dumbbell" viewBox="0 0 24 24"><path d="M1.5 9.5h2v-2h2.5v9H3.5v-2h-2Zm21 0h-2v-2H18v9h2.5v-2h2ZM7 5h3.2v14H7Zm6.8 0H17v14h-3.2Zm-3.6 5.8h3.6v2.4h-3.6Z"/></symbol>
   <symbol id="i-book" viewBox="0 0 24 24"><path d="M3 4.5C5.8 3.6 8.9 3.9 11 5.6v15c-2.1-1.5-5.2-1.8-8-.9Zm18 0c-2.8-.9-5.9-.6-8 1.1v15c2.1-1.5 5.2-1.8 8-.9Z"/></symbol>
+  <symbol id="i-tome" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M6 2h12a2 2 0 0 1 2 2v14H7a1 1 0 0 0 0 2h13v2H7a3 3 0 0 1-3-3V4a2 2 0 0 1 2-2Zm7 3.2L9.6 10 13 14.8 16.4 10Z"/></symbol>
   <symbol id="i-chev" viewBox="0 0 24 24"><path d="M5.6 8.4 12 14.8l6.4-6.4 2 2L12 18.8 3.6 10.4Z"/></symbol>
   <symbol id="i-img" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M5 3h14a3 3 0 0 1 3 3v12a3 3 0 0 1-3 3H5a3 3 0 0 1-3-3V6a3 3 0 0 1 3-3Zm0 2a1 1 0 0 0-1 1v9.6l4.3-4.3 5 5 2.7-2.7 4 4V6a1 1 0 0 0-1-1Zm11 2.5a2 2 0 1 1 0 4 2 2 0 0 1 0-4Z"/></symbol>
 </svg>
@@ -572,6 +586,7 @@ details.cup{display:block}
   <button role="tab" data-tab="battle" aria-label="バトル" title="バトル"><svg class="ic" aria-hidden="true"><use href="#i-sword"/></svg></button>
   <button role="tab" data-tab="lab" aria-label="検証" title="検証"><svg class="ic" aria-hidden="true"><use href="#i-lab"/></svg></button>
   <button role="tab" data-tab="sim" aria-label="育成" title="育成"><svg class="ic" aria-hidden="true"><use href="#i-dumbbell"/></svg></button>
+  <button role="tab" data-tab="book" aria-label="魔導書" title="魔導書"><svg class="ic" aria-hidden="true"><use href="#i-tome"/></svg></button>
 </nav>
 
 <main id="view"></main>
@@ -962,9 +977,9 @@ const AB={
 
 /* ===== 状態（並べ替えと画像の種類は端末に保存） ===== */
 const state={tab:"dragon",detail:null,img:"illust",
-  dSort:{key:"no",dir:1},sSort:{key:"total",dir:-1},kSort:{key:"no",dir:1},aSort:{key:"no",dir:1},abCat:"all",dGrp:"all",skMana:"all",skCat:"all",skPow:"all",skAcc:"all",skEl:"all",skSort:{key:"no",dir:1},dScroll:0,dMiss:false,dOpen:[],
+  dSort:{key:"no",dir:1},sSort:{key:"total",dir:-1},kSort:{key:"no",dir:1},aSort:{key:"no",dir:1},abCat:"all",dGrp:"all",skMana:"all",skCat:"all",skPow:"all",skAcc:"all",skEl:"all",skSort:{key:"no",dir:1},bkSort:{key:"rr",dir:1},dScroll:0,dMiss:false,dOpen:[],
   rk:{status:"total",skill:"pow",ability:"all"}};
-const KEEP=["dSort","sSort","img","abCat","dGrp","rk","skMana","skCat","skPow","skAcc","skEl","dMiss"];
+const KEEP=["bkSort","dSort","sSort","img","abCat","dGrp","rk","skMana","skCat","skPow","skAcc","skEl","dMiss"];
 try{const s=JSON.parse(localStorage.getItem("dragon-maseki-v2")||"{}");KEEP.forEach(k=>{if(s[k])state[k]=s[k]})}catch(e){}
 state.img="illust";  // 画像はイラストに固定
 const save=()=>{try{localStorage.setItem("dragon-maseki-v2",JSON.stringify(Object.fromEntries(KEEP.map(k=>[k,state[k]]))))}catch(e){}};
@@ -979,7 +994,7 @@ function illust(d){
 
 /* ===== 六角形グラフ：外側にアイコン、内側の角に数値（800以上は赤、400未満は青） ===== */
 const ST_ICON=["heart","sword","shield","bolt","target","wing"];
-function radar(d,{W=240,R=74,total=true,sq=false,icons=true}={}){
+function radar(d,{W=240,R=74,total=true,sq=false,icons=true,max=999,hi=800,lo=400}={}){
   const IS=17,GAP=5,FV=icons?18:16.2,TV=icons?18:16.2;              // アイコンの大きさ・数値の文字サイズ（画面上で本文の段階に合わせる：数値＝小、合計＝中）・枠とアイコンの間
   const H=Math.round(R*2+(icons?(IS+GAP+2)*2:4));if(sq)W=H;const cx=W/2,cy=H/2;
   const pt=(i,f)=>{const a=(-90+60*i)*Math.PI/180;return[cx+Math.cos(a)*R*f,cy+Math.sin(a)*R*f]};
@@ -988,12 +1003,12 @@ function radar(d,{W=240,R=74,total=true,sq=false,icons=true}={}){
   s+=`<polygon class="frame" points="${poly(1)}"/>`;
   [1/3,2/3].forEach(f=>s+=`<polygon class="gl" points="${poly(f)}"/>`);
   for(let i=0;i<6;i++){const[x,y]=pt(i,1);s+=`<line class="gl" x1="${cx}" y1="${cy}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}"/>`}
-  s+=`<polygon class="area" points="${d.st.map((x,i)=>pt(i,Math.max(.04,x.v/999)).map(n=>n.toFixed(1)).join(",")).join(" ")}"/>`;
+  s+=`<polygon class="area" points="${d.st.map((x,i)=>pt(i,Math.max(.04,x.v/max)).map(n=>n.toFixed(1)).join(",")).join(" ")}"/>`;
   d.st.forEach((x,i)=>{
     const[ix,iy]=pt(i,1+(GAP+IS/2)/R);    // 枠の外：アイコン
     if(icons)s+=`<use class="si" href="#i-${ST_ICON[i]}" x="${(ix-IS/2).toFixed(1)}" y="${(iy-IS/2).toFixed(1)}" width="${IS}" height="${IS}"><title>${STATS_L[i]}</title></use>`;
     const[vx,vy]=pt(i,.76);               // 枠の内側の角：数値
-    s+=`<text class="vl${x.v>=800?" s":x.v<400?" lo":""}" x="${vx.toFixed(1)}" y="${(vy+FV*.36).toFixed(1)}" font-size="${FV}" text-anchor="middle">${x.v}</text>`;
+    s+=`<text class="vl${x.v>=hi?" s":x.v<lo?" lo":""}" x="${vx.toFixed(1)}" y="${(vy+FV*.36).toFixed(1)}" font-size="${FV}" text-anchor="middle">${x.v}</text>`;
   });
   if(total)s+=(icons?`<use class="ti" href="#i-crown" x="${cx-6}" y="${(cy-19).toFixed(1)}" width="12" height="12"/>`:"")+`<text class="tv" x="${cx}" y="${(cy+(icons?12:TV*.36)).toFixed(1)}" font-size="${TV}" text-anchor="middle">${d.total}</text>`;
   return s+"</svg>";
@@ -1868,7 +1883,30 @@ function cupView(){
 function viewSim(){
   return `<div id="cupcal">${cupView()}</div>${spvView()}`;
 }
-const VIEWS={dragon:viewDragon,status:viewStatus,skill:viewSkill,ability:viewAbility,card:viewCard,battle:viewBattle,lab:viewLab,sim:viewSim};
+/* ===== 魔導書：レアリティごとの種族値 ===== */
+const RR_ORD=["N","R","SR","UR"];
+const spvTot=r=>r.v.reduce((a,b)=>a+b,0);
+function viewBook(){
+  const card=r=>`<div class="bk-c"><div class="bk-n">${esc(spn(r.sp))}</div>${radar({nk:r.sp,st:r.v.map(v=>({v})),total:spvTot(r)},{W:170,R:52,sq:true,max:75,hi:60,lo:25})}</div>`;
+  const groups=RR_ORD.map(rr=>{const L=SPV.filter(r=>r.rr===rr);if(!L.length)return"";
+    const avg=Math.round(L.reduce((a,r)=>a+spvTot(r),0)/L.length);
+    return `<h3 class="bk-h"><span class="rr rr-${rr}">${rr}</span><span class="n">${L.length}種・合計の平均 ${avg}</span></h3><div class="bk-g">${L.map(card).join("")}</div>`}).join("");
+  const ss=state.bkSort,val=(r,k)=>k==="rr"?RR_ORD.indexOf(r.rr):k==="sp"?SPV.indexOf(r):k==="t"?spvTot(r):r.v[+k];
+  const L=[...SPV].sort((a,b)=>(val(a,ss.key)-val(b,ss.key))*ss.dir||RR_ORD.indexOf(a.rr)-RR_ORD.indexOf(b.rr)||SPV.indexOf(a)-SPV.indexOf(b));
+  const col=ss.key.length===1?+ss.key:-1;
+  const th=(k,n)=>`<th class="c"${ariaSort(ss,k)}><button data-bksort="${k}">${n}</button></th>`;
+  const tbl=`<div class="box"><div class="xtbl"><table class="lab-t bk-t"><thead><tr><th${ariaSort(ss,"sp")}><button data-bksort="sp">種族</button></th>${th("rr","レア")}${STATS.map((t,i)=>th(String(i),t)).join("")}${th("t","合計")}</tr></thead><tbody>${
+    L.map(r=>`<tr><td class="nm">${esc(spn(r.sp))}</td><td class="c"><span class="rr rr-${r.rr}">${r.rr}</span></td>${r.v.map((v,i)=>`<td class="c${i===col?" on":""}">${v}</td>`).join("")}<td class="c${ss.key==="t"?" on":""}"><b>${spvTot(r)}</b></td></tr>`).join("")
+  }</tbody></table></div></div>`;
+  return `<h2><span class="tg">${ico("tome")}</span>レアリティと種族値</h2>
+  <p class="hint">魔導書のレアリティごとに、種族値（アイテムなし・極限集中の特訓で主に上がる量）を六角形にしました。60以上を赤、25未満を青にしています。くわしい出し方は育成タブの「種族値」</p>
+  ${groups}
+  <h2><span class="tg">${ico("list")}</span>種族値の一覧</h2>
+  <p class="hint">見出しを押すと並べ替えます。もう一度押すと逆の順になります</p>
+  ${tbl}`;
+}
+document.addEventListener("click",e=>{const t=e.target.closest("[data-bksort]");if(!t)return;const k=t.dataset.bksort;toggle(state.bkSort,k,k==="rr"||k==="sp"?1:-1)});
+const VIEWS={dragon:viewDragon,status:viewStatus,skill:viewSkill,ability:viewAbility,card:viewCard,battle:viewBattle,lab:viewLab,sim:viewSim,book:viewBook};
 const view=document.getElementById("view");
 function render(){
   document.querySelectorAll("nav.views button").forEach(t=>t.setAttribute("aria-selected",t.dataset.tab===state.tab));
