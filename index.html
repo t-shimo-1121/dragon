@@ -1890,7 +1890,7 @@ function viewSim(){
 const RR_ORD=["N","R","SR","UR"];
 const spvTot=r=>r.v.reduce((a,b)=>a+b,0);
 function viewBook(){
-  const card=r=>`<div class="bk-c"><div class="bk-n">${esc(spn(r.sp))}</div>${radar({nk:r.sp,st:r.v.map(v=>({v})),total:spvTot(r)},{W:170,R:52,sq:true,max:75,hi:60,lo:25})}</div>`;
+  const card=r=>`<div class="bk-c"><div class="bk-n">${esc(spn(r.sp))}</div>${radar({nk:r.sp,st:r.v.map(v=>({v})),total:spvTot(r)},{W:170,R:64,sq:true,icons:false,max:75,hi:60,lo:25})}</div>`;
   const groups=RR_ORD.map(rr=>{const L=SPV.filter(r=>r.rr===rr);if(!L.length)return"";
     const avg=Math.round(L.reduce((a,r)=>a+spvTot(r),0)/L.length);
     return `<h3 class="bk-h"><span class="rr rr-${rr}">${rr}</span><span class="n">${L.length}種・合計の平均 ${avg}</span></h3><div class="bk-g">${L.map(card).join("")}</div>`}).join("");
