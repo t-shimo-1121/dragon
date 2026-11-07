@@ -2000,22 +2000,26 @@ const PLAN=[
   {y:1,m:11,w:4,k:"must",t:"自慢大会",cups:["アタック自慢大会","ディフェンス自慢大会","スピード自慢大会"],up:null,d:"アタック・ディフェンス・スピードのどれか。優勝で名前に合った2つが約+28"},
   {y:1,m:1,w:4,k:"must",t:"地形の最強王",cups:["森林 最強王決定戦","荒野 最強王決定戦"],up:UP_ALL,d:"優勝で6つのパラメータ全部が約+17"},
   {y:1,m:2,w:4,k:"must",t:"地形の最強王",cups:["岩場 最強王決定戦","水辺 最強王決定戦"],up:UP_ALL,d:"優勝で6つのパラメータ全部が約+17"},
-  {y:1,m:3,w:"X",k:"opt",t:"属性の最強王",cups:["火vs土 最強王決定戦","水vs風 最強王決定戦","光vs闇 最強王決定戦"],up:UP_ALL,d:"1週に火vs土、2週に水vs風、3週に光vs闇。属性が合う週に出る（優勝で6つ全部が約+17、元気が減らない）。違う週は特訓か休み"},
+  {y:1,m:3,w:"A",k:"must",t:"属性の最強王",cups:["火vs土 最強王決定戦","水vs風 最強王決定戦","光vs闇 最強王決定戦"],up:UP_ALL,d:"A週＝属性が合う週（1週に火vs土、2週に水vs風、3週に光vs闇）に出る（優勝で6つ全部が約+17、元気が減らない）。B週＝残りの2週は特訓か休み"},
   {y:1,m:3,w:4,k:"must",t:"最強王・裏最強王・究極",cups:["ドラゴン最強王決定戦","裏最強王","究極魔力大会"],up:UP_DK,d:"3つから1つ選んで出る。どれも優勝で6つ全部が約+22"},
 ];
 function cupView(){
-  const ord=p=>p.y*1000+CUP_MO.indexOf(p.m)*10+(p.w==="X"?2:p.w);
-  const L=PLAN.filter(p=>p.cups).sort((a,b)=>ord(a)-ord(b));
+  const WO={A:1,B:2};
+  const ord=p=>p.y*1000+CUP_MO.indexOf(p.m)*10+(WO[p.w]||p.w)+(p.n||0)/10;
+  /* 2年生1〜3月は予定のない週も行を出す（3月はA週＝属性の大会、B週×2、4週） */
+  const L0=PLAN.filter(p=>p.cups),has=(m,w)=>L0.some(p=>p.y===1&&p.m===m&&p.w===w);
+  const FILL=[[1,1],[1,2],[1,3],[1,4],[2,1],[2,2],[2,3],[2,4],[3,"B",0],[3,"B",1]].filter(([m,w])=>!has(m,w)||w==="B").map(([m,w,n])=>({y:1,m,w,n,up:[0,0,0,0,0,0],none:true}));
+  const L=[...L0,...FILL].sort((a,b)=>ord(a)-ord(b));
   const SN=STATS;
   const row=p=>{const o=p.k==="opt";
     const cells=p.up?p.up.map(v=>v?`<td>${v}</td>`:`<td class="z">–</td>`).join(""):`<td>${UP_PICK}</td>`.repeat(6);
-    const tot=p.up?p.up.reduce((a,b)=>a+b,0):UP_PICK*2;
-    return `<tr${o?' class="opt"':""}><th>${p.m}月${p.w}週</th>${cells}<td class="t">${tot}</td></tr>`};
+    const tot=p.none?"–":p.up?p.up.reduce((a,b)=>a+b,0):UP_PICK*2;
+    return `<tr${o?' class="opt"':""}><th>${p.m}月${p.w}週</th>${cells}<td class="t${p.none?" z":""}">${tot}</td></tr>`};
   const yr=y=>`<tr class="yr"><th colspan="8">${y+1}年生</th></tr>`+L.filter(p=>p.y===y).map(row).join("");
   return `<h2><span class="tg">${ico("crown")}</span>育成カレンダー</h2>
   <div class="box sim-b">
     <table class="cal-t"><thead><tr><th>週</th>${SN.map(n=>`<th>${n}</th>`).join("")}<th>合計</th></tr></thead><tbody>${yr(0)}${yr(1)}</tbody></table>
-    <p class="note">大会で優勝したときに上がる量。グレーの行は属性が合えば出る大会（3月X週は、1週が火vs土・2週が水vs風・3週が光vs闇）。8月4週と11月4週は自慢大会を1つ選び、上がるのは名前に合った2つだけ（合計60）。数値は見やすさのため5の倍数に丸めています</p>
+    <p class="note">大会で優勝したときに上がる量。3月はA週が属性の大会（1週が火vs土・2週が水vs風・3週が光vs闇のうち、属性が合う週）、B週は残りの2週。8月4週と11月4週は自慢大会を1つ選び、上がるのは名前に合った2つだけ（合計60）。数値は見やすさのため5の倍数に丸めています</p>
   </div>`;
 }
 function viewSim(){
