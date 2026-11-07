@@ -552,6 +552,7 @@ details.cup{display:block}
 .cal-t td.t{font-weight:700}
 .cal-t td.pk{font-size:var(--fs-s);color:var(--mute)}
 .cal-t tr.opt th,.cal-t tr.opt td{color:var(--mute)}
+.fx{color:var(--mute)}
 .cal-t tr.yr th{padding:12px 2px 4px;border-bottom:2px solid var(--ink);font-family:var(--f-head);font-size:var(--fs-l);text-align:left}
 .cal-t tbody tr.yr:first-child th{padding-top:4px}
 @media (max-width:400px){.cal-t td{font-size:var(--fs-s)}.cal-t thead th:first-child,.cal-t tbody th{width:4.2em}}
@@ -1688,7 +1689,7 @@ function growthTable(){
   const rows=GROWTH.map(r=>{
     const ok=r.g.filter((v,i)=>!(r.dull||[]).includes(i)),mx=Math.max(...ok),mn=Math.min(...ok);
     return [`${esc(r.nk)}<small class="cnt">${esc(spn(r.sp))}・${esc(r.when)}・${esc(r.cond)}</small>`,
-      ...r.g.map((v,i)=>(r.dull||[]).includes(i)?`${v}＊`:v===mx?`<span class="up">${v}</span>`:v===mn?`<span class="dn">${v}</span>`:String(v))];
+      ...r.g.map((v,i)=>(r.dull||[]).includes(i)?`<span class="fx">${v}</span>`:v===mx?`<span class="up">${v}</span>`:v===mn?`<span class="dn">${v}</span>`:String(v))];
   });
   return `<div class="xtbl"><table class="lab-t gr-t"><thead><tr><th>ドラゴン</th>${STATS.map(t=>`<th class="c">${t}</th>`).join("")}</tr></thead><tbody>${rows.map(r=>`<tr><td class="nm">${r[0]}</td>${r.slice(1).map(v=>`<td class="c">${v}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
 }
@@ -1716,7 +1717,7 @@ function viewLab(){
     <p class="note"><b>まだ確かめていないこと</b>育成後半の減り方がある時も、0.4倍の関係が保たれるか</p>
     <p><b>種族ごとの伸び率</b>：アイテムなしの特訓で、主に上がる量。いちばん伸びるパラメータを赤、いちばん伸びないパラメータを青にしています</p>
     ${growthTable()}
-    <p class="note">調子が違うと全体の量が変わる（好調は絶好調より1〜2割少ない）ので、種族どうしは<b>同じ行の中の形</b>で比べる。＊は鈍化中（約0.7倍）の値</p>`)}
+    <p class="note">調子が違うと全体の量が変わる（好調は絶好調より1〜2割少ない）ので、種族どうしは<b>同じ行の中の形</b>で比べる。グレーの数字は鈍化中（約0.7倍）の値</p>`)}
   ${labSec("heart","調子と上がる量","ok",`
     <ul>
       <li>調子が良いほど、特訓で上がる量が増える。<b>絶好調は普通の約1.15倍</b>（2匹の平均。1.12倍と1.17倍）</li>
@@ -1982,19 +1983,6 @@ const SPV=[
   {sp:"イルルヤンカシュ変異種",rr:"UR",nk:"だいぞう",v:[69,43,67,22,47,21],fix:[],
    src:"普通（1年4月1週）×2.1で換算。主に上がる量と、一緒に上がる量÷0.4の平均"},
 ];
-function spvView(){
-  const rows=SPV.map(r=>{const mx=Math.max(...r.v),mn=Math.min(...r.v);
-    return `<tr><td class="nm">${esc(spn(r.sp))}<small class="cnt">${r.rr}・${esc(r.nk)}</small></td>${r.v.map((v,i)=>{
-      const t=`${v}${r.fix.includes(i)?"＊":""}`;
-      return `<td class="c">${v===mx?`<span class="up">${t}</span>`:v===mn?`<span class="dn">${t}</span>`:t}</td>`}).join("")}<td class="c spv-t"><b>${r.v.reduce((a,b)=>a+b,0)}</b></td></tr>`}).join("");
-  return `<h2><span class="tg">${ico("list")}</span>種族値</h2>
-  <p class="hint">アイテムなし・極限集中の特訓で、<b>主に上がる量</b>。種族名の下は魔導書のレアリティとニックネーム。鈍化の影響を除いた値です。いちばん伸びるパラメータを赤、いちばん伸びないパラメータを青にしています</p>
-  <div class="box sim-b">
-    <div class="xtbl"><table class="lab-t gr-t"><thead><tr><th>種族</th>${STATS.map(t=>`<th class="c">${t}</th>`).join("")}<th class="c spv-t">合計</th></tr></thead><tbody>${rows}</tbody></table></div>
-    <ul class="spv-src">${SPV.map(r=>`<li><b>${esc(spn(r.sp))}</b>：${esc(r.src)}</li>`).join("")}</ul>
-    <p class="note">＊は鈍化などを補正した値。ふだん（絶好調）は約${(1/KZ).toFixed(2)}倍、一緒に上がる量は約0.4倍。ロードごとに±1割くらいぶれる。極限集中の実測がそろうほど正確になります</p>
-  </div>`;
-}
 const CUP_MO=[4,5,6,7,8,9,10,11,12,1,2,3];
 /* 大会の優勝で上がる量（検証タブ「大会で上がるパラメータ」）。体力・攻撃・防御・素早さ・命中・回避。
    新人王は6つ全部が約+12、地形・属性の最強王は6つ全部が約+17、ドラゴン最強王は6つ全部が約+22、自慢大会は名前に合ったペアが約+28。up:null は自慢大会のどれかを選ぶ週 */
@@ -2012,28 +2000,26 @@ const PLAN=[
   {y:1,m:11,w:4,k:"must",t:"自慢大会",cups:["アタック自慢大会","ディフェンス自慢大会","スピード自慢大会"],up:null,d:"アタック・ディフェンス・スピードのどれか。優勝で名前に合った2つが約+28"},
   {y:1,m:1,w:4,k:"must",t:"地形の最強王",cups:["森林 最強王決定戦","荒野 最強王決定戦"],up:UP_ALL,d:"優勝で6つのパラメータ全部が約+17"},
   {y:1,m:2,w:4,k:"must",t:"地形の最強王",cups:["岩場 最強王決定戦","水辺 最強王決定戦"],up:UP_ALL,d:"優勝で6つのパラメータ全部が約+17"},
-  {y:1,m:3,w:1,k:"opt",t:"火vs土 最強王",cups:["火vs土 最強王決定戦"],up:UP_ALL,d:"火・土のドラゴンなら出る（優勝で6つ全部が約+17、元気が減らない）。違えば特訓か休み"},
-  {y:1,m:3,w:2,k:"opt",t:"水vs風 最強王",cups:["水vs風 最強王決定戦"],up:UP_ALL,d:"水・風のドラゴンなら出る（優勝で6つ全部が約+17、元気が減らない）。違えば特訓か休み"},
-  {y:1,m:3,w:3,k:"opt",t:"光vs闇 最強王",cups:["光vs闇 最強王決定戦"],up:UP_ALL,d:"光・闇のドラゴンなら出る（優勝で6つ全部が約+17、元気が減らない）。違えば特訓か休み"},
+  {y:1,m:3,w:"X",k:"opt",t:"属性の最強王",cups:["火vs土 最強王決定戦","水vs風 最強王決定戦","光vs闇 最強王決定戦"],up:UP_ALL,d:"1週に火vs土、2週に水vs風、3週に光vs闇。属性が合う週に出る（優勝で6つ全部が約+17、元気が減らない）。違う週は特訓か休み"},
   {y:1,m:3,w:4,k:"must",t:"最強王・裏最強王・究極",cups:["ドラゴン最強王決定戦","裏最強王","究極魔力大会"],up:UP_DK,d:"3つから1つ選んで出る。ドラゴン最強王・究極魔力大会は優勝で6つ全部が約+21〜22。裏最強王はまだ記録なし"},
 ];
 function cupView(){
-  const ord=p=>p.y*1000+CUP_MO.indexOf(p.m)*10+p.w;
+  const ord=p=>p.y*1000+CUP_MO.indexOf(p.m)*10+(p.w==="X"?2:p.w);
   const L=PLAN.filter(p=>p.cups).sort((a,b)=>ord(a)-ord(b));
   const SN=STATS;
   const row=p=>{const o=p.k==="opt";
-    const cells=p.up?p.up.map(v=>v?`<td>${v}</td>`:`<td class="z">–</td>`).join(""):`<td colspan="6" class="pk">えらんだ2つが ${UP_PICK}</td>`;
+    const cells=p.up?p.up.map(v=>v?`<td>${v}</td>`:`<td class="z">–</td>`).join(""):`<td>${UP_PICK}</td>`.repeat(6);
     const tot=p.up?p.up.reduce((a,b)=>a+b,0):UP_PICK*2;
-    return `<tr${o?' class="opt"':""}><th>${p.m}月${p.w}週${o?"＊":""}</th>${cells}<td class="t">${tot}</td></tr>`};
+    return `<tr${o?' class="opt"':""}><th>${p.m}月${p.w}週</th>${cells}<td class="t">${tot}</td></tr>`};
   const yr=y=>`<tr class="yr"><th colspan="8">${y+1}年生</th></tr>`+L.filter(p=>p.y===y).map(row).join("");
   return `<h2><span class="tg">${ico("crown")}</span>育成カレンダー</h2>
   <div class="box sim-b">
     <table class="cal-t"><thead><tr><th>週</th>${SN.map(n=>`<th>${n}</th>`).join("")}<th>合計</th></tr></thead><tbody>${yr(0)}${yr(1)}</tbody></table>
-    <p class="note">大会で優勝したときに上がる量。＊は属性が合えば出る大会。2年生3月4週は、ドラゴン最強王決定戦・裏最強王・究極魔力大会の3つから1つ選んで出る（ドラゴン最強王と究極魔力大会は、どちらも6つ全部が約+21〜22。裏最強王はまだ記録なし）</p>
+    <p class="note">大会で優勝したときに上がる量。グレーの行は属性が合えば出る大会（3月X週は、1週が火vs土・2週が水vs風・3週が光vs闇）。8月4週と11月4週は自慢大会を1つ選び、上がるのは名前に合った2つだけ（合計56）。2年生3月4週は、ドラゴン最強王決定戦・裏最強王・究極魔力大会の3つから1つ選んで出る（ドラゴン最強王と究極魔力大会は、どちらも6つ全部が約+21〜22。裏最強王はまだ記録なし）</p>
   </div>`;
 }
 function viewSim(){
-  return `<div id="cupcal">${cupView()}</div>${spvView()}`;
+  return `<div id="cupcal">${cupView()}</div>`;
 }
 /* ===== 魔導書：レアリティごとの種族値 ===== */
 const RR_ORD=["N","R","SR","UR"];
