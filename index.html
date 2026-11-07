@@ -553,6 +553,13 @@ details.cup{display:block}
 .cal-t td.pk{font-size:var(--fs-s);color:var(--mute)}
 .cal-t tr.opt th,.cal-t tr.opt td{color:var(--mute)}
 .fx{color:var(--mute)}
+.ev-h{font-weight:700;margin:0 0 6px}
+.ev-t{width:100%;border-collapse:collapse;margin:0 0 12px}
+.ev-t:last-child{margin-bottom:0}
+.ev-t th,.ev-t td{padding:7px 2px;text-align:left;border-bottom:1px solid var(--line)}
+.ev-t th{width:6em;font-weight:700}
+.ev-t td.z{color:var(--mute)}
+.ev-t tr:last-child th,.ev-t tr:last-child td{border-bottom:0}
 .cal-t tr.yr th{padding:12px 2px 4px;border-bottom:2px solid var(--ink);font-family:var(--f-head);font-size:var(--fs-l);text-align:left}
 .cal-t tbody tr.yr:first-child th{padding-top:4px}
 @media (max-width:400px){.cal-t td{font-size:var(--fs-s)}.cal-t thead th:first-child,.cal-t tbody th{width:4.2em}}
@@ -2022,8 +2029,19 @@ function cupView(){
     <p class="note">大会で優勝したときに上がる量。3月はA週が属性の大会（1週が火vs土・2週が水vs風・3週が光vs闇のうち、属性が合う週）、B週は残りの2週。8月4週と11月4週は自慢大会を1つ選び、上がるのは名前に合った2つだけ（合計60）。数値は見やすさのため5の倍数に丸めています</p>
   </div>`;
 }
+/* ===== イベント =====
+   育成中に起きるイベントと、選んだときの効果。わかったら e に書き足す（空なら「まだ記録なし」） */
+const EVENTS=[
+  {t:"フーロの料理",ch:[{c:"フランス",e:"体 +10"},{c:"中華",e:""},{c:"和風",e:""}]},
+];
+function eventView(){
+  return `<h2><span class="tg">${ico("heart")}</span>イベント</h2>
+  <div class="box sim-b">${EVENTS.map(ev=>`<p class="ev-h">${esc(ev.t)}</p>
+    <table class="ev-t"><tbody>${ev.ch.map(c=>`<tr><th>${esc(c.c)}</th>${c.e?`<td>${esc(c.e)}</td>`:`<td class="z">まだ記録なし</td>`}</tr>`).join("")}</tbody></table>`).join("")}
+  </div>`;
+}
 function viewSim(){
-  return `<div id="cupcal">${cupView()}</div>`;
+  return `<div id="cupcal">${cupView()}</div>${eventView()}`;
 }
 /* ===== 魔導書：レアリティごとの種族値 ===== */
 const RR_ORD=["N","R","SR","UR"];
