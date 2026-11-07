@@ -5,6 +5,7 @@
   ・画像は images/ の中に No. と同じ2桁の番号で置きます
       images/illust/01.png … イラスト　images/chibi/01.png … デフォルメイラスト
       （選んだ方の画像が無いドラゴンは、もう一方の画像を出します）
+  ・育成ガイドの種族イラストは images/species/ に種族番号（魔石の順番）の2桁で置き、SP_IMG に種族名を足します
   ・デザインは「旅行のしおり集」（t-shimo-1121/shiori）に合わせています
 -->
 <html lang="ja">
@@ -1085,8 +1086,11 @@ function guideList(){
   GS.forEach(g=>{g.ty=g.spv?spvType(g.spv):"未調査";g.p=SP[g.spKey]||{}});
   return GS;
 }
-/* 種族のイラスト：その種族の魔石（相棒）の画像を使う。無ければ準備中の枠 */
-const gIllust=g=>g.d?illust(g.d):`<div class="illust ${state.img} empty"><span class="ph">${ico("img")}イラスト準備中</span></div>`;
+/* 種族のイラスト：images/species/ に種族番号（魔石の順番）の2桁で置いた画像を優先。
+   無ければその種族の魔石（相棒）の画像、それも無ければ準備中の枠。
+   画像を置いたら SP_IMG に種族名を足す */
+const SP_IMG=["リントヴルム変異種","蜃変異種"];
+const gIllust=g=>SP_IMG.some(s=>nsp(s)===nsp(g.sp))?`<div class="illust ${state.img}"><img src="images/species/${String(g.no).padStart(2,"0")}.png" alt="" loading="lazy"></div>`:g.d?illust(g.d):`<div class="illust ${state.img} empty"><span class="ph">${ico("img")}イラスト準備中</span></div>`;
 const gRadar=g=>g.spv?radar({nk:g.sp,st:g.spv.v.map(v=>({v})),total:spvTot(g.spv)},{sq:true,icons:false,max:75,hi:60,lo:25}):`<div class="nospv">種族値は<br>まだ調べていません</div>`;
 /* スキル：データのあるスキルを全部、Max（無ければ分かっている一番高いLv）で */
 const gSkills=g=>g.skKey?skillTable(g.skKey,Object.keys(SK[g.skKey]).map(n=>({n}))):`<p class="nodata">スキルはまだ調べていません</p>`;
