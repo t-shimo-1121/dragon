@@ -2045,7 +2045,7 @@ const TY_LO={"耐久":"低耐久","火力":"低火力","速":"低速"},TY_HI={"�
 /* 手動で決めたタイプ（魔導書のNo.で指定）。ここにあるものは自動の分類より優先 */
 const TY_FIX={5:"耐久回復型",29:"耐久回復型",13:"耐久攻撃型",33:"耐久攻撃型",37:"耐久攻撃型",2:"耐久異常型",3:"耐久異常型",26:"耐久異常型",27:"耐久異常型",31:"耐久異常型",25:"回避異常型",28:"回避異常型",38:"回避異常型"};
 function spvType(r){
-  const fx=TY_FIX[msNo(r.sp)];if(fx)return fx;
+  const no=MASEKI.findIndex(x=>x.replace(/・/g,"")===r.sp.replace(/・/g,""))+1,fx=TY_FIX[no];if(fx)return fx;
   const p=TY_AX.map(([n,[a,b]])=>[n,r.v[a]+r.v[b]]),m=p.reduce((a,x)=>a+x[1],0)/3;
   const lo=p.reduce((a,x)=>x[1]<a[1]?x:a),hi=p.reduce((a,x)=>x[1]>a[1]?x:a);
   const t=(lo[1]<=m*.85?TY_LO[lo[0]]:"")+(hi[1]>=m*1.15?TY_HI[hi[0]]:"");
