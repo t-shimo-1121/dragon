@@ -2043,7 +2043,7 @@ const spvTot=r=>r.v.reduce((a,b)=>a+b,0);
 const TY_AX=[["耐久",[0,2]],["火力",[1,4]],["速",[3,5]]];
 const TY_LO={"耐久":"低耐久","火力":"低火力","速":"低速"},TY_HI={"耐久":"高耐久","火力":"高火力","速":"高速"};
 /* 手動で決めたタイプ（魔導書のNo.で指定）。ここにあるものは自動の分類より優先 */
-const TY_FIX={5:"耐久回復型",29:"耐久回復型",13:"耐久攻撃型",33:"耐久攻撃型",37:"耐久攻撃型"};
+const TY_FIX={5:"耐久回復型",29:"耐久回復型",13:"耐久攻撃型",33:"耐久攻撃型",37:"耐久攻撃型",2:"耐久異常型",3:"耐久異常型",26:"耐久異常型",27:"耐久異常型",31:"耐久異常型"};
 function spvType(r){
   const fx=TY_FIX[msNo(r.sp)];if(fx)return fx;
   const p=TY_AX.map(([n,[a,b]])=>[n,r.v[a]+r.v[b]]),m=p.reduce((a,x)=>a+x[1],0)/3;
@@ -2051,7 +2051,7 @@ function spvType(r){
   const t=(lo[1]<=m*.85?TY_LO[lo[0]]:"")+(hi[1]>=m*1.15?TY_HI[hi[0]]:"");
   return t||"バランス";
 }
-const TY_ORDER=["耐久回復型","耐久攻撃型","低速高耐久","低火力高耐久","高耐久","低火力高速","低耐久高速","高速","低耐久高火力","低速高火力","高火力","バランス"];
+const TY_ORDER=["耐久回復型","耐久攻撃型","耐久異常型","低速高耐久","低火力高耐久","高耐久","低火力高速","低耐久高速","高速","低耐久高火力","低速高火力","高火力","バランス"];
 const tyOrd=t=>{const i=TY_ORDER.indexOf(t);return i<0?99:i};
 function viewBook(){
   const card=(r,b)=>`<div class="bk-c"><div class="bk-n">${b?`<span class="rr rr-${r.rr}">${r.rr}</span> `:""}${esc(spn(r.sp))}</div>${radar({nk:r.sp,st:r.v.map(v=>({v})),total:spvTot(r)},{W:170,R:64,sq:true,icons:false,max:75,hi:60,lo:25,fs:12})}</div>`;
