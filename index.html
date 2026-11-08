@@ -479,6 +479,7 @@ mark{background:hsl(45 95% 62% / .55);color:inherit;border-radius:3px;padding:0 
 .bk-c{background:var(--sheet);border:1px solid var(--line);border-radius:12px;padding:6px 4px 2px;text-align:center}
 .bk-n{font-weight:700;font-size:var(--fs-s);line-height:1.3}
 .bk-c .radar{width:100%;max-width:190px;display:block;margin:0 auto}
+.bk-t td.mx{color:var(--hi);font-weight:700}
 .bk-t td.on{font-weight:700;background:var(--tint)}
 .bk-t td.nm,.gr-t td.nm{white-space:normal;word-break:keep-all;overflow-wrap:anywhere;font-size:var(--fs-s)}
 .bk-t td.c{font-family:var(--f-body);font-weight:400}
@@ -1006,9 +1007,9 @@ const AB={
 
 /* ===== 状態（並べ替えと画像の種類は端末に保存） ===== */
 const state={tab:"dragon",detail:null,img:"illust",
-  dSort:{key:"no",dir:1},sSort:{key:"total",dir:-1},kSort:{key:"no",dir:1},aSort:{key:"no",dir:1},abCat:"all",gTy:"all",skMana:"all",skCat:"all",skPow:"all",skAcc:"all",skEl:"all",skSort:{key:"no",dir:1},bkSort:{key:"rr",dir:1},dScroll:0,dMiss:false,dOpen:[],
+  dSort:{key:"no",dir:1},sSort:{key:"total",dir:-1},kSort:{key:"no",dir:1},aSort:{key:"no",dir:1},abCat:"all",gTy:"all",skMana:"all",skCat:"all",skPow:"all",skAcc:"all",skEl:"all",skSort:{key:"no",dir:1},bkSort:{key:"rr",dir:1},bkLand:false,dScroll:0,dMiss:false,dOpen:[],
   rk:{status:"total",skill:"pow",ability:"all"}};
-const KEEP=["bkSort","dSort","sSort","img","abCat","gTy","rk","skMana","skCat","skPow","skAcc","skEl","dMiss"];
+const KEEP=["bkSort","bkLand","dSort","sSort","img","abCat","gTy","rk","skMana","skCat","skPow","skAcc","skEl","dMiss"];
 try{const s=JSON.parse(localStorage.getItem("dragon-maseki-v2")||"{}");KEEP.forEach(k=>{if(s[k])state[k]=s[k]})}catch(e){}
 state.img="illust";  // 画像はイラストに固定
 const save=()=>{try{localStorage.setItem("dragon-maseki-v2",JSON.stringify(Object.fromEntries(KEEP.map(k=>[k,state[k]]))))}catch(e){}};
@@ -2061,6 +2062,7 @@ function spvType(r){
 }
 const TY_ORDER=["耐久攻撃型","耐久異常型","回復逃切り型","回避逃切り型","回避異常型","回避攻撃型","低速高耐久","低火力高耐久","高耐久","低火力高速","低耐久高速","高速","低耐久高火力","低速高火力","高火力","バランス"];
 const tyOrd=t=>{const i=TY_ORDER.indexOf(t);return i<0?99:i};
+const LAND=17,land=v=>Math.min(999,v*LAND);
 function viewBook(){
   const card=(r,b)=>`<div class="bk-c"><div class="bk-n">${b?`<span class="rr rr-${r.rr}">${r.rr}</span> `:""}${esc(spn(r.sp))}</div>${radar({nk:r.sp,st:r.v.map(v=>({v})),total:spvTot(r)},{W:170,R:64,sq:true,icons:false,max:75,hi:60,lo:25,fs:12})}</div>`;
   const groups=RR_ORD.map(rr=>{const L=SPV.filter(r=>r.rr===rr);if(!L.length)return"";
@@ -2069,12 +2071,12 @@ function viewBook(){
   const ty=[...new Set(SPV.map(spvType))].sort((a,b)=>tyOrd(a)-tyOrd(b));
   const types=ty.map(t=>{const L=SPV.filter(r=>spvType(r)===t).sort((a,b)=>RR_ORD.indexOf(a.rr)-RR_ORD.indexOf(b.rr));
     return `<h3 class="bk-h">${t}<span class="n">${L.length}種</span></h3><div class="bk-g">${L.map(r=>card(r,1)).join("")}</div>`}).join("");
-  const ss=state.bkSort,val=(r,k)=>k==="rr"?RR_ORD.indexOf(r.rr):k==="sp"?SPV.indexOf(r):k==="t"?spvTot(r):r.v[+k];
+  const ss=state.bkSort,val=(r,k)=>k==="rr"?RR_ORD.indexOf(r.rr):k==="sp"?SPV.indexOf(r):k==="t"?(state.bkLand?r.v.reduce((a,v)=>a+land(v),0):spvTot(r)):r.v[+k];
   const L=[...SPV].sort((a,b)=>(val(a,ss.key)-val(b,ss.key))*ss.dir||RR_ORD.indexOf(a.rr)-RR_ORD.indexOf(b.rr)||SPV.indexOf(a)-SPV.indexOf(b));
   const col=ss.key.length===1?+ss.key:-1;
   const th=(k,n)=>`<th class="c"${ariaSort(ss,k)}><button data-bksort="${k}">${n}</button></th>`;
   const tbl=`<div class="box"><div class="xtbl"><table class="lab-t bk-t"><thead><tr><th${ariaSort(ss,"sp")}><button data-bksort="sp">種族</button></th>${th("rr","レア")}${STATS.map((t,i)=>th(String(i),t)).join("")}${th("t","合計")}</tr></thead><tbody>${
-    L.map(r=>`<tr><td class="nm">${esc(spn(r.sp))}</td><td class="c"><span class="rr rr-${r.rr}">${r.rr}</span></td>${r.v.map((v,i)=>`<td class="c${i===col?" on":""}">${v}</td>`).join("")}<td class="c${ss.key==="t"?" on":""}"><b>${spvTot(r)}</b></td></tr>`).join("")
+    L.map(r=>`<tr><td class="nm">${esc(spn(r.sp))}</td><td class="c"><span class="rr rr-${r.rr}">${r.rr}</span></td>${r.v.map((v,i)=>`<td class="c${i===col?" on":""}${state.bkLand&&v*LAND>=999?" mx":""}">${state.bkLand?land(v):v}</td>`).join("")}<td class="c${ss.key==="t"?" on":""}"><b>${state.bkLand?r.v.reduce((a,v)=>a+land(v),0):spvTot(r)}</b></td></tr>`).join("")
   }</tbody></table></div></div>`;
   return `<h2><span class="tg">${ico("tome")}</span>レアリティ別の種族値</h2>
   <p class="hint">魔導書のレアリティごとに、種族値（アイテムなし・極限集中の特訓で主に上がる量）を六角形にしました。60以上を赤、25未満を青にしています。くわしい出し方は育成タブの「種族値」</p>
@@ -2083,10 +2085,11 @@ function viewBook(){
   <p class="hint">耐久（体＋防）・火力（攻＋命）・速さ（早＋避）のどれが高くてどれが低いかで分けています。名前の左はレアリティ</p>
   ${types}
   <h2><span class="tg">${ico("list")}</span>種族値の一覧</h2>
-  <p class="hint">見出しを押すと並べ替えます。もう一度押すと逆の順になります</p>
+  <div class="sorter"><button data-bkland="0" aria-pressed="${!state.bkLand}">種族値</button><button data-bkland="1" aria-pressed="${state.bkLand}">着地点の予想</button></div>
+  <p class="hint">見出しを押すと並べ替えます。もう一度押すと逆の順になります。${state.bkLand?`着地点の予想は<b>種族値×${LAND}</b>（999で頭打ち、999は赤）。相棒の魔石の最終パラメータが種族値の約16〜19倍だったことからの目安で、どのパラメータをどれだけ特訓するかで大きく変わります`:""}</p>
   ${tbl}`;
 }
-document.addEventListener("click",e=>{const t=e.target.closest("[data-bksort]");if(!t)return;const k=t.dataset.bksort;toggle(state.bkSort,k,k==="rr"||k==="sp"?1:-1)});
+document.addEventListener("click",e=>{const b=e.target.closest("[data-bkland]");if(b){state.bkLand=b.dataset.bkland==="1";save();render();return}const t=e.target.closest("[data-bksort]");if(!t)return;const k=t.dataset.bksort;toggle(state.bkSort,k,k==="rr"||k==="sp"?1:-1)});
 const VIEWS={dragon:viewDragon,maseki:viewMaseki,skill:viewSkill,ability:viewAbility,card:viewCard,battle:viewBattle,lab:viewLab,sim:viewSim,book:viewBook};
 const view=document.getElementById("view");
 function render(){
