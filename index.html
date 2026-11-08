@@ -558,7 +558,8 @@ details.cup{display:block}
 .ev-t{width:100%;border-collapse:collapse;margin:0 0 12px}
 .ev-t:last-child{margin-bottom:0}
 .ev-t th,.ev-t td{padding:7px 2px;text-align:left;border-bottom:1px solid var(--line)}
-.ev-t th{width:6em;font-weight:700}
+.ev-t th{width:7em;font-weight:700}
+.ev-h .cnt{font-weight:400;color:var(--mute);margin-left:4px}
 .ev-t td.z{color:var(--mute)}
 .ev-t tr:last-child th,.ev-t tr:last-child td{border-bottom:0}
 .cal-t tr.yr th{padding:12px 2px 4px;border-bottom:2px solid var(--ink);font-family:var(--f-head);font-size:var(--fs-l);text-align:left}
@@ -2037,10 +2038,11 @@ function cupView(){
    育成中に起きるイベントと、選んだときの効果。わかったら e に書き足す（空なら「まだ記録なし」） */
 const EVENTS=[
   {t:"フーロの料理",ch:[{c:"フランス",e:"体 +10"},{c:"中華",e:""},{c:"和風",e:""}]},
+  {t:"チョコレート",w:"2月2週",ch:[{c:"ストロベリー",e:"攻・命 +10"}]},
 ];
 function eventView(){
   return `<h2><span class="tg">${ico("heart")}</span>イベント</h2>
-  <div class="box sim-b">${EVENTS.map(ev=>`<p class="ev-h">${esc(ev.t)}</p>
+  <div class="box sim-b">${EVENTS.map(ev=>`<p class="ev-h">${esc(ev.t)}${ev.w?`<small class="cnt"> ${esc(ev.w)}</small>`:""}</p>
     <table class="ev-t"><tbody>${ev.ch.map(c=>`<tr><th>${esc(c.c)}</th>${c.e?`<td>${esc(c.e)}</td>`:`<td class="z">まだ記録なし</td>`}</tr>`).join("")}</tbody></table>`).join("")}
   </div>`;
 }
