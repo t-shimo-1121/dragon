@@ -1232,8 +1232,10 @@ const fxShort=t=>fx(t).replace(/。$/,"")
   .replace(/防御↑が多いほど威力↑/g,"防御↑で威力↑").replace(/発動ターンダメージ0/g,"1ターン無敵")
   .replace(/スタンさせる/g,"スタン").replace(/マナを0にする/g,"マナ0↓").replace(/体力が少ないほど威力が上がる/g,"低体力ほど威力↑").replace(/回避バフが多いほど威力が上がる/g,"回避↑で威力↑").replace(/攻撃が必中になる/g,"必中").replace(/属性が弱点属性になる/g,"弱点属性で攻撃").replace(/デバフを消す/g,"デバフ解除").replace(/攻撃を回避した時、?/g,"回避時").replace(/自分に([小中大])ダメージ/g,"反動$1ダメージ").replace(/素早さ/g,"素早");
 const arrows=h=>h.replace(/((?:体力|攻撃|防御|素早|命中|回避|マナ|会心率|異常付与率|威力)?(?:[小中大]|\d+)?)([↑↓])/g,(m,a,b)=>`<span class="${b==="↑"?"up":"dn"}">${a}${b}</span>`);
-/* スキルの追加効果：確率の「で」と持続は付けない（例：30%防御小↑） */
-const effHTML=raw=>raw?arrows(esc(fxShort(raw).replace(/(\d+)%で/g,"$1%"))):"";
+/* 持続：数値の時だけ効果の後ろに (N) で付ける */
+const durNote=v=>/^\d+$/.test(String(v))?`<span class="dur">(${v})</span>`:"";
+/* スキルの追加効果：確率の「で」は付けない（例：30%防御小↑(2)） */
+const effHTML=(raw,dur)=>raw?arrows(esc(fxShort(raw).replace(/(\d+)%で/g,"$1%")))+durNote(dur):"";
 /* スキルの表：スキル・マナ・命中・威力・追加効果 */
 function skillTable(spName,list){
   let low=false;
