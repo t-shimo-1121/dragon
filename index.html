@@ -485,6 +485,8 @@ mark{background:hsl(45 95% 62% / .55);color:inherit;border-radius:3px;padding:0 
 .bk-rd{grid-area:rd;align-self:center}
 .bk-rd .radar{width:100%;max-width:136px;display:block;margin:0 auto}
 .bk-s{border-left:3px solid var(--line);padding-left:7px;line-height:1.35}
+.bk-nv{margin-left:8px;font-weight:400;font-size:var(--fs-s);color:var(--mute)}
+.bk-c.nov .bk-body{grid-template-areas:"n n" "s1 s2" "s3 .";grid-template-rows:auto}
 .bk-s1{grid-area:s1}.bk-s2{grid-area:s2}.bk-s3{grid-area:s3}
 .bk-sn{display:flex;align-items:center;gap:5px;flex-wrap:wrap}
 .bk-sm{font-size:var(--fs-s);color:var(--mute);letter-spacing:-.04em}
@@ -668,7 +670,7 @@ const D=[
   return o;
 });
 /* 種族名の短い表記（表示だけ。データの名前はそのまま） */
-const SP_SHORT=[["聖ゲオルギウスドラゴン","聖ゲオルギ"],["ベーオウルフドラゴン","ベーオウルフ"],["ファイヤードレイク","ファイヤー"],["レインボーサーペント","レインボー"],["イルルヤンカシュ","イルル"],["ケツァルコアトル","ケツァル"],["メスターストゥアワーム","メスター"],["ゴルィニシチェ","ゴルィニシ"],["フェルニゲシュ","フェルニ"],["アジダハーカ","アジダハ"],["レヴィアタン","レヴィア"],["ワイヴァーン","ワイバーン"]];
+const SP_SHORT=[["聖ゲオルギウスドラゴン","聖ゲオルギ"],["ベーオウルフドラゴン","ベーオウルフ"],["ファイヤードレイク","ファイヤー"],["レインボーサーペント","レインボー"],["イルルヤンカシュ","イルル"],["ケツァルコアトル","ケツァル"],["メスターストゥアワーム","メスター"],["ゴルィニシチェ","ゴルィニシ"],["フェルニゲシュ","フェルニ"],["アジダハーカ","アジダハ"],["レヴィアタン","レヴィア"]];
 const spn=sp=>{let t=String(sp).replace(/・/g,"").replace(/変異種$/,"変");SP_SHORT.forEach(([a,b])=>{t=t.replace(a,b)});return t};
 /* スキル名・アビリティ名の略称（表示だけ） */
 const SK_SHORT={"急降下ひっかき":"急降下爪","トリプルブレス":"トリプル","ポイズンブレス":"ポイズン","炎の噛みつき":"炎噛み","連続噛みつき":"連続噛み"};
@@ -2090,26 +2092,30 @@ const TY_LO={"耐久":"低耐久","火力":"低火力","速":"低速"},TY_HI={"�
 const TY_FIX={36:"回避攻撃型",35:"回避攻撃型",41:"耐久攻撃型",39:"回避攻撃型",44:"回避攻撃型",43:"両刀攻撃型",45:"回避攻撃型",23:"耐久攻撃型",47:"耐久異常型",5:"回復逃切り型",29:"回復逃切り型",13:"耐久攻撃型",33:"耐久攻撃型",37:"耐久攻撃型",2:"耐久異常型",3:"耐久異常型",26:"耐久異常型",27:"耐久異常型",31:"耐久異常型",25:"回避異常型",28:"回避異常型",38:"回避逃切り型",18:"両刀攻撃型",42:"両刀攻撃型",46:"両刀攻撃型",22:"両刀攻撃型",4:"耐久異常型",1:"回避攻撃型",40:"回避攻撃型"};
 function spvType(r){
   const no=MASEKI.findIndex(x=>x.replace(/・/g,"")===r.sp.replace(/・/g,""))+1,fx=TY_FIX[no];if(fx)return fx;
+  if(!r.v)return "種族値未調査";
   const p=TY_AX.map(([n,[a,b]])=>[n,r.v[a]+r.v[b]]),m=p.reduce((a,x)=>a+x[1],0)/3;
   const lo=p.reduce((a,x)=>x[1]<a[1]?x:a),hi=p.reduce((a,x)=>x[1]>a[1]?x:a);
   const t=(lo[1]<=m*.85?TY_LO[lo[0]]:"")+(hi[1]>=m*1.15?TY_HI[hi[0]]:"");
   return t||"バランス";
 }
 const TY_ORDER=["耐久攻撃型","耐久異常型","回復逃切り型","回避逃切り型","回避異常型","回避攻撃型","両刀攻撃型","低速高耐久","低火力高耐久","高耐久","低火力高速","低耐久高速","高速","低耐久高火力","低速高火力","高火力","バランス"];
-const tyOrd=t=>{const i=TY_ORDER.indexOf(t);return i<0?99:i};
+const tyOrd=t=>{if(t==="種族値未調査")return 999;const i=TY_ORDER.indexOf(t);return i<0?99:i};
 const LAND=17,land=v=>Math.min(999,v*LAND);
 function viewBook(){
-  const fr=state.bkRr,SP=fr==="all"?SPV:SPV.filter(r=>r.rr===fr);
+  const fr=state.bkRr,spvN=Object.fromEntries(SPV.map(r=>[nsp(r.sp),r]));
+  /* 魔導書の全種族（No.順）。種族値を測っていない種族は v なし */
+  const ALL=MASEKI.map(sp=>spvN[nsp(sp)]||{sp,rr:rarOf(sp),v:null});
+  const AF=fr==="all"?ALL:ALL.filter(r=>r.rr===fr),SP=AF.filter(r=>r.v);
   const skK=byN(SK);
   const skl=r=>{const k=skK[nsp(r.sp)],o=k&&SK[k];if(!o)return `<p class="bk-none">スキルはまだ調べていません</p>`;
     return `${Object.entries(o).map(([n,db],i)=>{const [v]=bestLv(db.L);
       return `<div class="bk-s bk-s${i+1}"><div class="bk-sn"><b>${esc(skn(n))}</b>${db.at?elTag(db.at):""}</div>${v?`<div class="bk-sm">マナ${esc(v[1])}${+v[2]?`・威力${esc(v[2])}・命中${accTag(v[3])}`:""}</div>${v[4]?`<div class="bk-se">${effHTML(v[4],v[0])}</div>`:""}`:`<div class="bk-sm">値は未確認</div>`}</div>`}).join("")}`};
-  const card=(r,b)=>`<div class="bk-c"><div class="bk-body"><div class="bk-n">${b?`<span class="rr rr-${r.rr}">${r.rr}</span> `:""}${esc(spn(r.sp))}</div><div class="bk-rd">${radar({nk:r.sp,st:r.v.map(v=>({v})),total:spvTot(r)},{W:170,R:64,sq:true,icons:false,max:75,hi:60,lo:25,fs:12})}</div>${skl(r)}</div></div>`;
-  const groups=RR_ORD.map(rr=>{const L=SP.filter(r=>r.rr===rr);if(!L.length)return"";
-    const avg=Math.round(L.reduce((a,r)=>a+spvTot(r),0)/L.length);
-    return `<h3 class="bk-h"><span class="rr rr-${rr}">${rr}</span><span class="n">${L.length}種・合計の平均 ${avg}</span></h3><div class="bk-g">${L.map(r=>card(r)).join("")}</div>`}).join("");
-  const ty=[...new Set(SP.map(spvType))].sort((a,b)=>tyOrd(a)-tyOrd(b));
-  const types=ty.map(t=>{const L=SP.filter(r=>spvType(r)===t).sort((a,b)=>RR_ORD.indexOf(a.rr)-RR_ORD.indexOf(b.rr));
+  const card=(r,b)=>`<div class="bk-c${r.v?"":" nov"}"><div class="bk-body"><div class="bk-n">${b?`<span class="rr rr-${r.rr}">${r.rr}</span> `:""}${esc(spn(r.sp))}${r.v?"":`<small class="bk-nv">種族値は未調査</small>`}</div>${r.v?`<div class="bk-rd">${radar({nk:r.sp,st:r.v.map(v=>({v})),total:spvTot(r)},{W:170,R:64,sq:true,icons:false,max:75,hi:60,lo:25,fs:12})}</div>`:""}${skl(r)}</div></div>`;
+  const groups=RR_ORD.map(rr=>{const A=AF.filter(r=>r.rr===rr);if(!A.length)return"";const L=A.filter(r=>r.v);
+    const avg=L.length?Math.round(L.reduce((a,r)=>a+spvTot(r),0)/L.length):0;
+    return `<h3 class="bk-h"><span class="rr rr-${rr}">${rr}</span><span class="n">${A.length}種${L.length?`・測った${L.length}種の合計の平均 ${avg}`:""}</span></h3><div class="bk-g">${[...L,...A.filter(r=>!r.v)].map(r=>card(r)).join("")}</div>`}).join("");
+  const ty=[...new Set(AF.map(spvType))].sort((a,b)=>tyOrd(a)-tyOrd(b));
+  const types=ty.map(t=>{const L=AF.filter(r=>spvType(r)===t).sort((a,b)=>RR_ORD.indexOf(a.rr)-RR_ORD.indexOf(b.rr));
     return `<h3 class="bk-h">${t}<span class="n">${L.length}種</span></h3><div class="bk-g">${L.map(r=>card(r,1)).join("")}</div>`}).join("");
   const ss=state.bkSort,val=(r,k)=>k==="rr"?RR_ORD.indexOf(r.rr):k==="sp"?SPV.indexOf(r):k==="t"?(state.bkLand?r.v.reduce((a,v)=>a+land(v),0):spvTot(r)):r.v[+k];
   const L=[...SP].sort((a,b)=>(val(a,ss.key)-val(b,ss.key))*ss.dir||RR_ORD.indexOf(a.rr)-RR_ORD.indexOf(b.rr)||SPV.indexOf(a)-SPV.indexOf(b));
@@ -2118,7 +2124,7 @@ function viewBook(){
   const tbl=`<div class="box"><div class="xtbl"><table class="lab-t bk-t"><thead><tr><th${ariaSort(ss,"sp")}><button data-bksort="sp">種族</button></th>${th("rr","レア")}${STATS.map((t,i)=>th(String(i),t)).join("")}${th("t","合計")}</tr></thead><tbody>${
     L.map(r=>`<tr><td class="nm">${esc(spn(r.sp))}</td><td class="c"><span class="rr rr-${r.rr}">${r.rr}</span></td>${r.v.map((v,i)=>`<td class="c${i===col?" on":""}${state.bkLand&&v*LAND>=999?" mx":""}">${state.bkLand?land(v):v}</td>`).join("")}<td class="c${ss.key==="t"?" on":""}"><b>${state.bkLand?r.v.reduce((a,v)=>a+land(v),0):spvTot(r)}</b></td></tr>`).join("")
   }</tbody></table></div></div>`;
-  return `<div class="sorter bk-rr">${["all",...RR_ORD].map(k=>`<button data-bkrr="${k}" aria-pressed="${fr===k}">${k==="all"?"すべて":k}<small class="cnt">${k==="all"?SPV.length:SPV.filter(r=>r.rr===k).length}</small></button>`).join("")}</div>
+  return `<div class="sorter bk-rr">${["all",...RR_ORD].map(k=>`<button data-bkrr="${k}" aria-pressed="${fr===k}">${k==="all"?"すべて":k}<small class="cnt">${k==="all"?ALL.length:ALL.filter(r=>r.rr===k).length}</small></button>`).join("")}</div>
   <h2><span class="tg">${ico("tome")}</span>レアリティ別の種族値</h2>
   <p class="hint">魔導書のレアリティごとに、種族値（アイテムなし・極限集中の特訓で主に上がる量）を六角形にしました。60以上を赤、25未満を青にしています。くわしい出し方は育成タブの「種族値」</p>
   ${groups}
