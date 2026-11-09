@@ -1227,11 +1227,12 @@ function matchup(g){
   return `<div class="mu">${good}${bad}</div>`;
 }
 /* 追加効果の表示（カード・スキル一覧・アビリティで共通）。短く言い換え、↑は赤・↓は青（よい効果＝赤、わるい効果＝青） */
-const fxShort=t=>fx(t).replace(/。$/,"")
+const fxShort=t=>stShort(fx(t).replace(/。$/,"")
   .replace(/一度だけ状態異常無効化/g,"異常無効×1").replace(/体力(\d+)%以下だと0マナ/g,"体力$1%以下 0マナ")
   .replace(/防御↑が多いほど威力↑/g,"防御↑で威力↑").replace(/発動ターンダメージ0/g,"1ターン無敵")
-  .replace(/スタンさせる/g,"スタン").replace(/マナを0にする/g,"マナ0↓").replace(/体力が少ないほど威力が上がる/g,"低体力ほど威力↑").replace(/回避バフが多いほど威力が上がる/g,"回避↑で威力↑").replace(/攻撃が必中になる/g,"必中").replace(/属性が弱点属性になる/g,"弱点属性で攻撃").replace(/デバフを消す/g,"デバフ解除").replace(/攻撃を回避した時、?/g,"回避時").replace(/自分に([小中大])ダメージ/g,"反動$1ダメージ").replace(/素早さ/g,"素早")
-  .replace(/(体力|攻撃|防御|素早|命中|回避)(?=(?:[小中大]|\d+)?[↑↓])/g,m=>STATS[["体力","攻撃","防御","素早","命中","回避"].indexOf(m)]);
+  .replace(/スタンさせる/g,"スタン").replace(/マナを0にする/g,"マナ0↓").replace(/体力が少ないほど威力が上がる/g,"低体力ほど威力↑").replace(/回避バフが多いほど威力が上がる/g,"回避↑で威力↑").replace(/攻撃が必中になる/g,"必中").replace(/属性が弱点属性になる/g,"弱点属性で攻撃").replace(/デバフを消す/g,"デバフ解除").replace(/攻撃を回避した時、?/g,"回避時").replace(/自分に([小中大])ダメージ/g,"反動$1ダメージ").replace(/素早さ/g,"素早"));
+/* ↑↓の付くパラメータ名を体・攻・防・早・命・避に短くする（スキル・アビリティ・カード共通） */
+const stShort=t=>t.replace(/素早さ/g,"素早").replace(/(体力|攻撃|防御|素早|命中|回避)(?=(?:[小中大]|\d+)?[↑↓])/g,m=>STATS[["体力","攻撃","防御","素早","命中","回避"].indexOf(m)]);
 const arrows=h=>h.replace(/((?:体力|攻撃|防御|素早|命中|回避|体|攻|防|早|命|避|マナ|会心率|異常付与率|威力)?(?:[小中大]|\d+)?)([↑↓])/g,(m,a,b)=>`<span class="${b==="↑"?"up":"dn"}">${a}${b}</span>`);
 /* 持続：数値の時だけ効果の後ろに (N) で付ける */
 const durNote=v=>/^\d+$/.test(String(v))?`<span class="dur">(${v})</span>`:"";
@@ -1600,7 +1601,7 @@ function viewCard(){
   const n=CARDS.reduce((a,[,l])=>a+l.length,0);
   return `<h2><span class="tg">${ico("book")}</span>サポートカード<span class="n">${n}枚</span></h2><p class="hint">枠の色ごとに並べています。↑は自分によい効果、↓は相手をよわくする効果</p>
     ${CARDS.map(([g,l])=>`<h3 class="cd-g">${g}</h3><div class="box" style="padding:4px 10px"><div class="xtbl"><table class="cdtbl"><tbody>${
-      l.map(([nm,full,sh])=>`<tr><td class="nm"><b>${esc(nm)}</b><small class="cnt">${esc(full)}</small></td><td class="ef">${arrows(esc(sh))}</td></tr>`).join("")
+      l.map(([nm,full,sh])=>`<tr><td class="nm"><b>${esc(nm)}</b><small class="cnt">${esc(full)}</small></td><td class="ef">${arrows(esc(stShort(sh)))}</td></tr>`).join("")
     }</tbody></table></div></div>`).join("")}`;
 }
 /* ===== バトル：攻撃999 vs 防御999 のモデルケース =====
