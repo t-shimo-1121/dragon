@@ -2142,12 +2142,11 @@ function viewBook(){
   const ty=[...new Set(AF.map(spvType))].sort((a,b)=>tyOrd(a)-tyOrd(b));
   const types=ty.map(t=>{const L=AF.filter(r=>spvType(r)===t).sort((a,b)=>RR_ORD.indexOf(a.rr)-RR_ORD.indexOf(b.rr));
     return `<h3 class="bk-h">${t}<span class="n">${L.length}種</span></h3><div class="bk-g">${L.map(r=>card(r,1)).join("")}</div>`}).join("");
-  const ss=state.bkSort,val=(r,k)=>k==="rr"?RR_ORD.indexOf(r.rr):k==="sp"?SPV.indexOf(r):k==="t"?(state.bkLand?r.v.reduce((a,v)=>a+land(v),0):spvTot(r)):r.v[+k];
-  const L=[...SP].sort((a,b)=>(val(a,ss.key)-val(b,ss.key))*ss.dir||RR_ORD.indexOf(a.rr)-RR_ORD.indexOf(b.rr)||SPV.indexOf(a)-SPV.indexOf(b));
-  const col=ss.key.length===1?+ss.key:-1;
-  const th=(k,n)=>`<th class="c"${ariaSort(ss,k)}><button data-bksort="${k}">${n}</button></th>`;
-  const tbl=`<div class="box"><div class="xtbl"><table class="lab-t bk-t"><thead><tr><th${ariaSort(ss,"sp")}><button data-bksort="sp">種族</button></th>${th("rr","レア")}${STATS.map((t,i)=>th(String(i),t)).join("")}${th("t","合計")}</tr></thead><tbody>${
-    L.map(r=>`<tr><td class="nm">${esc(spn(r.sp))}</td><td class="c"><span class="rr rr-${r.rr}">${r.rr}</span></td>${r.v.map((v,i)=>`<td class="c${i===col?" on":""}${state.bkLand&&v*LAND>=999?" mx":""}">${state.bkLand?land(v):v}</td>`).join("")}<td class="c${ss.key==="t"?" on":""}"><b>${state.bkLand?r.v.reduce((a,v)=>a+land(v),0):spvTot(r)}</b></td></tr>`).join("")
+  /* 一覧はスワイプなしで収まるよう、レアリティ列と並べ替えをなくし、合計の高い順で固定 */
+  const tot=r=>state.bkLand?r.v.reduce((a,v)=>a+land(v),0):spvTot(r);
+  const L=[...SP].sort((a,b)=>tot(b)-tot(a)||RR_ORD.indexOf(b.rr)-RR_ORD.indexOf(a.rr)||SPV.indexOf(a)-SPV.indexOf(b));
+  const tbl=`<div class="box"><div class="xtbl"><table class="lab-t bk-t"><thead><tr><th>種族</th>${STATS.map(t=>`<th class="c">${t}</th>`).join("")}<th class="c">合計</th></tr></thead><tbody>${
+    L.map(r=>`<tr><td class="nm">${esc(spn(r.sp))}</td>${r.v.map(v=>`<td class="c${state.bkLand&&v*LAND>=999?" mx":""}">${state.bkLand?land(v):v}</td>`).join("")}<td class="c"><b>${tot(r)}</b></td></tr>`).join("")
   }</tbody></table></div></div>`;
   return `<div class="sorter bk-rr">${["all",...RR_ORD].map(k=>`<button data-bkrr="${k}" aria-pressed="${fr===k}">${k==="all"?"すべて":k}<small class="cnt">${k==="all"?ALL.length:ALL.filter(r=>r.rr===k).length}</small></button>`).join("")}</div>
   <h2><span class="tg">${ico("tome")}</span>レアリティ別の種族値</h2>
@@ -2158,10 +2157,10 @@ function viewBook(){
   ${types}
   <h2><span class="tg">${ico("list")}</span>種族値の一覧</h2>
   <div class="sorter"><button data-bkland="0" aria-pressed="${!state.bkLand}">種族値</button><button data-bkland="1" aria-pressed="${state.bkLand}">着地点の予想</button></div>
-  <p class="hint">見出しを押すと並べ替えます。もう一度押すと逆の順になります。${state.bkLand?`着地点の予想は<b>種族値×${LAND}</b>（999で頭打ち、999は赤）。相棒の魔石の最終パラメータが種族値の約16〜19倍だったことからの目安で、どのパラメータをどれだけ特訓するかで大きく変わります`:""}</p>
+  <p class="hint">合計の高い順です。${state.bkLand?`着地点の予想は<b>種族値×${LAND}</b>（999で頭打ち、999は赤）。相棒の魔石の最終パラメータが種族値の約16〜19倍だったことからの目安で、どのパラメータをどれだけ特訓するかで大きく変わります`:""}</p>
   ${tbl}`;
 }
-document.addEventListener("click",e=>{const r=e.target.closest("[data-bkrr]");if(r){state.bkRr=r.dataset.bkrr;save();render();return}const b=e.target.closest("[data-bkland]");if(b){state.bkLand=b.dataset.bkland==="1";save();render();return}const t=e.target.closest("[data-bksort]");if(!t)return;const k=t.dataset.bksort;toggle(state.bkSort,k,k==="rr"||k==="sp"?1:-1)});
+document.addEventListener("click",e=>{const r=e.target.closest("[data-bkrr]");if(r){state.bkRr=r.dataset.bkrr;save();render();return}const b=e.target.closest("[data-bkland]");if(b){state.bkLand=b.dataset.bkland==="1";save();render();return}});
 const VIEWS={dragon:viewDragon,maseki:viewMaseki,skill:viewSkill,ability:viewAbility,card:viewCard,battle:viewBattle,lab:viewLab,sim:viewSim,book:viewBook};
 const view=document.getElementById("view");
 function render(){
