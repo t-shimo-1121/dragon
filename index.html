@@ -1251,16 +1251,12 @@ function skillTable(spName,list){
   return `<div class="xtbl"><table class="sktbl"><thead><tr><th>スキル</th><th class="c">属性</th><th class="c">マナ</th><th class="c">命中</th><th class="c">威力</th></tr></thead><tbody>${rows}</tbody></table></div>`;
 }
 /* アビリティの表：アビリティ・効果。extra(n) で効果の下に足すもの（覚えているドラゴンなど） */
-/* アビリティの効き目の長さ。持続Nは発動したターンを入れてN+1ターン。持続のない上昇（構え・必中など）はそのターンだけ */
-function abDur(d,t){
-  if(/^\d+$/.test(String(d)))return `<span class="dur">(${+d+1}ターン)</span>`;
-  if(/アップ|必中/.test(t||""))return `<span class="dur">(そのターンだけ)</span>`;
-  return "";
-}
+/* アビリティの持続：スキルと同じく数値の時だけ (N) で付ける。持続のない上昇は何も付けない */
+const abDur=d=>durNote(d);
 /* Maxの効果を出す。Maxが分からない時だけ、分かっている一番高いLvの効果 */
 function abEff(n){
   const [v,lt]=bestLv((AB[n]||{}).L||{});
-  return v?(v[1]?arrows(esc(fxShort(v[1]).replace(/体力(\d+)%以下で/,(m,n)=>n==="0"?"体力0を切る時":`体力${n}%を切る時`))):"")+abDur(v[0],v[1])+(lt?`<span class="dur">${lt}の効果</span>`:""):`<span class="none">効果はまだ確かめていません</span>`;
+  return v?(v[1]?arrows(esc(fxShort(v[1]).replace(/(\d+)%で/g,"$1%").replace(/体力(\d+)%以下で/,(m,n)=>n==="0"?"体力0を切る時":`体力${n}%を切る時`))):"")+abDur(v[0])+(lt?`<span class="dur">${lt}の効果</span>`:""):`<span class="none">効果はまだ確かめていません</span>`;
 }
 function abilityTable(list,extra=abilityTable.none){
   const rows=list.map(x=>{
