@@ -483,7 +483,15 @@ mark{background:hsl(45 95% 62% / .55);color:inherit;border-radius:3px;padding:0 
 .bk-c{background:var(--sheet);border:1px solid var(--line);border-radius:12px;padding:8px 10px}
 .bk-body{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-areas:"n rd" "s1 rd" "s2 s3";grid-template-rows:auto 1fr auto;gap:6px 10px;align-items:start}
 .bk-rd{grid-area:rd;align-self:center}
-.bk-rd .radar{width:100%;max-width:136px;display:block;margin:0 auto}
+.bk-st{display:flex;align-items:center;justify-content:center;gap:8px}
+.bk-st .radar.hm{width:auto;flex:none}
+.bk-st .radar.hm .area{stroke-width:2}
+.bk-sv{display:grid;grid-template-columns:auto auto;gap:0 10px;font-size:var(--fs-s);line-height:1.3}
+.bk-sv span{display:flex;gap:3px;align-items:baseline}
+.bk-sv i{font-style:normal;color:var(--mute);font-size:.88em}
+.bk-sv b{font-weight:400}
+.bk-sv b.s{color:var(--hi);font-weight:700}.bk-sv b.lo{color:var(--lo);font-weight:700}
+.bk-sv .t b{font-weight:700}
 .bk-s{border-left:3px solid var(--line);padding-left:7px;line-height:1.35}
 .bk-nv{margin-left:8px;font-weight:400;font-size:var(--fs-s);color:var(--mute)}
 .bk-c.nov .bk-body{grid-template-areas:"n n" "s1 s2" "s3 .";grid-template-rows:auto}
@@ -1057,6 +1065,18 @@ function radar(d,{W=240,R=74,total=true,sq=false,icons=true,max=999,hi=800,lo=40
   });
   if(total)s+=(icons?`<use class="ti" href="#i-crown" x="${cx-6}" y="${(cy-19).toFixed(1)}" width="12" height="12"/>`:"")+`<text class="tv" x="${cx}" y="${(cy+(icons?12:TV*.36)).toFixed(1)}" font-size="${TV}" text-anchor="middle">${d.total}</text>`;
   return s+"</svg>";
+}
+
+/* ===== 魔導書のカード用：小さい六角形（形だけ）＋数値の小表（60以上は赤、25未満は青） ===== */
+function hexMini(v,{R=31,pad=3,max=75}={}){
+  const W=+(R*2*.866+pad*2).toFixed(1),H=R*2+pad*2,cx=W/2,cy=H/2;
+  const pt=(i,f)=>{const a=(-90+60*i)*Math.PI/180;return[cx+Math.cos(a)*R*f,cy+Math.sin(a)*R*f]};
+  const poly=f=>[0,1,2,3,4,5].map(i=>pt(i,f).map(n=>n.toFixed(1)).join(",")).join(" ");
+  return `<svg class="radar hm" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" aria-hidden="true"><polygon class="frame" points="${poly(1)}"/><polygon class="gl" points="${poly(.5)}"/><polygon class="area" points="${v.map((x,i)=>pt(i,Math.max(.06,x/max)).map(n=>n.toFixed(1)).join(",")).join(" ")}"/></svg>`;
+}
+function bkStat(r){
+  const cl=x=>x>=60?" s":x<25?" lo":"";
+  return `<div class="bk-st">${hexMini(r.v)}<div class="bk-sv" role="img" aria-label="${esc(r.sp)}の種族値：${r.v.map((x,i)=>STATS_L[i]+x).join("、")}、合計${spvTot(r)}">${r.v.map((x,i)=>`<span><i>${STATS[i]}</i><b class="${cl(x).trim()}">${x}</b></span>`).join("")}<span class="t"><i>計</i><b>${spvTot(r)}</b></span></div></div>`;
 }
 
 /* ===== 並べ替え ===== */
@@ -2116,7 +2136,7 @@ function viewBook(){
   const skl=r=>{const k=skK[nsp(r.sp)],o=k&&SK[k];if(!o)return `<p class="bk-none">スキルはまだ調べていません</p>`;
     return `${Object.entries(o).map(([n,db],i)=>{const [v]=bestLv(db.L);
       return `<div class="bk-s bk-s${i+1}"><div class="bk-sn"><b>${esc(skn(n))}</b>${db.at?elTag(db.at):""}</div>${v?`<div class="bk-sm">マナ${esc(v[1])}${+v[2]?`・威力${esc(v[2])}・命中${accTag(v[3])}`:""}</div>${v[4]?`<div class="bk-se">${effHTML(v[4],v[0])}</div>`:""}`:`<div class="bk-sm">値は未確認</div>`}</div>`}).join("")}`};
-  const card=(r,b)=>`<div class="bk-c${r.v?"":" nov"}"><div class="bk-body"><div class="bk-n">${b?`<span class="rr rr-${r.rr}">${r.rr}</span> `:""}${esc(spn(r.sp))}${r.v?"":`<small class="bk-nv">種族値は未調査</small>`}</div>${r.v?`<div class="bk-rd">${radar({nk:r.sp,st:r.v.map(v=>({v})),total:spvTot(r)},{W:170,R:64,sq:true,icons:false,max:75,hi:60,lo:25,fs:12})}</div>`:""}${skl(r)}</div></div>`;
+  const card=(r,b)=>`<div class="bk-c${r.v?"":" nov"}"><div class="bk-body"><div class="bk-n">${b?`<span class="rr rr-${r.rr}">${r.rr}</span> `:""}${esc(spn(r.sp))}${r.v?"":`<small class="bk-nv">種族値は未調査</small>`}</div>${r.v?`<div class="bk-rd">${bkStat(r)}</div>`:""}${skl(r)}</div></div>`;
   const groups=RR_ORD.map(rr=>{const A=AF.filter(r=>r.rr===rr);if(!A.length)return"";const L=A.filter(r=>r.v);
     const avg=L.length?Math.round(L.reduce((a,r)=>a+spvTot(r),0)/L.length):0;
     return `<h3 class="bk-h"><span class="rr rr-${rr}">${rr}</span><span class="n">${A.length}種${L.length?`・測った${L.length}種の合計の平均 ${avg}`:""}</span></h3><div class="bk-g">${[...L,...A.filter(r=>!r.v)].map(r=>card(r)).join("")}</div>`}).join("");
@@ -2132,7 +2152,7 @@ function viewBook(){
   }</tbody></table></div></div>`;
   return `<div class="sorter bk-rr">${["all",...RR_ORD].map(k=>`<button data-bkrr="${k}" aria-pressed="${fr===k}">${k==="all"?"すべて":k}<small class="cnt">${k==="all"?ALL.length:ALL.filter(r=>r.rr===k).length}</small></button>`).join("")}</div>
   <h2><span class="tg">${ico("tome")}</span>レアリティ別の種族値</h2>
-  <p class="hint">魔導書のレアリティごとに、種族値（アイテムなし・極限集中の特訓で主に上がる量）を六角形にしました。60以上を赤、25未満を青にしています。くわしい出し方は育成タブの「種族値」</p>
+  <p class="hint">魔導書のレアリティごとに、種族値（アイテムなし・極限集中の特訓で主に上がる量）を六角形と数値で載せました。60以上を赤、25未満を青にしています。くわしい出し方は育成タブの「種族値」</p>
   ${groups}
   <h2><span class="tg">${ico("hex")}</span>タイプ別の種族値</h2>
   <p class="hint">耐久（体＋防）・火力（攻＋命）・速さ（早＋避）のどれが高くてどれが低いかで分けています。名前の左はレアリティ</p>
