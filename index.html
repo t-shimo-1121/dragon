@@ -1163,7 +1163,7 @@ function viewDragon(){
         <span class="chev" aria-hidden="true">${ico("chev")}</span></div>
       <div class="fold-b">${nm!==g.sp?`<p class="g-full">${esc(g.sp)}</p>`:""}${fieldRow({sp:g.spKey||""},true)}
         <h4 class="d-sec">${ico("bolt")}スキル</h4>${gSkills(g)}
-        <h4 class="d-sec">${ico("shield")}優先アビリティ</h4>${prioTable(g)}
+        ${prioTable(g)}
         <h4 class="d-sec">${ico("target")}相性</h4>${matchup(g)}</div>
     </div>`}).join("");
   return `<p class="hint">種族ごとの育て方の目安です。六角形は魔導書の種族値（アイテムなし・極限集中の特訓で主に上がる量）。60以上を赤、25未満を青にしています。型は種族値から決めています</p>${chips}<div class="grid">${cards}</div>`;
