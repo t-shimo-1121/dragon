@@ -614,6 +614,7 @@ details.cup{display:block}
 </header>
 
 <nav class="views" role="tablist" aria-label="表示切り替え">
+  <button role="tab" data-tab="book" aria-label="魔導書" title="魔導書"><span class="tl">魔導書</span></button>
   <button role="tab" data-tab="dragon" aria-label="育成ガイド" title="育成ガイド"><span class="tl">ガイド</span></button>
   <button role="tab" data-tab="maseki" aria-label="魔石" title="魔石"><span class="tl">魔石</span></button>
   <button role="tab" data-tab="skill" aria-label="スキル" title="スキル"><span class="tl">スキル</span></button>
@@ -622,7 +623,6 @@ details.cup{display:block}
   <button role="tab" data-tab="battle" aria-label="バトル" title="バトル"><span class="tl">バトル</span></button>
   <button role="tab" data-tab="lab" aria-label="検証" title="検証"><span class="tl">検証</span></button>
   <button role="tab" data-tab="sim" aria-label="育成" title="育成"><span class="tl">育成</span></button>
-  <button role="tab" data-tab="book" aria-label="魔導書" title="魔導書"><span class="tl">魔導書</span></button>
 </nav>
 
 <main id="view"></main>
@@ -1021,7 +1021,7 @@ const AB={
 };
 
 /* ===== 状態（並べ替えと画像の種類は端末に保存） ===== */
-const state={tab:"dragon",detail:null,img:"illust",
+const state={tab:"book",detail:null,img:"illust",
   dSort:{key:"no",dir:1},sSort:{key:"total",dir:-1},kSort:{key:"no",dir:1},aSort:{key:"no",dir:1},abCat:"all",gTy:"all",skMana:"all",skCat:"all",skPow:"all",skAcc:"all",skEl:"all",bkRr:"all",dScroll:0,dMiss:false,dOpen:[],
   rk:{status:"total",skill:"pow",ability:"all"}};
 const KEEP=["bkRr","dSort","sSort","img","abCat","gTy","rk","skMana","skCat","skPow","skAcc","skEl","dMiss"];
