@@ -487,6 +487,7 @@ mark{background:hsl(45 95% 62% / .55);color:inherit;border-radius:3px;padding:0 
 .bk-sv b{font-weight:400}
 .bk-sv b.s{color:var(--hi);font-weight:700}.bk-sv b.lo{color:var(--lo);font-weight:700}
 .bk-tot{margin-left:5px;white-space:nowrap;font-weight:700;font-size:var(--fs-s)}
+.bk-ok{margin-left:5px;color:var(--hi);font-size:var(--fs-s)}
 .bk-tot i{font-style:normal;font-weight:400;color:var(--mute);margin-right:2px}
 .bk-s{border-left:3px solid var(--line);padding-left:7px;line-height:1.35}
 .bk-nv{margin-left:8px;font-weight:400;font-size:var(--fs-s);color:var(--mute)}
@@ -1897,16 +1898,16 @@ function viewDmg(){
    新しい種族は、4月1週の6つの特訓の予測値（主に上がる量）をそのまま入れる。
    2026/11/10より前に入れた値は「極限集中の量（普通×2.1）」だったので、÷2.1して四捨五入した。src はその時の元データの説明
    v=[体,攻,防,早,命,避]、fix＝補正した番号、src＝元にしたデータ。
-   一緒に上がる量は丸めの誤差が大きいので使わない */
+   一緒に上がる量は丸めの誤差が大きいので使わない。この方法で測ったものは new:true（魔導書のカードに赤字で「済」） */
 const KZ=1.8;   /* 極限集中は絶好調の約1.8倍（リントヴルム変異種の鈍化していない5つの比） */
 const SPV=[
   {sp:"リントヴルム変異種",rr:"SR",nk:"デカミミズ",v:[18,12,33,21,21,21],fix:[2],
    src:"極限集中の実測5回の平均（1年12月4週）。防は鈍化しているので、絶好調の2回（4月2週37・11月4週41）×1.8で補正"},
   {sp:"ケツァルコアトル",rr:"R",nk:"あきら",v:[20,20,20,18,20,18],fix:[],
    src:"普通（1年4月1週）×2.1で換算。主に上がる量と、一緒に上がる量÷0.4の平均"},
-  {sp:"ケツァルコアトル変異種",rr:"UR",nk:"かおる",v:[21,29,10,22,22,21],fix:[],
-   src:"普通（1年4月1週）×2.1で換算。主に上がる量と、一緒に上がる量÷0.4の平均（以前はカオガコワイの3月2週・絶好調から換算していた）"},
-  {sp:"蜃",rr:"R",nk:"",v:[12,11,21,26,19,30],fix:[],
+  {sp:"ケツァルコアトル変異種",rr:"UR",nk:"かおる",v:[20,31,10,23,22,21],fix:[],new:true,
+   src:"普通（1年4月1週）の主に上がる量"},
+  {sp:"蜃",rr:"R",nk:"",v:[12,11,21,26,19,30],fix:[],new:true,
    src:"普通（1年4月1週）の主に上がる量"},
   {sp:"蜃変異種",rr:"UR",nk:"カワイイ・シンゴジラ",v:[13,10,21,30,22,29],fix:[],
    src:"3回分の平均。カワイイの普通（1年4月1週）×2.1、シンゴジラの普通（1年4月1週）×2.1、シンゴジラの絶好調（1年4月2週）×1.8"},
@@ -1954,7 +1955,7 @@ const SPV=[
    src:"普通（1年4月1週）×2.1で換算。主に上がる量と、一緒に上がる量÷0.4の平均"},
   {sp:"ゴルィニシチェ変異種",rr:"UR",nk:"ヒロミ",v:[20,30,12,21,19,22],fix:[],
    src:"普通（1年4月1週）×2.1で換算。主に上がる量と、一緒に上がる量÷0.4の平均"},
-  {sp:"メスター・ストゥアワーム",rr:"R",nk:"かおる",v:[11,33,12,21,32,13],fix:[],
+  {sp:"メスター・ストゥアワーム",rr:"R",nk:"かおる",v:[11,33,12,21,32,13],fix:[],new:true,
    src:"普通（1年4月1週）の主に上がる量"},
   {sp:"メスター・ストゥアワーム変異種",rr:"UR",nk:"あきら",v:[10,36,10,23,29,15],fix:[],
    src:"普通（1年4月1週）×2.1で換算。主に上がる量と、一緒に上がる量÷0.4の平均"},
@@ -2057,7 +2058,7 @@ function viewBook(){
   const skl=r=>{const k=skK[nsp(r.sp)],o=k&&SK[k];if(!o)return `<p class="bk-none">スキルはまだ調べていません</p>`;
     return `${Object.entries(o).map(([n,db],i)=>{const [v]=bestLv(db.L);
       return `<div class="bk-s bk-s${i+1}"><div class="bk-sn"><b>${esc(skn(n))}</b>${db.at?elTag(db.at):""}</div>${v?`<div class="bk-sm">マナ${esc(v[1])}${+v[2]?`・威力${esc(v[2])}・命中${accTag(v[3])}`:""}</div>${v[4]?`<div class="bk-se">${effHTML(v[4],v[0])}</div>`:""}`:`<div class="bk-sm">値は未確認</div>`}</div>`}).join("")}`};
-  const card=(r,b)=>`<div class="bk-c${r.v?"":" nov"}"><div class="bk-body"><div class="bk-n">${b?`<span class="rr rr-${r.rr}">${r.rr}</span>`:""}${esc(spn(r.sp))}${r.v?`<span class="bk-tot"><i>計</i>${spvTot(r)}</span>`:`<small class="bk-nv">種族値は未調査</small>`}</div>${r.v?`<div class="bk-rd">${bkStat(r)}</div>`:""}${skl(r)}</div></div>`;
+  const card=(r,b)=>`<div class="bk-c${r.v?"":" nov"}"><div class="bk-body"><div class="bk-n">${b?`<span class="rr rr-${r.rr}">${r.rr}</span>`:""}${esc(spn(r.sp))}${r.v?`<span class="bk-tot"><i>計</i>${spvTot(r)}</span>${r.new?`<span class="bk-ok">済</span>`:""}`:`<small class="bk-nv">種族値は未調査</small>`}</div>${r.v?`<div class="bk-rd">${bkStat(r)}</div>`:""}${skl(r)}</div></div>`;
   const groups=RR_ORD.map(rr=>{const A=AF.filter(r=>r.rr===rr);if(!A.length)return"";const L=A.filter(r=>r.v);
     const avg=L.length?Math.round(L.reduce((a,r)=>a+spvTot(r),0)/L.length):0;
     return `<h3 class="bk-h"><span class="rr rr-${rr}">${rr}</span><span class="n">${A.length}種${L.length?`・測った${L.length}種の合計の平均 ${avg}`:""}</span></h3><div class="bk-g">${[...L,...A.filter(r=>!r.v)].map(r=>card(r)).join("")}</div>`}).join("");
