@@ -83,9 +83,8 @@ h1{font-family:var(--f-head);font-weight:700;font-size:var(--fs-xl);line-height:
 /* タブ（アイコン＋文字の札） */
 nav.views{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:linear-gradient(var(--paper) 86%,transparent);
   display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:5px;padding-block:8px 12px;margin-bottom:6px}
-nav.views button{padding-inline:0!important;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;padding:6px 0 5px;border:1px solid var(--line);border-radius:12px;
+nav.views button{padding-inline:0!important;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;padding:9px 0;border:1px solid var(--line);border-radius:12px;
   background:var(--sheet);color:var(--mute);font-weight:700;font-size:var(--fs-s);line-height:1.15;min-width:0;letter-spacing:-.11em;white-space:nowrap;overflow:hidden}
-nav.views button .ic{font-size:1.4em;flex:none}
 nav.views button .tl{letter-spacing:0}
 nav.views button[aria-selected="true"]{background:var(--accent);border-color:transparent;color:var(--sheet);box-shadow:0 4px 12px hsla(40,30%,25%,.22)}
 
@@ -617,15 +616,15 @@ details.cup{display:block}
 </header>
 
 <nav class="views" role="tablist" aria-label="表示切り替え">
-  <button role="tab" data-tab="dragon" aria-label="育成ガイド" title="育成ガイド"><svg class="ic" aria-hidden="true"><use href="#i-hex"/></svg><span class="tl">ガイド</span></button>
-  <button role="tab" data-tab="maseki" aria-label="魔石" title="魔石"><svg class="ic" aria-hidden="true"><use href="#i-gem"/></svg><span class="tl">魔石</span></button>
-  <button role="tab" data-tab="skill" aria-label="スキル" title="スキル"><svg class="ic" aria-hidden="true"><use href="#i-bolt"/></svg><span class="tl">スキル</span></button>
-  <button role="tab" data-tab="ability" aria-label="アビリティ" title="アビリティ"><svg class="ic" aria-hidden="true"><use href="#i-shield"/></svg><span class="tl">アビ</span></button>
-  <button role="tab" data-tab="card" aria-label="カード" title="カード"><svg class="ic" aria-hidden="true"><use href="#i-book"/></svg><span class="tl">カード</span></button>
-  <button role="tab" data-tab="battle" aria-label="バトル" title="バトル"><svg class="ic" aria-hidden="true"><use href="#i-sword"/></svg><span class="tl">バトル</span></button>
-  <button role="tab" data-tab="lab" aria-label="検証" title="検証"><svg class="ic" aria-hidden="true"><use href="#i-lab"/></svg><span class="tl">検証</span></button>
-  <button role="tab" data-tab="sim" aria-label="育成" title="育成"><svg class="ic" aria-hidden="true"><use href="#i-dumbbell"/></svg><span class="tl">育成</span></button>
-  <button role="tab" data-tab="book" aria-label="魔導書" title="魔導書"><svg class="ic" aria-hidden="true"><use href="#i-tome"/></svg><span class="tl">魔導書</span></button>
+  <button role="tab" data-tab="dragon" aria-label="育成ガイド" title="育成ガイド"><span class="tl">ガイド</span></button>
+  <button role="tab" data-tab="maseki" aria-label="魔石" title="魔石"><span class="tl">魔石</span></button>
+  <button role="tab" data-tab="skill" aria-label="スキル" title="スキル"><span class="tl">スキル</span></button>
+  <button role="tab" data-tab="ability" aria-label="アビリティ" title="アビリティ"><span class="tl">アビ</span></button>
+  <button role="tab" data-tab="card" aria-label="カード" title="カード"><span class="tl">カード</span></button>
+  <button role="tab" data-tab="battle" aria-label="バトル" title="バトル"><span class="tl">バトル</span></button>
+  <button role="tab" data-tab="lab" aria-label="検証" title="検証"><span class="tl">検証</span></button>
+  <button role="tab" data-tab="sim" aria-label="育成" title="育成"><span class="tl">育成</span></button>
+  <button role="tab" data-tab="book" aria-label="魔導書" title="魔導書"><span class="tl">魔導書</span></button>
 </nav>
 
 <main id="view"></main>
