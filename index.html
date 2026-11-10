@@ -493,6 +493,7 @@ mark{background:hsl(45 95% 62% / .55);color:inherit;border-radius:3px;padding:0 
 .bk-c.nov .bk-body{grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-areas:"n n" "s1 s2" "s3 .";grid-template-rows:auto}
 .bk-s1{grid-area:s1}.bk-s2{grid-area:s2}.bk-s3{grid-area:s3}
 .bk-sn{display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.bk-sn b.nmx{color:var(--lo)}  /* レベルMaxでないスキル名は青 */
 .bk-sm{font-size:var(--fs-s);color:var(--mute);letter-spacing:-.04em}
 .bk-se{font-size:var(--fs-s)}
 .bk-none{font-size:var(--fs-s);color:var(--mute);margin:0}
@@ -2014,7 +2015,7 @@ function viewBook(){
   const skK=byN(SK);
   const skl=r=>{const k=skK[nsp(r.sp)],o=k&&SK[k];if(!o)return `<p class="bk-none">スキルはまだ調べていません</p>`;
     return `${Object.entries(o).map(([n,db],i)=>{const [v]=bestLv(db.L);
-      return `<div class="bk-s bk-s${i+1}"><div class="bk-sn"><b>${esc(skn(n))}</b>${db.at?elTag(db.at):""}</div>${v?`<div class="bk-sm">マナ${esc(v[1])}${+v[2]?`・威力${esc(v[2])}・命中${accTag(v[3])}`:""}</div>${v[4]?`<div class="bk-se">${effHTML(v[4],v[0])}</div>`:""}`:`<div class="bk-sm">値は未確認</div>`}</div>`}).join("")}`};
+      return `<div class="bk-s bk-s${i+1}"><div class="bk-sn"><b${db.L&&db.L.M?"":` class="nmx" title="レベルMaxではない"`}>${esc(skn(n))}</b>${db.at?elTag(db.at):""}</div>${v?`<div class="bk-sm">マナ${esc(v[1])}${+v[2]?`・威力${esc(v[2])}・命中${accTag(v[3])}`:""}</div>${v[4]?`<div class="bk-se">${effHTML(v[4],v[0])}</div>`:""}`:`<div class="bk-sm">値は未確認</div>`}</div>`}).join("")}`};
   const card=(r,b)=>`<div class="bk-c${r.v?"":" nov"}"><div class="bk-body"><div class="bk-n">${b?`<span class="rr rr-${r.rr}">${r.rr}</span>`:""}${esc(spn(r.sp))}${r.v?`<span class="bk-tot"><i>計</i>${spvTot(r)}</span>${r.new?`<span class="bk-ok">済</span>`:""}`:`<small class="bk-nv">種族値は未調査</small>`}</div>${r.v?`<div class="bk-rd">${bkStat(r)}</div>`:""}${skl(r)}</div></div>`;
   const groups=RR_ORD.map(rr=>{const A=AF.filter(r=>r.rr===rr);if(!A.length)return"";const L=A.filter(r=>r.v);
     const avg=L.length?Math.round(L.reduce((a,r)=>a+spvTot(r),0)/L.length):0;
@@ -2024,7 +2025,7 @@ function viewBook(){
     return `<h3 class="bk-h">${t}<span class="n">${L.length}種</span></h3><div class="bk-g">${L.map(r=>card(r,1)).join("")}</div>`}).join("");
   return `<div class="sorter bk-rr">${["all",...RR_ORD].map(k=>`<button data-bkrr="${k}" aria-pressed="${fr===k}">${k==="all"?"すべて":k}<small class="cnt">${k==="all"?ALL.length:ALL.filter(r=>r.rr===k).length}</small></button>`).join("")}</div>
   <h2><span class="tg">${ico("tome")}</span>レアリティ別の種族値</h2>
-  <p class="hint">魔導書のレアリティごとに、種族値（1年4月1週・調子普通で、アイテムなしの特訓で主に上がる量）を六角形と数値で載せました。29以上を赤、12未満を青にしています</p>
+  <p class="hint">魔導書のレアリティごとに、種族値（1年4月1週・調子普通で、アイテムなしの特訓で主に上がる量）を六角形と数値で載せました。29以上を赤、12未満を青にしています。スキル名が青のものは、レベルMaxではない値です</p>
   ${groups}
   <h2><span class="tg">${ico("hex")}</span>タイプ別の種族値</h2>
   <p class="hint">耐久（体＋防）・火力（攻＋命）・速さ（早＋避）のどれが高くてどれが低いかで分けています。名前の左はレアリティ</p>
