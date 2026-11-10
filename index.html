@@ -152,8 +152,6 @@ h2 .n{font-family:var(--f-body);font-size:var(--fs-m);color:var(--mute);font-wei
 .card .cr .nospv{display:grid;place-items:center;width:100%;aspect-ratio:1;border:2px dashed var(--line);border-radius:12px;color:var(--mute);font-size:var(--fs-s);text-align:center;line-height:1.4}
 .card-h .shape.un{color:var(--mute)}
 .g-full{margin:0 2px 6px;font-weight:700;font-size:var(--fs-m)}
-.pr-g{margin:2px 2px 6px;font-size:var(--fs-s);font-weight:700;color:var(--accent)}
-.pr-g.none{color:var(--mute)}
 .card-h .shape{flex:none;font-size:var(--fs-s);font-weight:700;color:var(--accent);background:var(--tint);border-radius:99px;padding:1px 8px;white-space:nowrap}
 .card .ct{grid-area:t;display:flex;flex-direction:column;gap:3px;min-width:0}
 .card .ct-a{display:flex;align-items:baseline;gap:8px;min-width:0}
@@ -1114,7 +1112,7 @@ function rankSel(tab,opts){
 }
 
 /* ===== 育成ガイド（種族ごと） =====
-   種族名・イラスト・種族値（魔導書の六角形）・スキルの最大効果・優先アビリティ・相性。
+   種族名・イラスト・種族値（魔導書の六角形）・スキルの最大効果・相性。
    型は魔導書の種族値（spvType）から決める */
 const nsp=s=>String(s||"").replace(/・/g,"");
 const byN=o=>Object.fromEntries(Object.keys(o).map(k=>[nsp(k),k]));
@@ -1136,20 +1134,6 @@ const gIllust=g=>SP_IMG.some(s=>nsp(s)===nsp(g.sp))?`<div class="illust ${state.
 const gRadar=g=>g.spv?radar({nk:g.sp,st:g.spv.v.map(v=>({v})),total:spvTot(g.spv)},{sq:true,icons:false,max:75,hi:60,lo:25}):`<div class="nospv">種族値は<br>まだ調べていません</div>`;
 /* スキル：データのあるスキルを全部、Max（無ければ分かっている一番高いLv）で */
 const gSkills=g=>g.skKey?skillTable(g.skKey,Object.keys(SK[g.skKey]).map(n=>({n}))):`<p class="nodata">スキルはまだ調べていません</p>`;
-/* 優先アビリティ：デトックス（固定枠）＋タイプ別おすすめ（PRIO）から */
-function prioOf(g){
-  const k=nsp(g.sp),gs=PRIO.filter(x=>x.sp.some(s=>nsp(s)===k));
-  const rows=[{n:AB_FIX,tag:"固定"}],seen=new Set([AB_FIX]);
-  gs.forEach(x=>(x.alt&&x.alt[k]||x.ab).forEach(set=>set.forEach(n=>{if(seen.has(n))return;seen.add(n);
-    rows.push({n,tag:set.length>1?"どれか1つ":x.t})})));
-  return {gs,rows};
-}
-function prioTable(g){
-  const {gs,rows}=prioOf(g);
-  const tb=`<div class="xtbl"><table class="abtbl"><thead><tr><th>アビリティ</th><th>効果</th></tr></thead><tbody>${
-    rows.map(r=>`<tr><td class="nm"><b>${esc(abn(r.n))}</b><small class="cnt">${esc(r.tag)}</small></td><td class="ef">${abEff(r.n)}</td></tr>`).join("")}</tbody></table></div>`;
-  return (gs.length?`<p class="pr-g">${gs.map(x=>esc(x.t)).join("・")}</p>`:`<p class="pr-g none">タイプ別のおすすめは考察中</p>`)+tb;
-}
 function viewDragon(){
   const L=guideList();
   const tys=[...new Set(L.map(g=>g.ty))].sort((a,b)=>tyOrd(a)-tyOrd(b));
@@ -1163,7 +1147,6 @@ function viewDragon(){
         <span class="chev" aria-hidden="true">${ico("chev")}</span></div>
       <div class="fold-b">${nm!==g.sp?`<p class="g-full">${esc(g.sp)}</p>`:""}${fieldRow({sp:g.spKey||""},true)}
         <h4 class="d-sec">${ico("bolt")}スキル</h4>${gSkills(g)}
-        ${prioTable(g)}
         <h4 class="d-sec">${ico("target")}相性</h4>${matchup(g)}</div>
     </div>`}).join("");
   return `<p class="hint">種族ごとの育て方の目安です。六角形は魔導書の種族値（アイテムなし・極限集中の特訓で主に上がる量）。60以上を赤、25未満を青にしています。型は種族値から決めています</p>${chips}<div class="grid">${cards}</div>`;
@@ -1477,8 +1460,7 @@ function abCat(n){
 const AB_NAMES=[["フクツ",n=>/^フクツ/.test(n)],["構え",n=>/構え$/.test(n)],["アップ",n=>/アップ$/.test(n)],["チャージ",n=>/チャージ$/.test(n)],["気合",n=>/^気合/.test(n)],["その他",()=>true]];
 const abName=n=>AB_NAMES.find(([,f])=>f(n))[0];
 /* ===== タイプ別おすすめアビリティ（考察。オンライン対戦を想定） =====
-   育成ガイドの「優先アビリティ」もここから作る。ab は優先の順。[a,b] は「どれか1つ」。alt は種族ごとの差し替え */
-const AB_FIX="デトックス";
+   ab は優先の順。[a,b] は「どれか1つ」。alt は種族ごとの差し替え */
 const PRIO=[
   {t:"耐久型",txt:"フクツの守り＋リカバリー（＋ふんばる）",ab:[["フクツの守り"],["リカバリー"],["ふんばる"]],
    sp:["イルルヤンカシュ","イルルヤンカシュ変異種","ヴィーヴル変異種","ヒュドラー変異種","レヴィアタン変異種","クエレブレ変異種"],
