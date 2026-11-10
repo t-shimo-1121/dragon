@@ -1022,7 +1022,7 @@ const AB={
 
 /* ===== 状態（並べ替えと画像の種類は端末に保存） ===== */
 const state={tab:"dragon",detail:null,img:"illust",
-  dSort:{key:"no",dir:1},sSort:{key:"total",dir:-1},kSort:{key:"no",dir:1},aSort:{key:"no",dir:1},abCat:"all",gTy:"all",skMana:"all",skCat:"all",skPow:"all",skAcc:"all",skEl:"all",skSort:{key:"no",dir:1},bkRr:"all",dScroll:0,dMiss:false,dOpen:[],
+  dSort:{key:"no",dir:1},sSort:{key:"total",dir:-1},kSort:{key:"no",dir:1},aSort:{key:"no",dir:1},abCat:"all",gTy:"all",skMana:"all",skCat:"all",skPow:"all",skAcc:"all",skEl:"all",bkRr:"all",dScroll:0,dMiss:false,dOpen:[],
   rk:{status:"total",skill:"pow",ability:"all"}};
 const KEEP=["bkRr","dSort","sSort","img","abCat","gTy","rk","skMana","skCat","skPow","skAcc","skEl","dMiss"];
 try{const s=JSON.parse(localStorage.getItem("dragon-maseki-v2")||"{}");KEEP.forEach(k=>{if(s[k])state[k]=s[k]})}catch(e){}
@@ -1374,7 +1374,8 @@ function skCat(r){
   return "その他";
 }
 function skillList(){
-  const allR=skillRows();
+  /* ニックネームは出さず種族名で載せるので、同じ種族の同じスキルは1行にまとめる */
+  const seenSk=new Set(),allR=skillRows().filter(r=>{const k=(r.d?r.d.sp:r.sp)+"|"+r.n;if(seenSk.has(k))return false;seenSk.add(k);return true});
   const els=EL_ORDER.filter(a=>allR.some(r=>r.at===a));
   const el=els.includes(state.skEl)?state.skEl:"all";
   const echips=`<div class="sorter flt"><span class="flt-l">属性</span><button data-skel="all" aria-pressed="${el==="all"}">すべて<small>${allR.length}</small></button>${els.map(a=>`<button data-skel="${a}" aria-pressed="${el===a}">${elTag(a)}<small>${allR.filter(r=>r.at===a).length}</small></button>`).join("")}</div>`;
@@ -1392,17 +1393,13 @@ function skillList(){
   const [byA,achips]=step(byM,"命中","skacc",state.skAcc,r=>r.acc,uniq(byM,r=>r.acc,(a,b)=>ACC_ORD.indexOf(a)-ACC_ORD.indexOf(b)),v=>v==="-"?"なし":accTag(v));
   const [byP,pchips]=step(byA,"威力","skpow",state.skPow,r=>r.pow,uniq(byA,r=>r.pow,(a,b)=>b-a));
   const [rows,cchips]=step(byP,"効果","skcat",state.skCat,skCat,SK_CATS.filter(k=>byP.some(r=>skCat(r)===k)));
-  /* 見出し（属性・マナ・命中・威力）を押すと並べ替え。同じ値の時は威力→マナ→合計の順 */
-  const ACC_N={"◎":4,"○":3,"△":2,"×":1,"✕":1,"✖":1};
-  const key={no:r=>msNo(r.d?r.d.sp:r.sp)*1000+(r.d?r.d.no:0),at:r=>{const i=EL_ORDER.indexOf(r.at);return i<0?99:i},mana:r=>r.mana,acc:r=>ACC_N[r.acc]||0,pow:r=>r.pow};
-  const ss=key[state.skSort.key]?state.skSort:{key:"no",dir:1};
-  const kf=key[ss.key],ix=new Map(allR.map((r,i)=>[r,i]));
-  rows.sort((a,b)=>(kf(a)-kf(b))*ss.dir||(ss.key==="no"?ix.get(a)-ix.get(b):0)||b.pow-a.pow||a.mana-b.mana||(b.d?b.d.total:-1)-(a.d?a.d.total:-1));
-  const th=(k,n)=>`<th class="c"${ariaSort(ss,k)}><button data-sksort="${k}">${n}</button></th>`;
-  const list=rows.length?`<div class="box sklist"><div class="xtbl"><table class="sktbl"><thead><tr><th${ariaSort(ss,"no")}><button data-sksort="no">スキル・ドラゴン</button></th>${th("at","属性")}${th("mana","マナ")}${th("acc","命中")}${th("pow","威力")}</tr></thead><tbody>${
+  /* 並び順は固定：通常種→変異種の順、通常種のナンバー順 */
+  const keyNo=r=>msNo(r.d?r.d.sp:r.sp)*1000+(r.d?r.d.no:0),ix=new Map(allR.map((r,i)=>[r,i]));
+  rows.sort((a,b)=>keyNo(a)-keyNo(b)||ix.get(a)-ix.get(b));
+  const list=rows.length?`<div class="box sklist"><div class="xtbl"><table class="sktbl"><thead><tr><th>スキル・種族</th><th class="c">属性</th><th class="c">マナ</th><th class="c">命中</th><th class="c">威力</th></tr></thead><tbody>${
     rows.map(r=>{const e=effHTML(r.eff,r.dur);
       const op=r.d?` data-open="${r.d.no}"`:` class="unown"`;
-      return `<tr${op}><td class="nm"><b>${esc(skn(r.n))}${r.lt&&r.d?`<span class="lvt">${r.lt}</span>`:""}</b><small class="cnt">${r.d?esc(r.d.nk):`<span class="nw">${esc(spn(r.sp))}</span> <span class="nw">未習得${r.lt?" "+r.lt:""}</span>`}</small></td><td class="c">${r.at?elTag(r.at):"？"}</td><td class="c">${r.mana}</td><td class="c">${accTag(r.acc)}</td><td class="c pw">${r.pow}</td></tr>${e?`<tr class="sk-e${r.d?"":" unown"}"${r.d?` data-open="${r.d.no}"`:""}><td colspan="5" class="ef"><div class="efb">${e}</div></td></tr>`:""}`}).join("")
+      return `<tr${op}><td class="nm"><b>${esc(skn(r.n))}${r.lt&&r.d?`<span class="lvt">${r.lt}</span>`:""}</b><small class="cnt">${r.d?esc(spn(r.d.sp)):`<span class="nw">${esc(spn(r.sp))}</span> <span class="nw">未習得${r.lt?" "+r.lt:""}</span>`}</small></td><td class="c">${r.at?elTag(r.at):"？"}</td><td class="c">${r.mana}</td><td class="c">${accTag(r.acc)}</td><td class="c pw">${r.pow}</td></tr>${e?`<tr class="sk-e${r.d?"":" unown"}"${r.d?` data-open="${r.d.no}"`:""}><td colspan="5" class="ef"><div class="efb">${e}</div></td></tr>`:""}`}).join("")
   }</tbody></table></div></div>`:`<p class="nodata">当てはまるスキルはありません</p>`;
   return echips+mchips+achips+pchips+cchips+list;
 
@@ -1412,7 +1409,6 @@ function skillList(){
    変異種で通常種と値が変わったところは薄く色をつける */
 function speciesSkillCards(){
   const bases=MASEKI_N.concat(MASEKI_R).filter(b=>SK[b]||SK[b+"変異種"]);
-  const owned=sp=>D.filter(d=>d.sp===sp).map(d=>esc(d.nk)).join("・");
   const cell=(v,k,o)=>{const val=k==="at"?v.at:v.v[{mana:1,acc:3,pow:2}[k]];
     const html=k==="at"?(val?elTag(val):"？"):k==="acc"?accTag(val):esc(val);
     const other=o?(k==="at"?o.at:o.v[{mana:1,acc:3,pow:2}[k]]):undefined;
@@ -1433,14 +1429,13 @@ function speciesSkillCards(){
       else ef=(a?`<div><i>通常</i><span>${ea||none}</span></div>`:"")+(c?`<div><i>変異</i><span>${ec||none}</span></div>`:"");
       return `<tr class="sn"><td colspan="5">${esc(n)}</td></tr>${row("通常",a,null,"rn")}${row("変異",c,a,"rv")}${ef?`<tr class="ex"><td colspan="5"><div class="efb">${ef}</div></td></tr>`:""}`;
     }).join("");
-    const own=[owned(b),owned(vb)].filter(Boolean).join(" / ");
-    return `<div class="box spc"><div class="spc-h"><b>${esc(b)}</b><small>${own||"未所持"}</small></div><div class="xtbl"><table class="sktbl sptbl"><thead><tr><th class="kd"></th><th class="c">属性</th><th class="c">マナ</th><th class="c">命中</th><th class="c">威力</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
+    return `<div class="box spc"><div class="spc-h"><b>${esc(b)}</b></div><div class="xtbl"><table class="sktbl sptbl"><thead><tr><th class="kd"></th><th class="c">属性</th><th class="c">マナ</th><th class="c">命中</th><th class="c">威力</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
   }).join("")}</div>`;
 }
 function viewSkill(){
-  const missing=D.filter(x=>!SK[x.sp]).map(x=>esc(x.nk)).join("・");
+  const missing=[...new Set(D.filter(x=>!SK[x.sp]).map(x=>x.sp))].map(sp=>esc(spn(sp))).join("・");
   return `<h2><span class="tg">${ico("bolt")}</span>ドラゴン別スキル</h2><p class="hint">通常種と変異種を1枚にまとめています。上の行が通常種、下の行が変異種。変異種で値が変わったところに色をつけています。値はMaxです（分からないものはLvを表示）</p><button class="go-down" data-skjump>スキル一覧へ ↓</button>${speciesSkillCards()}
-    <h2 id="sk-list"><span class="tg">${ico("bolt")}</span>スキル一覧</h2><p class="hint">はじめは通常種→変異種の順に、通常種のナンバー順で並びます。見出しを押すと並べ替えます。値はMaxです（Maxが分からないものはLvを表示）。「未習得」はまだ持っていない種族のスキルです</p>${skillList()}
+    <h2 id="sk-list"><span class="tg">${ico("bolt")}</span>スキル一覧</h2><p class="hint">はじめは通常種→変異種の順に、通常種のナンバー順で並びます。値はMaxです（Maxが分からないものはLvを表示）。「未習得」はまだ持っていない種族のスキルです</p>${skillList()}
     ${missing?`<p class="hint" style="margin-top:10px">まだデータがないドラゴン：${missing}</p>`:""}`;
 }
 
@@ -2157,7 +2152,7 @@ document.addEventListener("click",e=>{
   if(ds.tab)return go(ds.tab);
   if(ds.open)return go("maseki",+ds.open);
   if("back" in ds)return go("maseki");
-  if(ds.sksort)return toggle(state.skSort,ds.sksort,ds.sksort==="at"||ds.sksort==="no"?1:-1);
+  
   if(ds.skel){state.skEl=ds.skel;
     if(state.tab!=="skill"){state.skMana="all";state.skCat="all";state.skPow="all";state.skAcc="all";save();return go("skill")}  /* カードから来た時は属性だけで絞る */
     save();return render()}
