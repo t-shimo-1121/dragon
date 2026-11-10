@@ -1524,7 +1524,7 @@ function viewCard(){
   const n=CARDS.reduce((a,[,l])=>a+l.length,0);
   return `<h2><span class="tg">${ico("book")}</span>サポートカード<span class="n">${n}枚</span></h2><p class="hint">枠の色ごとに並べています。↑は自分によい効果、↓は相手をよわくする効果</p>
     ${CARDS.map(([g,l])=>`<h3 class="cd-g">${g}</h3><div class="box" style="padding:4px 10px"><div class="xtbl"><table class="cdtbl"><tbody>${
-      l.map(([nm,full,sh])=>`<tr><td class="nm"><b>${esc(nm)}</b><small class="cnt">${esc(full)}</small></td><td class="ef">${arrows(esc(stShort(sh)))}</td></tr>`).join("")
+      l.map(([nm,full,sh])=>`<tr><td class="nm"><b>${esc(nm)}</b></td><td class="ef">${arrows(esc(stShort(sh)))}</td></tr>`).join("")
     }</tbody></table></div></div>`).join("")}`;
 }
 /* ===== バトル：攻撃999 vs 防御999 のモデルケース =====
