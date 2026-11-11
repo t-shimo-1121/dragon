@@ -466,6 +466,11 @@ mark{background:hsl(45 95% 62% / .55);color:inherit;border-radius:3px;padding:0 
 .lab-t .spv-t{padding-left:10px}
 .bk-rr{margin:4px 0 4px}
 .bk-rr .cnt{margin-left:3px}
+/* 型のボタンは4列にそろえて段数を抑える */
+.bk-ty{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;margin:0 0 6px}
+.bk-ty button{padding-left:2px;padding-right:2px;justify-content:center;white-space:nowrap;letter-spacing:-.03em;font-size:var(--fs-s)}
+.bk-ty .cnt{margin-left:2px}
+.bk-ty button:disabled{opacity:.4}
 .bk-h{display:flex;align-items:center;gap:8px;margin:16px 0 6px;font-size:var(--fs-m)}
 .bk-h .n{font-weight:400;font-size:var(--fs-s);color:var(--mute)}
 .rr{display:inline-block;min-width:2.2em;text-align:center;border-radius:6px;padding:1px 5px;font-weight:700;font-size:var(--fs-s);border:1px solid var(--line);background:var(--sheet)}
@@ -1023,9 +1028,9 @@ const AB={
 
 /* ===== 状態（並べ替えと画像の種類は端末に保存） ===== */
 const state={tab:"book",detail:null,img:"illust",
-  dSort:{key:"no",dir:1},sSort:{key:"total",dir:-1},kSort:{key:"no",dir:1},aSort:{key:"no",dir:1},abCat:"all",gTy:"all",skMana:"all",skCat:"all",skPow:"all",skAcc:"all",skEl:"all",bkRr:"all",dScroll:0,dMiss:false,dOpen:[],
+  dSort:{key:"no",dir:1},sSort:{key:"total",dir:-1},kSort:{key:"no",dir:1},aSort:{key:"no",dir:1},abCat:"all",gTy:"all",bkTy:"all",skMana:"all",skCat:"all",skPow:"all",skAcc:"all",skEl:"all",bkRr:"all",dScroll:0,dMiss:false,dOpen:[],
   rk:{status:"total",skill:"pow",ability:"all"}};
-const KEEP=["bkRr","dSort","sSort","img","abCat","gTy","rk","skMana","skCat","skPow","skAcc","skEl","dMiss"];
+const KEEP=["bkRr","bkTy","dSort","sSort","img","abCat","gTy","rk","skMana","skCat","skPow","skAcc","skEl","dMiss"];
 try{const s=JSON.parse(localStorage.getItem("dragon-maseki-v2")||"{}");KEEP.forEach(k=>{if(s[k])state[k]=s[k]})}catch(e){}
 state.img="illust";  // 画像はイラストに固定
 const save=()=>{try{localStorage.setItem("dragon-maseki-v2",JSON.stringify(Object.fromEntries(KEEP.map(k=>[k,state[k]]))))}catch(e){}};
@@ -2011,7 +2016,11 @@ function viewBook(){
   const fr=state.bkRr,spvN=Object.fromEntries(SPV.map(r=>[nsp(r.sp),r]));
   /* 魔導書の全種族（No.順）。種族値を測っていない種族は v なし */
   const ALL=MASEKI.map(sp=>spvN[nsp(sp)]||{sp,rr:rarOf(sp),v:null});
-  const AF=fr==="all"?ALL:ALL.filter(r=>r.rr===fr);
+  /* 型で絞る：ボタンは全種族にある型を並べ、数はレアリティの絞り込み後の数 */
+  const TYS=[...new Set(ALL.map(spvType))].sort((a,b)=>tyOrd(a)-tyOrd(b));
+  if(state.bkTy!=="all"&&!TYS.includes(state.bkTy))state.bkTy="all";
+  const ft=state.bkTy,AR=fr==="all"?ALL:ALL.filter(r=>r.rr===fr);
+  const AF=ft==="all"?AR:AR.filter(r=>spvType(r)===ft);
   const skK=byN(SK);
   const skl=r=>{const k=skK[nsp(r.sp)],o=k&&SK[k];if(!o)return `<p class="bk-none">スキルはまだ調べていません</p>`;
     return `${Object.entries(o).map(([n,db],i)=>{const [v]=bestLv(db.L);
@@ -2023,13 +2032,17 @@ function viewBook(){
   const ty=[...new Set(AF.map(spvType))].sort((a,b)=>tyOrd(a)-tyOrd(b));
   const types=ty.map(t=>{const L=AF.filter(r=>spvType(r)===t).sort((a,b)=>RR_ORD.indexOf(a.rr)-RR_ORD.indexOf(b.rr));
     return `<h3 class="bk-h">${t}<span class="n">${L.length}種</span></h3><div class="bk-g">${L.map(r=>card(r,1)).join("")}</div>`}).join("");
+  const tyBtn=["all",...TYS].map(k=>{const n=k==="all"?AR.length:AR.filter(r=>spvType(r)===k).length;
+    return `<button data-bkty="${esc(k)}" aria-pressed="${ft===k}"${n?"":" disabled"}>${k==="all"?"全部":esc(k==="種族値未調査"?"未分類":k.replace(/型$/,"").replace("逃切り","逃切"))}<small class="cnt">${n}</small></button>`}).join("");
   return `<div class="sorter bk-rr">${["all",...RR_ORD].map(k=>`<button data-bkrr="${k}" aria-pressed="${fr===k}">${k==="all"?"すべて":k}<small class="cnt">${k==="all"?ALL.length:ALL.filter(r=>r.rr===k).length}</small></button>`).join("")}</div>
+  <div class="sorter bk-rr bk-ty">${tyBtn}</div>
   <h2><span class="tg">${ico("hex")}</span>タイプ別の種族値</h2>
   ${types}
   <h2><span class="tg">${ico("tome")}</span>レアリティ別の種族値</h2>
   ${groups}`;
 }
-document.addEventListener("click",e=>{const r=e.target.closest("[data-bkrr]");if(r){state.bkRr=r.dataset.bkrr;save();render();return}});
+document.addEventListener("click",e=>{const r=e.target.closest("[data-bkrr]");if(r){state.bkRr=r.dataset.bkrr;save();render();return}
+  const t=e.target.closest("[data-bkty]");if(t&&!t.disabled){state.bkTy=t.dataset.bkty;save();render();return}});
 const VIEWS={dragon:viewDragon,maseki:viewMaseki,skill:viewSkill,ability:viewAbility,card:viewCard,battle:viewBattle,lab:viewLab,sim:viewSim,book:viewBook};
 const view=document.getElementById("view");
 function render(){
