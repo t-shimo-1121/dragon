@@ -2010,7 +2010,7 @@ function spvType(r){
   const t=(lo[1]<=m*.85?TY_LO[lo[0]]:"")+(hi[1]>=m*1.15?TY_HI[hi[0]]:"");
   return t||"バランス";
 }
-const TY_ORDER=["耐久攻撃型","耐久異常型","回復逃切り型","回避逃切り型","回避異常型","回避攻撃型","両刀攻撃型","低速高耐久","低火力高耐久","高耐久","低火力高速","低耐久高速","高速","低耐久高火力","低速高火力","高火力","バランス"];
+const TY_ORDER=["耐久攻撃型","回避攻撃型","両刀攻撃型","バランス","耐久異常型","回避異常型","回避逃切り型","回復逃切り型","低速高耐久","低火力高耐久","高耐久","低火力高速","低耐久高速","高速","低耐久高火力","低速高火力","高火力"];
 const tyOrd=t=>{if(t==="種族値未調査")return 999;const i=TY_ORDER.indexOf(t);return i<0?99:i};
 function viewBook(){
   const fr=state.bkRr,spvN=Object.fromEntries(SPV.map(r=>[nsp(r.sp),r]));
