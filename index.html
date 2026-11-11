@@ -2024,12 +2024,10 @@ function viewBook(){
   const types=ty.map(t=>{const L=AF.filter(r=>spvType(r)===t).sort((a,b)=>RR_ORD.indexOf(a.rr)-RR_ORD.indexOf(b.rr));
     return `<h3 class="bk-h">${t}<span class="n">${L.length}種</span></h3><div class="bk-g">${L.map(r=>card(r,1)).join("")}</div>`}).join("");
   return `<div class="sorter bk-rr">${["all",...RR_ORD].map(k=>`<button data-bkrr="${k}" aria-pressed="${fr===k}">${k==="all"?"すべて":k}<small class="cnt">${k==="all"?ALL.length:ALL.filter(r=>r.rr===k).length}</small></button>`).join("")}</div>
-  <h2><span class="tg">${ico("tome")}</span>レアリティ別の種族値</h2>
-  <p class="hint">魔導書のレアリティごとに、種族値（1年4月1週・調子普通で、アイテムなしの特訓で主に上がる量）を六角形と数値で載せました。29以上を赤、12未満を青にしています。スキル名が青のものは、レベルMaxではない値です</p>
-  ${groups}
   <h2><span class="tg">${ico("hex")}</span>タイプ別の種族値</h2>
-  <p class="hint">耐久（体＋防）・火力（攻＋命）・速さ（早＋避）のどれが高くてどれが低いかで分けています。名前の左はレアリティ</p>
-  ${types}`;
+  ${types}
+  <h2><span class="tg">${ico("tome")}</span>レアリティ別の種族値</h2>
+  ${groups}`;
 }
 document.addEventListener("click",e=>{const r=e.target.closest("[data-bkrr]");if(r){state.bkRr=r.dataset.bkrr;save();render();return}});
 const VIEWS={dragon:viewDragon,maseki:viewMaseki,skill:viewSkill,ability:viewAbility,card:viewCard,battle:viewBattle,lab:viewLab,sim:viewSim,book:viewBook};
