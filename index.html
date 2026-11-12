@@ -1434,24 +1434,20 @@ function abCat(n){
   const m=e.match(/(攻撃|防御|素早さ|命中|回避)が[小中大]アップ/);
   return m?m[1]:"その他";
 }
-/* 名前別の分類：名前の付き方で分ける（上から順に当てはめる） */
-const AB_NAMES=[["フクツ",n=>/^フクツ/.test(n)],["構え",n=>/構え$/.test(n)],["アップ",n=>/アップ$/.test(n)],["チャージ",n=>/チャージ$/.test(n)],["気合",n=>/^気合/.test(n)],["その他",()=>true]];
-const abName=n=>AB_NAMES.find(([,f])=>f(n))[0];
+/* 分類：発動のタイミングや名前で分ける。AB_GRP に名前があればそれを優先、無ければ上から順に当てはめる */
+const AB_GRP={"健康キラー":"攻撃","クリティカル":"攻撃","狙い撃ち":"攻撃","追加攻撃":"攻撃","アドリブ":"攻撃",
+  "デトックス":"毎ターン","リセット":"毎ターン","リカバリー":"毎ターン","マナセラピー":"マナチャージ",
+  "守りの構え":"被弾","見切りの構え":"被弾","応急処置":"被弾","緊急チャージ":"被弾","見切りの極意":"被弾","ふんばる":"被弾"};
+const AB_NAMES=[["フクツ",n=>/^フクツ/.test(n)],["攻撃",n=>/構え$/.test(n)],["被弾",()=>false],["毎ターン",n=>/アップ$/.test(n)],["マナチャージ",n=>/チャージ$/.test(n)],["気合",n=>/^気合/.test(n)],["その他",()=>true]];
+const abName=n=>AB_GRP[n]||AB_NAMES.find(([,f])=>f(n))[0];
 function viewAbility(){
   const {m}=learnRank("ab","shield","アビリティ");
   /* 発動確率の高い順。確率の書いていないもの（フクツ系など、条件を満たせば必ず発動）を最初に。同じ確率なら覚えている数の多い順 */
   const pct=n=>{const v=bestLv((AB[n]||{}).L)[0];if(!v)return -1;const m=String(v[1]).match(/(\d+)%の確率/);return m?+m[1]:100.5};
   const all=[...new Set([...Object.keys(m),...Object.keys(AB)])].map(n=>[n,m[n]||[]]).sort((a,b)=>pct(b[0])-pct(a[0])||b[1].length-a[1].length||a[0].localeCompare(b[0],"ja"));
-  const cnt=c=>all.filter(([n])=>abCat(n)===c).length;
-  const cats=[["all","すべて",all.length],...AB_CATS.map(c=>[c,sh(c),cnt(c)]).filter(x=>x[2]>0||state.abCat===x[0])];
-  const names=state.abCat==="all"?all:all.filter(([n])=>abCat(n)===state.abCat);
-  const table=abilityTable(names.map(([n])=>({n})));
   const byName=AB_NAMES.map(([g])=>{const r=all.filter(([n])=>abName(n)===g);return r.length?`<p class="abgrp"><b>${g}</b><small>${r.length}</small></p>${abilityTable(r.map(([n])=>({n})))}`:""}).join("");
-  return `<h2><span class="tg">${ico("shield")}</span>名前別分類</h2><p class="hint">発動確率の高い順（条件を満たせば必ず発動するものが先）。効果はMaxの値です（Maxが分からないものは、分かっている一番高いレベルの効果）</p>
-    <div class="box" style="padding:4px 10px">${byName}</div>
-    <h2><span class="tg">${ico("shield")}</span>効果別分類</h2>
-    <div class="sorter">${cats.map(([k,n,c])=>`<button data-abcat="${k}" aria-pressed="${state.abCat===k}">${n}<small>${c}</small></button>`).join("")}</div>
-    <div class="box" style="padding:4px 10px">${table}</div>`;
+  return `<p class="hint">発動確率の高い順（条件を満たせば必ず発動するものが先）。効果はMaxの値です（Maxが分からないものは、分かっている一番高いレベルの効果）</p>
+    <div class="box" style="padding:4px 10px">${byName}</div>`;
 }
 /* ===== 情報 ===== */
 /* ===== 描画・操作 ===== */
