@@ -1017,7 +1017,7 @@ const AB={
   "回復チャージ":{L:{1:["-","マナチャージした時、10%の確率で体力を小回復する。"]}},
   "追加チャージ":{L:{1:["-","マナチャージした時、15%の確率でマナが1アップ。"]}},
   "見切りの構え":{L:{1:["-","攻撃を受ける前、20%の確率で回避が小アップ。"]}},
-  "フクツの意志":{L:{1:["-","体力が35%以下の時、マナが1アップ。"]}},
+  "フクツの意志":{L:{M:["-","体力が35%以下の時、マナが2アップ。"]}},
 };
 
 /* ===== 状態（並べ替えと画像の種類は端末に保存） ===== */
@@ -1440,13 +1440,16 @@ const AB_GRP={"健康キラー":"攻撃","クリティカル":"攻撃","狙い�
   "デトックス":"状態異常","気合の加速":"状態異常","気合の攻め":"状態異常",
   "守りの構え":"防御","見切りの構え":"防御","応急処置":"防御","緊急チャージ":"防御","見切りの極意":"防御","ふんばる":"防御"};
 const AB_NAMES=[["毎ターン",n=>/アップ$/.test(n)],["状態異常",()=>false],["フクツ",n=>/^フクツ/.test(n)],["攻撃",n=>/構え$/.test(n)],["防御",()=>false],["チャージ",n=>/チャージ$/.test(n)],["その他",()=>true]];
+/* 見出しで分かる条件は効果から省く（アビリティタブだけ） */
+const AB_DROP={"毎ターン":/毎ターン/g,"状態異常":/状態異常時/g,"フクツ":/体力\d+%以下/g,"攻撃":/攻撃時/g};
+const abDropCond=(g,h)=>AB_DROP[g]?h.replace(/(<td class="ef">)(.*?)(<\/td>)/g,(m,a,b,c)=>a+b.replace(AB_DROP[g],"")+c):h;
 const abName=n=>AB_GRP[n]||AB_NAMES.find(([,f])=>f(n))[0];
 function viewAbility(){
   const {m}=learnRank("ab","shield","アビリティ");
   /* 発動確率の高い順。確率の書いていないもの（フクツ系など、条件を満たせば必ず発動）を最初に。同じ確率なら覚えている数の多い順 */
   const pct=n=>{const v=bestLv((AB[n]||{}).L)[0];if(!v)return -1;const m=String(v[1]).match(/(\d+)%の確率/);return m?+m[1]:100.5};
   const all=[...new Set([...Object.keys(m),...Object.keys(AB)])].map(n=>[n,m[n]||[]]).sort((a,b)=>pct(b[0])-pct(a[0])||b[1].length-a[1].length||a[0].localeCompare(b[0],"ja"));
-  const byName=AB_NAMES.map(([g])=>{const r=all.filter(([n])=>abName(n)===g);return r.length?`<p class="abgrp"><b>${g}</b><small>${r.length}</small></p>${abilityTable(r.map(([n])=>({n})))}`:""}).join("");
+  const byName=AB_NAMES.map(([g])=>{const r=all.filter(([n])=>abName(n)===g);return r.length?`<p class="abgrp"><b>${g}</b><small>${r.length}</small></p>${abDropCond(g,abilityTable(r.map(([n])=>({n}))))}`:""}).join("");
   return `<p class="hint">発動確率の高い順（条件を満たせば必ず発動するものが先）。効果はMaxの値です（Maxが分からないものは、分かっている一番高いレベルの効果）</p>
     <div class="box" style="padding:4px 10px">${byName}</div>`;
 }
