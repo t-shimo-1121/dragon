@@ -617,13 +617,12 @@ details.cup{display:block}
 
 <nav class="views" role="tablist" aria-label="表示切り替え">
   <button role="tab" data-tab="book" aria-label="魔導書" title="魔導書"><span class="tl">魔導書</span></button>
-  <button role="tab" data-tab="dragon" aria-label="育成ガイド" title="育成ガイド"><span class="tl">ガイド</span></button>
-  <button role="tab" data-tab="maseki" aria-label="魔石" title="魔石"><span class="tl">魔石</span></button>
+  <button role="tab" data-tab="sim" aria-label="育成" title="育成"><span class="tl">育成</span></button>
   <button role="tab" data-tab="skill" aria-label="スキル" title="スキル"><span class="tl">スキル</span></button>
   <button role="tab" data-tab="ability" aria-label="アビリティ" title="アビリティ"><span class="tl">アビ</span></button>
   <button role="tab" data-tab="card" aria-label="カード" title="カード"><span class="tl">カード</span></button>
   <button role="tab" data-tab="battle" aria-label="バトル" title="バトル"><span class="tl">バトル</span></button>
-  <button role="tab" data-tab="sim" aria-label="育成" title="育成"><span class="tl">育成</span></button>
+  <button role="tab" data-tab="maseki" aria-label="魔石" title="魔石"><span class="tl">魔石</span></button>
 </nav>
 
 <main id="view"></main>
@@ -1135,23 +1134,6 @@ const gIllust=g=>SP_IMG.some(s=>nsp(s)===nsp(g.sp))?`<div class="illust ${state.
 const gRadar=g=>g.spv?radar({nk:g.sp,st:g.spv.v.map(v=>({v})),total:spvTot(g.spv)},{sq:true,icons:false,max:36,hi:29,lo:12}):`<div class="nospv">種族値は<br>まだ調べていません</div>`;
 /* スキル：データのあるスキルを全部、Max（無ければ分かっている一番高いLv）で */
 const gSkills=g=>g.skKey?skillTable(g.skKey,Object.keys(SK[g.skKey]).map(n=>({n}))):`<p class="nodata">スキルはまだ調べていません</p>`;
-function viewDragon(){
-  const L=guideList();
-  const tys=[...new Set(L.map(g=>g.ty))].sort((a,b)=>tyOrd(a)-tyOrd(b));
-  if(state.gTy!=="all"&&!tys.includes(state.gTy))state.gTy="all";
-  const chips=`<div class="sorter shp"><button data-gty="all" aria-pressed="${state.gTy==="all"}">すべて<small>${L.length}</small></button>${tys.map(t=>`<button data-gty="${esc(t)}" aria-pressed="${state.gTy===t}">${esc(t)}<small>${L.filter(g=>g.ty===t).length}</small></button>`).join("")}</div>`;
-  const cards=L.filter(g=>state.gTy==="all"||g.ty===state.gTy).map(g=>{const id="g"+g.no,op=state.dOpen.includes(id),nm=spn(g.sp);return `
-    <div class="card box fold${op?" open":""}" data-acc="${id}" role="button" tabindex="0" aria-expanded="${op}" aria-label="${esc(g.sp)}のくわしい情報">
-      <div class="card-h">
-        <div class="tt"><b class="nk${[...nm].length>=7?" long":""}"><span class="nm">${esc(nm)}</span><small class="no">No.${g.no}・${g.rr}</small></b><span class="shape${g.spv?"":" un"}">${esc(g.ty)}</span></div>
-        <div class="ci">${gIllust(g)}</div><div class="cr">${gRadar(g)}</div>
-        <span class="chev" aria-hidden="true">${ico("chev")}</span></div>
-      <div class="fold-b">${nm!==g.sp?`<p class="g-full">${esc(g.sp)}</p>`:""}${fieldRow({sp:g.spKey||""},true)}
-        <h4 class="d-sec">${ico("bolt")}スキル</h4>${gSkills(g)}
-        <h4 class="d-sec">${ico("target")}相性</h4>${matchup(g)}</div>
-    </div>`}).join("");
-  return `<p class="hint">種族ごとの育て方の目安です。六角形は魔導書の種族値（1年4月1週・調子普通で、アイテムなしの特訓で主に上がる量）。29以上を赤、12未満を青にしています。型は種族値から決めています</p>${chips}<div class="grid">${cards}</div>`;
-}
 /* ===== 魔石（これまで育てた相棒の記録） ===== */
 function viewMaseki(){
   if(state.detail)return viewDetail(D.find(d=>d.no===state.detail));
@@ -1801,7 +1783,7 @@ function viewBook(){
 }
 document.addEventListener("click",e=>{const r=e.target.closest("[data-bkrr]");if(r){state.bkRr=r.dataset.bkrr;save();render();return}
   const t=e.target.closest("[data-bkty]");if(t&&!t.disabled){state.bkTy=t.dataset.bkty;save();render();return}});
-const VIEWS={dragon:viewDragon,maseki:viewMaseki,skill:viewSkill,ability:viewAbility,card:viewCard,battle:viewBattle,sim:viewSim,book:viewBook};
+const VIEWS={book:viewBook,sim:viewSim,skill:viewSkill,ability:viewAbility,card:viewCard,battle:viewBattle,maseki:viewMaseki};
 const view=document.getElementById("view");
 function render(){
   document.querySelectorAll("nav.views button").forEach(t=>t.setAttribute("aria-selected",t.dataset.tab===state.tab));
