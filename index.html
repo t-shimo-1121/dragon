@@ -64,6 +64,7 @@ body{margin:0;background-color:var(--paper);background-image:radial-gradient(var
   padding-block:env(safe-area-inset-top,0px) calc(48px + env(safe-area-inset-bottom,0px))}
 body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--paper)}
 img{max-width:100%}
+small{font-size:var(--fs-s)}
 [hidden]{display:none!important}
 .wrap{max-width:1080px;margin:0 auto}
 button{font:inherit;color:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}
@@ -112,7 +113,7 @@ h2 .n{font-family:var(--f-body);font-size:var(--fs-m);color:var(--mute);font-wei
 .illust .ph{display:none;text-align:center;color:var(--mute);font-size:var(--fs-s);line-height:1.35;padding:6px}
 .illust.empty{border:2px dashed var(--line)}
 .illust.empty .ph{display:block}
-.illust .ph .ic{font-size:1.8rem;display:block;margin:0 auto 4px}
+.illust .ph .ic{font-size:var(--fs-xl);display:block;margin:0 auto 4px}
 
 /* ドラゴン一覧のカード */
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,340px),1fr));gap:12px}
@@ -485,7 +486,7 @@ mark{background:hsl(45 95% 62% / .55);color:inherit;border-radius:3px;padding:0 
 .bk-st .radar.hm .area{stroke-width:2}
 .bk-sv{display:grid;grid-template-columns:auto auto;gap:4px 10px;font-size:var(--fs-s);line-height:1.3}
 .bk-sv span{display:flex;gap:3px;align-items:baseline}
-.bk-sv i{font-style:normal;color:var(--mute);font-size:.88em}
+.bk-sv i{font-style:normal;color:var(--mute);font-size:var(--fs-s)}
 .bk-sv b{font-weight:400}
 .bk-sv b.s{color:var(--hi);font-weight:700}.bk-sv b.lo{color:var(--lo);font-weight:700}
 .bk-tot{margin-left:5px;white-space:nowrap;font-weight:700;font-size:var(--fs-s)}
