@@ -400,7 +400,7 @@ mark{background:hsl(45 95% 62% / .55);color:inherit;border-radius:3px;padding:0 
 .sklist .sktbl tr.sk-e2 td.ef{text-align:left}
 .sktbl .efb{background:var(--tint);border-radius:8px;padding:5px 10px;line-height:1.5}
 /* ドラゴン別スキル：通常種＋変異種で1枚。スキルごとに 上＝通常・下＝変異、効果は下にまとめて */
-.spgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,340px),1fr));gap:10px}
+.spgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,420px),1fr));gap:10px}
 .spc{padding:8px 10px 6px}
 .spc-h{display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding:0 2px 4px;border-bottom:1px solid var(--line)}
 .spc-h b{font-size:var(--fs-l)}
@@ -408,18 +408,20 @@ mark{background:hsl(45 95% 62% / .55);color:inherit;border-radius:3px;padding:0 
 .spc .xtbl{margin:0 -2px}
 .xtbl table.sptbl{table-layout:fixed;width:100%}
 .sptbl th.c,.sptbl td.c{width:auto}
-.sptbl th.snm,.sptbl td.snm{width:6.4rem;padding-left:2px;padding-right:4px}
-.sptbl td.snm{font-weight:700;vertical-align:middle;line-height:1.3;border-bottom:0}
-.sptbl th.kd,.sptbl td.kd{width:1.6rem;padding-left:0;padding-right:0;text-align:center}
-.sptbl td.kd{font-size:var(--fs-s);font-weight:700;color:var(--mute)}
-.sptbl tr.rw td{border-bottom:0;padding-top:2px;padding-bottom:2px}
-.sptbl tr.rw.rv td:not(.snm){border-top:1px dotted var(--line)}
+.sp-lg{display:flex;flex-wrap:wrap;gap:2px 14px;margin:6px 2px 2px;font-size:var(--fs-m);font-weight:700;line-height:1.4}
+.sp-lg b{color:var(--accent);margin-right:4px}
+.sp-lg .lvn{margin-left:4px;color:var(--mute);font-weight:400}
+.xtbl .sptbl th.c,.xtbl .sptbl td.c{width:2rem;padding-left:1px;padding-right:1px}
+.xtbl .sptbl th.c:nth-child(6),.xtbl .sptbl tr.r1 td.c:nth-child(6),.xtbl .sptbl tr.r2 td.c:nth-child(5){width:2.5rem}
+.sptbl th.sno,.sptbl td.sno{width:1.3rem;padding-left:2px;padding-right:0;font-weight:700;color:var(--accent);vertical-align:middle}
+.sptbl th.kd,.sptbl td.kd{width:1.5rem;padding-left:0;padding-right:0;text-align:center;font-size:var(--fs-s);font-weight:700;color:var(--mute)}
+.sptbl th.ef{text-align:left;padding-left:8px}
+.sptbl td.ef{padding-left:8px;white-space:nowrap;vertical-align:middle}
+.sptbl tr.rw td{padding-top:3px;padding-bottom:3px;border-bottom:0}
+.sptbl tr.r1 td.sno,.sptbl tr.r1 td.ef[rowspan],.sptbl tr.r2 td{border-bottom:1px solid var(--line)}
+.sptbl tr.r2 td{border-top:1px dotted var(--line)}
+.sptbl tbody tr:last-child td,.sptbl tr.r1:nth-last-child(2) td[rowspan]{border-bottom:0}
 .sptbl td.df{background:var(--soft);border-radius:6px}
-.sptbl tr.ex td{padding:0 2px 5px;border-bottom:1px solid var(--line)}
-.sptbl tr.ex:last-child td{border-bottom:0}
-.sptbl .efl{display:flex;flex-wrap:wrap;gap:0 14px;line-height:1.45;font-size:var(--fs-m)}
-.sptbl .efl i{font-style:normal;font-size:var(--fs-s);color:var(--mute);font-weight:700;margin-right:4px}
-.sptbl .efl .lvt{margin-left:2px}
 .sptbl .nod{color:var(--mute);font-size:var(--fs-s);font-weight:400}
 .go-down{display:inline-block;margin:0 0 10px;font-size:var(--fs-s);color:var(--accent);font-weight:700;background:none;border:0;padding:0}
 /* アビリティタブ：名前の下に効果と覚えているドラゴンを横いっぱいで */
@@ -687,7 +689,7 @@ const fx=t=>String(t||"")
   .replace(/状態異常の時/g,"状態異常時").replace(/状態異常を消す/g,"治癒").replace(/状態異常を無効にする/g,"状態異常無効化")
   .replace(/体力が(\d+)%以下の時、?0マナで使える/g,"体力$1%以下だと0マナ").replace(/攻撃を受ける前/g,"防御時")
   .replace(/ターン開始時/g,"毎ターン").replace(/体力が(\d+)%以下の時、?/g,"体力$1%以下で").replace(/攻撃を受けた時/g,"被弾時")
-  .replace(/状態異常付与率/g,"異常付与率").replace(/クリティカル率/g,"会心率").replace(/体力を([小中大])回復(する)?/g,"体力$1回復")
+  .replace(/状態異常付与率/g,"異常率").replace(/クリティカル率/g,"会心率").replace(/体力を([小中大])回復(する)?/g,"体力$1回復")
   .replace(/追加攻撃をする/g,"追加攻撃").replace(/防御バフが多いほど威力が上がる/g,"防御↑が多いほど威力↑")
   .replace(/発動したターンの間、/g,"発動ターン").replace(/ダメージを0にする。?/g,"ダメージ0")
   .replace(/(\d+)%の確率で/g,"$1%で").replace(/状態にする/g,"")
@@ -1194,12 +1196,12 @@ function matchup(g){
 }
 /* 追加効果の表示（カード・スキル一覧・アビリティで共通）。短く言い換え、↑は赤・↓は青（よい効果＝赤、わるい効果＝青） */
 const fxShort=t=>stShort(fx(t).replace(/。$/,"")
-  .replace(/一度だけ状態異常無効化/g,"異常無効×1").replace(/体力(\d+)%以下だと0マナ/g,"体力$1%以下 0マナ")
+  .replace(/一度だけ状態異常無効化/g,"異常無効×1").replace(/体力(\d+)%以下だと0マナ/g,"$1%以下0マナ")
   .replace(/防御↑が多いほど威力↑/g,"防御↑で威力↑").replace(/発動ターンダメージ0/g,"1ターン無敵")
   .replace(/スタンさせる/g,"スタン").replace(/マナを0にする/g,"マナ0↓").replace(/体力が少ないほど威力が上がる/g,"低体力ほど威力↑").replace(/回避バフが多いほど威力が上がる/g,"回避↑で威力↑").replace(/攻撃が必中になる/g,"必中").replace(/属性が弱点属性になる/g,"弱点属性で攻撃").replace(/デバフを消す/g,"デバフ解除").replace(/攻撃を回避した時、?/g,"回避時").replace(/自分に([小中大])ダメージ/g,"反動$1ダメージ").replace(/素早さ/g,"素早"));
 /* ↑↓の付くパラメータ名を体・攻・防・早・命・避に短くする（スキル・アビリティ・カード共通） */
 const stShort=t=>t.replace(/素早さ/g,"素早").replace(/(体力|攻撃|防御|素早|命中|回避)(?=(?:[小中大]|\d+)?[↑↓])/g,m=>STATS[["体力","攻撃","防御","素早","命中","回避"].indexOf(m)]);
-const arrows=h=>h.replace(/((?:体力|攻撃|防御|素早|命中|回避|体|攻|防|早|命|避|マナ|会心率|異常付与率|威力)?(?:[小中大]|\d+)?)([↑↓])/g,(m,a,b)=>`<span class="${b==="↑"?"up":"dn"}">${a}${b}</span>`);
+const arrows=h=>h.replace(/((?:体力|攻撃|防御|素早|命中|回避|体|攻|防|早|命|避|マナ|会心率|異常率|威力)?(?:[小中大]|\d+)?)([↑↓])/g,(m,a,b)=>`<span class="${b==="↑"?"up":"dn"}">${a}${b}</span>`);
 /* 持続：数値の時だけ効果の後ろに (N) で付ける */
 const durNote=v=>/^\d+$/.test(String(v))?`<span class="dur">(${v})</span>`:"";
 /* スキルの追加効果：確率の「で」は付けない（例：30%防御小↑(2)） */
@@ -1403,26 +1405,26 @@ function speciesSkillCards(){
     const html=k==="at"?(val?elTag(val):"？"):k==="acc"?accTag(val):esc(val);
     const other=o?(k==="at"?o.at:o.v[{mana:1,acc:3,pow:2}[k]]):undefined;
     return `<td class="c${o&&String(other)!==String(val)?" df":""}">${html}</td>`};
-  const row=(lead,label,v,o,cls)=>`<tr class="rw ${cls}">${lead}<td class="kd">${label}</td>`+(v
-    ?["at","mana","acc","pow"].map(k=>cell(v,k,cls==="rv"?o:null)).join("")
-    :`<td colspan="4" class="nod">データなし</td>`)+`</tr>`;
+  const none=`<span class="none">なし</span>`;
+  /* 1行＝番号＋通/変・属性・マナ・命中・威力・効果。効果が通常と変異で同じなら2行にまたがって1つだけ */
+  const row=(no,label,v,o,cls,ef)=>`<tr class="rw ${cls}">${no?`<td class="sno" rowspan="2">${no}</td>`:""}<td class="kd">${label}</td>`+(v
+    ?["at","mana","acc","pow"].map(k=>cell(v,k,cls==="r2"?o:null)).join("")
+    :`<td colspan="4" class="nod">データなし</td>`)+ef+`</tr>`;
   return `<div class="spgrid">${bases.map(b=>{
     const vb=b+"変異種",A=SK[b]||{},B=SK[vb]||{};
     const names=[...new Set([...Object.keys(A),...Object.keys(B)])];
     const get=(db,n)=>{const x=db[n];if(!x)return null;const [v,lt]=bestLv(x.L);return v?{at:x.at,v,lt}:null};
-    const rows=names.map(n=>{
+    const lv=(t,x)=>x&&x.lt?`<small class="lvn">${t}${x.lt}</small>`:"";
+    const legend=names.map((n,i)=>{const a=get(A,n),c=get(B,n);return `<span><b>${i+1}</b>${esc(skn(n))}${lv("通",a)}${lv("変",c)}</span>`}).join("");
+    const rows=names.map((n,i)=>{
       const a=get(A,n),c=get(B,n);
       const ea=a?effHTML(a.v[4],a.v[0]):"",ec=c?effHTML(c.v[4],c.v[0]):"";
-      const none=`<span class="none">なし</span>`;
-      const lv=x=>x&&x.lt?`<span class="lvt">${x.lt}</span>`:"";
-      let ef;
-      if(a&&c&&a.v[4]===c.v[4]&&String(a.v[0])===String(c.v[0]))ef=ea?(a.lt||c.lt?(a.lt?`<span><i>通${lv(a)}</i></span>`:"")+(c.lt?`<span><i>変${lv(c)}</i></span>`:""):"")+`<span>${ea}</span>`:"";
-      else ef=(a?`<span><i>通${lv(a)}</i>${ea||none}</span>`:"")+(c?`<span><i>変${lv(c)}</i>${ec||none}</span>`:"");
-      if(!ef)ef=(a&&a.lt?`<span><i>通${lv(a)}</i></span>`:"")+(c&&c.lt?`<span><i>変${lv(c)}</i></span>`:"");
-      const lead=`<td class="snm" rowspan="2">${esc(skn(n))}</td>`;
-      return `${row(lead,"通",a,null,"rn")}${row("","変",c,a,"rv")}<tr class="ex"><td colspan="6">${ef?`<div class="efl">${ef}</div>`:""}</td></tr>`;
+      const same=a&&c&&a.v[4]===c.v[4]&&String(a.v[0])===String(c.v[0]);
+      const e1=same?`<td class="ef" rowspan="2">${ea||none}</td>`:`<td class="ef">${a?ea||none:""}</td>`;
+      const e2=same?"":`<td class="ef">${c?ec||none:""}</td>`;
+      return row(i+1,"通",a,null,"r1",e1)+row(0,"変",c,a,"r2",e2);
     }).join("");
-    return `<div class="box spc"><div class="spc-h"><b>${esc(b)}</b></div><div class="xtbl"><table class="sktbl sptbl"><thead><tr><th class="snm">スキル</th><th class="kd"></th><th class="c">属性</th><th class="c">マナ</th><th class="c">命中</th><th class="c">威力</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
+    return `<div class="box spc"><div class="spc-h"><b>${esc(b)}</b></div><p class="sp-lg">${legend}</p><div class="xtbl"><table class="sktbl sptbl"><thead><tr><th class="sno"></th><th class="kd"></th><th class="c">属</th><th class="c">マ</th><th class="c">命</th><th class="c">威</th><th class="ef">効果</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
   }).join("")}</div>`;
 }
 function viewSkill(){
