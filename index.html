@@ -1702,6 +1702,8 @@ const UP_NEW=[10,10,10,10,10,10],UP_ALL=[15,15,15,15,15,15],UP_DK=[20,20,20,20,2
 const PLAN=[
   {y:0,m:4,w:1,k:"plan",t:"おやつ",d:"調子アップのアイテムを使ってから、おやつ"},
   {y:0,m:4,w:2,k:"plan",t:"伸び率を記録",d:"絶好調で6種類の特訓画面を撮り、育成ガイドに記録する"},
+  {y:0,m:12,w:4,k:"must",t:"クリスマスプレゼント",cups:[],up:null,pick:10,d:"宝石を1つ選ぶ。体・防、攻・命、早・避のどれか2つが+10"},
+  {y:1,m:12,w:4,k:"must",t:"クリスマスプレゼント",cups:[],up:null,pick:10,d:"宝石を1つ選ぶ。体・防、攻・命、早・避のどれか2つが+10"},
   {y:0,m:1,w:4,k:"must",t:"新人王",cups:["森林 新人王決定戦","荒野 新人王決定戦"],up:UP_NEW,d:"どちらかに出る。優勝で6つ全部が約+12"},
   {y:0,m:2,w:4,k:"must",t:"新人王",cups:["岩場 新人王決定戦","水辺 新人王決定戦"],up:UP_NEW,d:"優勝でゴールドに上がる。6つ全部が約+12"},
   {y:1,m:7,w:4,k:"must",t:"アタック自慢",cups:["アタック自慢大会"],up:UP_A,d:"優勝で攻撃・命中が約+28。元気が減らない"},
@@ -1723,8 +1725,9 @@ function cupView(){
   const L=[...L0,...FILL].sort((a,b)=>ord(a)-ord(b));
   const SN=STATS;
   const row=p=>{const o=p.k==="opt";
-    const cells=p.up?p.up.map(v=>v?`<td>${v}</td>`:`<td class="z">–</td>`).join(""):`<td>${UP_PICK}</td>`.repeat(6);
-    const tot=p.none?"–":p.up?p.up.reduce((a,b)=>a+b,0):UP_PICK*2;
+    const pk=p.pick||UP_PICK;
+    const cells=p.up?p.up.map(v=>v?`<td>${v}</td>`:`<td class="z">–</td>`).join(""):`<td>${pk}</td>`.repeat(6);
+    const tot=p.none?"–":p.up?p.up.reduce((a,b)=>a+b,0):pk*2;
     return `<tr${o?' class="opt"':""}><th>${p.m}月${p.w}週</th>${cells}<td class="t${p.none?" z":""}">${tot}</td></tr>`};
   const yr=y=>`<tr class="yr"><th colspan="8">${y+1}年生</th></tr>`+L.filter(p=>p.y===y).map(row).join("");
   return `<h2><span class="tg">${ico("crown")}</span>育成カレンダー</h2>
