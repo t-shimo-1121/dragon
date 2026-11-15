@@ -579,6 +579,9 @@ details.cup{display:block}
 .cal-t tr.opt th,.cal-t tr.opt td{color:var(--mute)}
 .fx{color:var(--mute)}
 .ev-h{font-weight:700;margin:0 0 6px}
+.memo ul{margin:0 0 10px;padding-left:1.2em;line-height:1.5}
+.memo li{margin:0 0 4px}
+.memo .cal-t{margin:6px 0 2px}
 .ev-t{width:100%;border-collapse:collapse;margin:0 0 12px}
 .ev-t:last-child{margin-bottom:0}
 .ev-t th,.ev-t td{padding:7px 2px;text-align:left;border-bottom:1px solid var(--line)}
@@ -1750,8 +1753,25 @@ function eventView(){
     <table class="ev-t"><tbody>${ev.ch.map(c=>`<tr><th>${esc(c.c)}</th>${c.e?`<td>${esc(c.e)}</td>`:`<td class="z">まだ記録なし</td>`}</tr>`).join("")}</tbody></table>`).join("")}
   </div>`;
 }
+/* ===== メモ（特訓の伸び方で分かったこと） ===== */
+function memoView(){
+  const tr=(h,v)=>`<tr><th>${h}</th>${v.map(x=>`<td>${x}</td>`).join("")}</tr>`;
+  return `<h2><span class="tg">${ico("tome")}</span>メモ</h2>
+  <div class="box sim-b memo">
+    <p class="ev-h">調子</p>
+    <ul><li>絶好調だと、アイテム無し特訓の上がる量が普通より各パラメータ約+3（九頭龍変異種、4月1週の普通と8月1週の絶好調で比較）</li></ul>
+    <p class="ev-h">伸びにくさ</p>
+    <ul><li>育成が進むと、パラメータによって特訓の上がる量が大きく減る。今の数値÷種族値が大きいパラメータほど減りやすい</li>
+    <li>アイテムを使うと、種類に関係なく伸びにくいパラメータ全部が約+7。アイテムの名前のパラメータには、さらに約2割の上乗せ</li></ul>
+    <p class="note">ヒュドラー変異種・2年11月2週・絶好調。今の数値は体935・攻720・防915・早227・命744・避191</p>
+    <table class="cal-t"><thead><tr><th></th>${STATS.map(n=>`<th>${n}</th>`).join("")}</tr></thead><tbody>
+      ${tr("予想",[36,21,31,14,26,16])}${tr("無し",[19,2,11,14,3,14])}${tr("攻撃",[26,9,18,14,8,14])}${tr("素早さ",[26,7,18,17,8,14])}
+    </tbody></table>
+    <p class="note">予想＝種族値＋3。攻撃＝攻撃のフルーツ、素早さ＝素早さのブーツを使ったとき</p>
+  </div>`;
+}
 function viewSim(){
-  return `<div id="cupcal">${cupView()}</div>${eventView()}`;
+  return `<div id="cupcal">${cupView()}</div>${eventView()}${memoView()}`;
 }
 /* ===== 魔導書：レアリティごとの種族値 ===== */
 const RR_ORD=["N","R","SR","UR"];
