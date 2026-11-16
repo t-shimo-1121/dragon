@@ -599,6 +599,38 @@ details.cup{display:block}
 /* 情報 */
 .foot{margin-top:26px;color:var(--mute);font-size:var(--fs-s)}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+/* ===== 記録タブ ===== */
+.lg-wrap{display:grid;gap:12px}
+@media (min-width:900px){.lg-wrap{grid-template-columns:minmax(0,440px) minmax(0,1fr);align-items:start}}
+.lg-f{padding:10px 12px}
+.lg-f .row{display:flex;flex-wrap:wrap;gap:6px 8px;margin:0 0 8px}
+.lg-f label{display:flex;flex-direction:column;gap:2px;font-size:var(--fs-s);color:var(--mute);font-weight:700;min-width:0}
+.lg-f input,.lg-f select,.lg-f textarea{font:inherit;font-size:var(--fs-m);color:var(--ink);background:var(--paper);border:1px solid var(--line);border-radius:9px;padding:5px 7px;min-width:0;width:100%;box-sizing:border-box}
+.lg-f input:focus,.lg-f select:focus,.lg-f textarea:focus{outline:2px solid var(--accent);outline-offset:-1px}
+.lg-f .w2{width:4.2rem}.lg-f .w3{width:6.4rem}.lg-f .grow{flex:1 1 9rem}
+.lg-f label.ck{flex-direction:row;align-items:center;gap:6px;align-self:flex-end;padding-bottom:6px}
+.lg-f label.ck input{width:1.15rem;height:1.15rem;accent-color:var(--accent)}
+.lg-g{width:100%;border-collapse:collapse;margin:2px 0 8px}
+.lg-g th{font-size:var(--fs-s);color:var(--mute);font-weight:700;padding:2px 3px;text-align:center}
+.lg-g th.p{text-align:left;width:2rem;color:var(--ink)}
+.lg-g td{padding:2px 3px}
+.lg-g input{text-align:right;font-variant-numeric:tabular-nums}
+.lg-btn{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 0}
+.lg-btn button{border:1px solid var(--line);background:var(--sheet);border-radius:11px;padding:6px 14px;font-size:var(--fs-s);font-weight:700;color:var(--ink)}
+.lg-btn button.pri{background:var(--accent);border-color:var(--accent);color:var(--sheet)}
+.lg-btn button.dz{color:var(--mute)}
+.lg-l{padding:6px 10px}
+.lg-l table{width:100%;border-collapse:collapse}
+.lg-l th,.lg-l td{padding:5px 3px;border-bottom:1px solid var(--line);text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.lg-l th{font-size:var(--fs-s);color:var(--mute)}
+.lg-l td.w,.lg-l th.w{text-align:left;white-space:normal}
+.lg-l td.w small{display:block;color:var(--mute);font-size:var(--fs-s);line-height:1.3}
+.lg-l tr[data-lgedit]{cursor:pointer}
+.lg-l tr.on td{background:var(--soft)}
+.lg-l tr:last-child td{border-bottom:0}
+.lg-l .gk{color:var(--hi);font-weight:700}
+.lg-x{overflow-x:auto}
+.lg-msg{font-size:var(--fs-s);color:var(--mute);margin:6px 0 0;min-height:1.4em}
 </style>
 </head>
 <body>
@@ -634,6 +666,7 @@ details.cup{display:block}
   <button role="tab" data-tab="card" aria-label="カード" title="カード"><span class="tl">カード</span></button>
   <button role="tab" data-tab="battle" aria-label="バトル" title="バトル"><span class="tl">バトル</span></button>
   <button role="tab" data-tab="maseki" aria-label="魔石" title="魔石"><span class="tl">魔石</span></button>
+  <button role="tab" data-tab="log" aria-label="記録" title="記録"><span class="tl">記録</span></button>
 </nav>
 
 <main id="view"></main>
@@ -1848,7 +1881,107 @@ function viewBook(){
 }
 document.addEventListener("click",e=>{const r=e.target.closest("[data-bkrr]");if(r){state.bkRr=r.dataset.bkrr;save();render();return}
   const t=e.target.closest("[data-bkty]");if(t&&!t.disabled){state.bkTy=t.dataset.bkty;save();render();return}});
-const VIEWS={book:viewBook,sim:viewSim,skill:viewSkill,ability:viewAbility,card:viewCard,battle:viewBattle,maseki:viewMaseki};
+/* ===== 記録（育成・バトル）。この端末のブラウザに保存し、コピーしてClaudeに渡す ===== */
+const LG_KEY="dragon-log-v1";
+let LOG=[];try{LOG=JSON.parse(localStorage.getItem(LG_KEY)||"[]")}catch(e){LOG=[]}
+const lgSave=()=>{try{localStorage.setItem(LG_KEY,JSON.stringify(LOG));return true}catch(e){return false}};
+state.lgMode="train";state.lgEdit=null;state.lgMsg="";
+const LG_MO=[4,5,6,7,8,9,10,11,12,1,2,3],LG_COND=["絶好調","好調","普通","不調","絶不調"],LG_ACT=["特訓","大会","休み"];
+const LG_ITEMS=["体力のダンベル","攻撃のフルーツ","素早さのブーツ","命中のメガネ","根気の鎧","破壊の兜","俊敏の耳飾り"];
+const LG_REL=["通常","弱点","いまひとつ"],LG_BUF=["なし","小","中","大"];
+const lgDragons=()=>{const s=new Set(LOG.map(r=>r.dr).filter(Boolean).concat(LOG.map(r=>r.ad).filter(Boolean),LOG.map(r=>r.dd).filter(Boolean)));
+  [...MASEKI_N,...MASEKI_R].forEach(b=>{s.add(b);s.add(b+"変異種")});return [...s]};
+const lgNext=(yr,mo,wk)=>{wk=+wk||1;if(wk<4)return[yr,mo,wk+1];const i=LG_MO.indexOf(+mo);if(i<11)return[yr,LG_MO[i+1],1];return[Math.min(2,(+yr||1)+1),4,1]};
+const lgWeek=r=>`${r.yr}年${r.mo}月${r.wk}週`;
+const lgNum=v=>{const n=parseInt(String(v).replace(/[^\d-]/g,""),10);return isNaN(n)?"":n};
+const lgOpt=(arr,v)=>arr.map(x=>`<option${String(x)===String(v)?" selected":""}>${x}</option>`).join("");
+const lgDl=(id,arr)=>`<datalist id="${id}">${arr.map(x=>`<option value="${esc(x)}">`).join("")}</datalist>`;
+function lgDefault(t){
+  const last=LOG.filter(r=>r.t===t).slice(-1)[0];
+  if(t==="train"){if(!last)return{t,dr:"",yr:1,mo:4,wk:1,cond:"普通",gk:false,act:"特訓",item:"",v:["","","","","",""],m:["","","","","",""],s:["","","","","",""],cup:"",memo:""};
+    /* 同じ週のまま（アイテム違いを続けて記録しやすい）。次の週は「次の週へ」で進める */
+    return{...last,id:null,item:"",m:["","","","","",""],s:["","","","","",""],cup:"",memo:"",exp:false}}
+  if(!last)return{t,ad:"",atk:"",ab:"なし",dd:"",def:"",db:"なし",sk:"",pw:"",rel:"通常",crit:false,dmg:"",memo:""};
+  return{...last,id:null,sk:"",pw:"",rel:"通常",crit:false,dmg:"",memo:"",exp:false}}
+function lgForm(){
+  const ed=state.lgEdit&&LOG.find(r=>r.id===state.lgEdit),r=ed||lgDefault(state.lgMode);
+  const btn=`<div class="lg-btn"><button type="button" class="pri" data-lg="save">${ed?"上書き保存":"保存"}</button>${ed?`<button type="button" data-lg="new">新しく入力</button><button type="button" class="dz" data-lg="del">削除</button>`:""}</div><p class="lg-msg">${esc(state.lgMsg)}</p>`;
+  if(state.lgMode==="train"){
+    const g=STATS.map((n,i)=>`<tr><th class="p">${n}</th><td><input name="v${i}" inputmode="numeric" value="${r.v[i]??""}"></td><td><input name="m${i}" inputmode="numeric" value="${r.m[i]??""}"></td><td><input name="s${i}" inputmode="numeric" value="${r.s[i]??""}"></td></tr>`).join("");
+    return `<form class="box lg-f" id="lgf" autocomplete="off">
+      <div class="row"><label class="grow">ドラゴン<input name="dr" list="lg-dr" value="${esc(r.dr||"")}"></label></div>
+      <div class="row"><label>学年<select name="yr" class="w2">${lgOpt([1,2],r.yr)}</select></label><label>月<select name="mo" class="w2">${lgOpt(LG_MO,r.mo)}</select></label><label>週<select name="wk" class="w2">${lgOpt([1,2,3,4],r.wk)}</select></label><div class="lg-btn" style="align-self:flex-end;margin:0"><button type="button" data-lg="nextwk">次の週へ</button></div><label>調子<select name="cond" class="w3">${lgOpt(LG_COND,r.cond)}</select></label><label class="ck"><input type="checkbox" name="gk"${r.gk?" checked":""}>極限集中</label></div>
+      <div class="row"><label>行動<select name="act" class="w3">${lgOpt(LG_ACT,r.act)}</select></label><label class="grow">アイテム（無しは空欄）<input name="item" list="lg-it" value="${esc(r.item||"")}"></label></div>
+      <table class="lg-g"><thead><tr><th class="p"></th><th>今の数値</th><th>メイン</th><th>サブ</th></tr></thead><tbody>${g}</tbody></table>
+      <div class="row"><label class="grow">大会の結果（例：優勝 攻+5 命+5）<input name="cup" value="${esc(r.cup||"")}"></label></div>
+      <div class="row"><label class="grow">メモ<input name="memo" value="${esc(r.memo||"")}"></label></div>${btn}
+      ${lgDl("lg-dr",lgDragons())}${lgDl("lg-it",LG_ITEMS)}</form>`}
+  return `<form class="box lg-f" id="lgf" autocomplete="off">
+    <p class="ev-h">攻撃側</p>
+    <div class="row"><label class="grow">ドラゴン<input name="ad" list="lg-dr" value="${esc(r.ad||"")}"></label><label>攻撃<input name="atk" class="w3" inputmode="numeric" value="${r.atk??""}"></label><label>攻バフ<select name="ab" class="w3">${lgOpt(LG_BUF,r.ab)}</select></label></div>
+    <p class="ev-h">防御側</p>
+    <div class="row"><label class="grow">ドラゴン<input name="dd" list="lg-dr" value="${esc(r.dd||"")}"></label><label>防御<input name="def" class="w3" inputmode="numeric" value="${r.def??""}"></label><label>防バフ<select name="db" class="w3">${lgOpt(LG_BUF,r.db)}</select></label></div>
+    <p class="ev-h">技とダメージ</p>
+    <div class="row"><label class="grow">スキル<input name="sk" list="lg-sk" value="${esc(r.sk||"")}"></label><label>威力<input name="pw" class="w2" inputmode="numeric" value="${r.pw??""}"></label></div>
+    <div class="row"><label>相性<select name="rel" class="w3">${lgOpt(LG_REL,r.rel)}</select></label><label class="ck"><input type="checkbox" name="crit"${r.crit?" checked":""}>クリティカル</label><label>ダメージ<input name="dmg" class="w3" inputmode="numeric" value="${r.dmg??""}"></label></div>
+    <div class="row"><label class="grow">メモ<input name="memo" value="${esc(r.memo||"")}"></label></div>${btn}
+    ${lgDl("lg-dr",lgDragons())}${lgDl("lg-sk",[...new Set(Object.values(SK).flatMap(o=>Object.keys(o)))])}</form>`}
+function lgRead(){
+  const f=new FormData(document.getElementById("lgf")),g=k=>(f.get(k)||"").toString().trim();
+  if(state.lgMode==="train")return{t:"train",dr:g("dr"),yr:+g("yr"),mo:+g("mo"),wk:+g("wk"),cond:g("cond"),gk:!!f.get("gk"),act:g("act"),item:g("item"),
+    v:STATS.map((_,i)=>lgNum(g("v"+i))),m:STATS.map((_,i)=>lgNum(g("m"+i))),s:STATS.map((_,i)=>lgNum(g("s"+i))),cup:g("cup"),memo:g("memo")};
+  return{t:"battle",ad:g("ad"),atk:lgNum(g("atk")),ab:g("ab"),dd:g("dd"),def:lgNum(g("def")),db:g("db"),sk:g("sk"),pw:lgNum(g("pw")),rel:g("rel"),crit:!!f.get("crit"),dmg:lgNum(g("dmg")),memo:g("memo")}}
+function lgList(){
+  const rs=LOG.filter(r=>r.t===state.lgMode).slice().reverse();
+  if(!rs.length)return `<div class="box lg-l"><p class="note">まだ記録がありません。</p></div>`;
+  const on=r=>r.id===state.lgEdit?' class="on"':"";
+  if(state.lgMode==="train")return `<div class="box lg-l lg-x"><table><thead><tr><th class="w">週・ドラゴン</th>${STATS.map(n=>`<th>${n}</th>`).join("")}</tr></thead><tbody>${rs.map(r=>
+    `<tr data-lgedit="${r.id}"${on(r)}><td class="w">${lgWeek(r)}${r.gk?' <span class="gk">極</span>':""}<small>${esc(r.dr)}・${esc(r.act)}${r.item?"・"+esc(r.item):""}${r.cond!=="絶好調"?"・"+esc(r.cond):""}</small></td>${STATS.map((_,i)=>`<td>${r.act==="特訓"?(r.m[i]===""?"–":r.m[i]):(r.v[i]===""?"–":r.v[i])}</td>`).join("")}</tr>`).join("")}</tbody></table>
+    <p class="note">特訓はメインの上がる量、それ以外は今の数値。行を押すと直せる</p></div>`;
+  return `<div class="box lg-l lg-x"><table><thead><tr><th class="w">技・ドラゴン</th><th>攻</th><th>防</th><th>威</th><th>ダメ</th></tr></thead><tbody>${rs.map(r=>
+    `<tr data-lgedit="${r.id}"${on(r)}><td class="w">${esc(r.sk||"–")}${r.crit?' <span class="gk">クリ</span>':""}<small>${esc(r.ad)}→${esc(r.dd)}${r.rel!=="通常"?"・"+esc(r.rel):""}${r.ab!=="なし"?"・攻バフ"+esc(r.ab):""}${r.db!=="なし"?"・防バフ"+esc(r.db):""}</small></td><td>${r.atk}</td><td>${r.def}</td><td>${r.pw}</td><td><b>${r.dmg}</b></td></tr>`).join("")}</tbody></table>
+    <p class="note">行を押すと直せる</p></div>`}
+function lgText(r){
+  const j=a=>a.map(x=>x===""?"-":x).join(",");
+  if(r.t==="train")return `育成 ${r.dr} ${lgWeek(r)} ${r.cond}${r.gk?" 極限集中":""} ${r.act}${r.item?" "+r.item:r.act==="特訓"?" アイテム無し":""} 数値[${j(r.v)}]${r.act==="特訓"?` メイン[${j(r.m)}] サブ[${j(r.s)}]`:""}${r.cup?" 大会:"+r.cup:""}${r.memo?" メモ:"+r.memo:""}`;
+  return `バトル ${r.ad}(攻${r.atk},攻バフ${r.ab})→${r.dd}(防${r.def},防バフ${r.db}) ${r.sk} 威${r.pw} ${r.rel}${r.crit?" クリティカル":""} ダメージ${r.dmg}${r.memo?" メモ:"+r.memo:""}`}
+function viewLog(){
+  const n=LOG.filter(r=>!r.exp).length;
+  return `<h2><span class="tg">${ico("book")}</span>記録</h2>
+  <div class="sorter">${[["train","育成"],["battle","バトル"]].map(([k,l])=>`<button type="button" data-lgmode="${k}" aria-pressed="${state.lgMode===k}">${l}<small>${LOG.filter(r=>r.t===k).length}</small></button>`).join("")}</div>
+  <div class="lg-wrap"><div>${lgForm()}</div><div>${lgList()}</div></div>
+  <h2><span class="tg">${ico("tome")}</span>Claudeに渡す</h2>
+  <div class="box lg-f"><p class="note">コピーしてチャットに貼り付ける。記録はこの端末のブラウザだけに保存されるので、ときどきバックアップを保存する</p>
+    <div class="lg-btn"><button type="button" class="pri" data-lg="copynew">新しい記録をコピー（${n}件）</button><button type="button" data-lg="copyall">全部コピー</button></div>
+    <div class="lg-btn"><button type="button" data-lg="backup">バックアップを保存</button><button type="button" data-lg="restore">バックアップから戻す</button><input type="file" id="lg-file" accept="application/json,.json" hidden></div></div>`}
+async function lgCopy(rs){
+  const txt=rs.map(lgText).join("\n");if(!txt){state.lgMsg="コピーする記録がありません";return render()}
+  let ok=false;try{await navigator.clipboard.writeText(txt);ok=true}catch(e){}
+  if(!ok){const ta=document.createElement("textarea");ta.value=txt;document.body.appendChild(ta);ta.select();try{ok=document.execCommand("copy")}catch(e){}ta.remove()}
+  if(ok){rs.forEach(r=>r.exp=true);lgSave();state.lgMsg=`${rs.length}件コピーしました`}else state.lgMsg="コピーできませんでした";
+  render()}
+document.addEventListener("click",e=>{
+  const m=e.target.closest("[data-lgmode]");if(m){state.lgMode=m.dataset.lgmode;state.lgEdit=null;state.lgMsg="";return render()}
+  const ed=e.target.closest("[data-lgedit]");if(ed){state.lgEdit=ed.dataset.lgedit;state.lgMsg="";render();document.getElementById("lgf")?.scrollIntoView({block:"nearest"});return}
+  const b=e.target.closest("[data-lg]");if(!b)return;const a=b.dataset.lg;
+  if(a==="save"){const r=lgRead();
+    if(state.lgMode==="train"&&!r.dr){state.lgMsg="ドラゴンを入れてください";return render()}
+    if(state.lgEdit){const i=LOG.findIndex(x=>x.id===state.lgEdit);if(i>=0)LOG[i]={...LOG[i],...r,exp:false}}
+    else LOG.push({...r,id:Date.now().toString(36),ts:Date.now(),exp:false});
+    state.lgMsg=lgSave()?(state.lgEdit?"上書きしました":"保存しました"):"保存できませんでした";state.lgEdit=null;return render()}
+  if(a==="new"){state.lgEdit=null;state.lgMsg="";return render()}
+  if(a==="nextwk"){const f=document.getElementById("lgf"),[yr,mo,wk]=lgNext(+f.yr.value,+f.mo.value,+f.wk.value);f.yr.value=yr;f.mo.value=mo;f.wk.value=wk;return}
+  if(a==="del"){if(!state.lgEdit)return;LOG=LOG.filter(x=>x.id!==state.lgEdit);lgSave();state.lgEdit=null;state.lgMsg="削除しました";return render()}
+  if(a==="copynew")return lgCopy(LOG.filter(r=>!r.exp));
+  if(a==="copyall")return lgCopy(LOG.slice());
+  if(a==="backup"){const blob=new Blob([JSON.stringify(LOG,null,1)],{type:"application/json"}),u=URL.createObjectURL(blob),l=document.createElement("a");
+    const d=new Date();l.href=u;l.download=`dragon-log-${d.getFullYear()}${String(d.getMonth()+1).padStart(2,"0")}${String(d.getDate()).padStart(2,"0")}.json`;document.body.appendChild(l);l.click();l.remove();setTimeout(()=>URL.revokeObjectURL(u),2000);return}
+  if(a==="restore")return document.getElementById("lg-file")?.click();
+});
+document.addEventListener("change",e=>{if(e.target.id!=="lg-file")return;const f=e.target.files[0];if(!f)return;
+  f.text().then(t=>{const a=JSON.parse(t);if(!Array.isArray(a))throw 0;const ids=new Set(LOG.map(r=>r.id));let n=0;a.forEach(r=>{if(r&&r.id&&!ids.has(r.id)){LOG.push(r);n++}});
+    LOG.sort((x,y)=>(x.ts||0)-(y.ts||0));lgSave();state.lgMsg=`${n}件を戻しました`;render()}).catch(()=>{state.lgMsg="読み込めませんでした";render()})});
+const VIEWS={book:viewBook,sim:viewSim,skill:viewSkill,ability:viewAbility,card:viewCard,battle:viewBattle,maseki:viewMaseki,log:viewLog};
 const view=document.getElementById("view");
 function render(){
   document.querySelectorAll("nav.views button").forEach(t=>t.setAttribute("aria-selected",t.dataset.tab===state.tab));
