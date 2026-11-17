@@ -493,6 +493,7 @@ mark{background:hsl(45 95% 62% / .55);color:inherit;border-radius:3px;padding:0 
 .bk-sv span{display:flex;gap:3px;align-items:baseline}
 .bk-sv i{font-style:normal;color:var(--mute);font-size:var(--fs-s)}
 .bk-sv b{font-weight:400}
+.bk-sv b.un{color:var(--mute)}
 .bk-sv b.s{color:var(--hi);font-weight:700}.bk-sv b.lo{color:var(--lo);font-weight:700}
 .bk-tot{margin-left:5px;white-space:nowrap;font-weight:700;font-size:var(--fs-s)}
 .bk-ok{margin-left:5px;color:var(--hi);font-size:var(--fs-s)}
@@ -1066,9 +1067,9 @@ const AB={
 
 /* ===== 状態（並べ替えと画像の種類は端末に保存） ===== */
 const state={tab:"book",detail:null,img:"illust",
-  dSort:{key:"no",dir:1},sSort:{key:"total",dir:-1},kSort:{key:"no",dir:1},aSort:{key:"no",dir:1},abCat:"all",gTy:"all",bkTy:"all",skMana:"all",skCat:"all",skPow:"all",skAcc:"all",skEl:"all",bkRr:"all",dScroll:0,dMiss:false,dOpen:[],
+  dSort:{key:"no",dir:1},sSort:{key:"total",dir:-1},kSort:{key:"no",dir:1},aSort:{key:"no",dir:1},abCat:"all",gTy:"all",bkTy:"all",bkVw:"spv",skMana:"all",skCat:"all",skPow:"all",skAcc:"all",skEl:"all",bkRr:"all",dScroll:0,dMiss:false,dOpen:[],
   rk:{status:"total",skill:"pow",ability:"all"}};
-const KEEP=["bkRr","bkTy","dSort","sSort","img","abCat","gTy","rk","skMana","skCat","skPow","skAcc","skEl","dMiss"];
+const KEEP=["bkRr","bkTy","bkVw","dSort","sSort","img","abCat","gTy","rk","skMana","skCat","skPow","skAcc","skEl","dMiss"];
 try{const s=JSON.parse(localStorage.getItem("dragon-maseki-v2")||"{}");KEEP.forEach(k=>{if(s[k])state[k]=s[k]})}catch(e){}
 state.img="illust";  // 画像はイラストに固定
 const save=()=>{try{localStorage.setItem("dragon-maseki-v2",JSON.stringify(Object.fromEntries(KEEP.map(k=>[k,state[k]]))))}catch(e){}};
@@ -1109,6 +1110,13 @@ function hexMini(v,{R=31,pad=3,max=36}={}){
   const pt=(i,f)=>{const a=(-90+60*i)*Math.PI/180;return[cx+Math.cos(a)*R*f,cy+Math.sin(a)*R*f]};
   const poly=f=>[0,1,2,3,4,5].map(i=>pt(i,f).map(n=>n.toFixed(1)).join(",")).join(" ");
   return `<svg class="radar hm" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" aria-hidden="true"><polygon class="frame" points="${poly(1)}"/><polygon class="gl" points="${poly(.5)}"/><polygon class="area" points="${v.map((x,i)=>pt(i,Math.max(.06,x/max)).map(n=>n.toFixed(1)).join(",")).join(" ")}"/></svg>`;
+}
+/* 伸びが落ちる値の六角形：1000を外枠に。700以上は赤、400以下は青。未確定（〜）はうすく */
+function bkTh(r){
+  const t=r.th,num=x=>x==null?0:typeof x==="string"?parseInt(x):x;
+  const lb=x=>x==null?"?":typeof x==="string"?`${parseInt(x)}〜`:x;
+  const cl=x=>{if(x==null||typeof x==="string")return "un";return x>=700?"s":x<=400?"lo":""};
+  return `<div class="bk-st">${hexMini(t.map(num),{R:34,max:1000})}<div class="bk-sv" role="img" aria-label="${esc(r.sp)}の伸びが落ちる値：${t.map((x,i)=>STATS_L[i]+lb(x)).join("、")}">${t.map((x,i)=>`<span><i>${STATS[i]}</i><b class="${cl(x)}">${lb(x)}</b></span>`).join("")}</div></div>`;
 }
 function bkStat(r){
   const cl=x=>x>=29?" s":x<12?" lo":"";
@@ -1640,10 +1648,12 @@ function labSec(icon,title,tag,body){
    2026/11/10より前に入れた値は「極限集中の量（普通×2.1）」だったので、÷2.1して四捨五入した。src はその時の元データの説明
    v=[体,攻,防,早,命,避]、fix＝補正した番号、src＝元にしたデータ。
    一緒に上がる量は丸めの誤差が大きいので使わない。この方法で測ったものは new:true（魔導書のカードに赤字で「済」） */
+/* th＝伸びが落ちる値（その数値を超えると特訓の上がる量が落ちる）。[体,攻,防,早,命,避]。
+   数＝確定、"600+"＝600以上（まだ落ちていない）、null＝未調査。100刻み */
 const SPV=[
   {sp:"リントヴルム変異種",rr:"SR",nk:"デカミミズ",v:[18,12,33,21,21,21],fix:[2],
    src:"極限集中の実測5回の平均（1年12月4週）。防は鈍化しているので、絶好調の2回（4月2週37・11月4週41）×1.8で補正"},
-  {sp:"ケツァルコアトル",rr:"R",nk:"あきら",v:[22,21,20,18,19,20],fix:[],new:true,
+  {sp:"ケツァルコアトル",rr:"R",nk:"あきら",v:[22,21,20,18,19,20],fix:[],new:true,th:[500,600,500,"600+",500,null],
    src:"普通（1年4月1週）の主に上がる量"},
   {sp:"ケツァルコアトル変異種",rr:"UR",nk:"かおる",v:[18,29,13,19,22,22],fix:[],new:true,
    src:"普通（1年4月1週）の主に上がる量"},
@@ -1651,9 +1661,9 @@ const SPV=[
    src:"普通（1年4月1週）の主に上がる量"},
   {sp:"蜃変異種",rr:"UR",nk:"カワイイ・シンゴジラ",v:[13,10,21,30,22,29],fix:[],
    src:"3回分の平均。カワイイの普通（1年4月1週）×2.1、シンゴジラの普通（1年4月1週）×2.1、シンゴジラの絶好調（1年4月2週）×1.8"},
-  {sp:"クエレブレ",rr:"N",nk:"",v:[27,19,28,11,21,11],fix:[],new:true,
+  {sp:"クエレブレ",rr:"N",nk:"",v:[27,19,28,11,21,11],fix:[],new:true,th:[700,400,"700+",null,null,null],
    src:"普通（1年4月1週）の主に上がる量"},
-  {sp:"クエレブレ変異種",rr:"SR",nk:"ゴツオ",v:[30,22,31,10,20,13],fix:[0],
+  {sp:"クエレブレ変異種",rr:"SR",nk:"ゴツオ",v:[30,22,31,10,20,13],fix:[0],th:[800,"400+",800,null,null,null],
    src:"極限集中の実測1回（2年8月3週、スペシャル特訓の+2を含むかも）。体は999で頭打ちだったので、一緒に上がった量（+25）÷0.4で推定"},
   {sp:"ワイヴァーン",rr:"N",nk:"ジャック",v:[20,23,9,16,20,18],fix:[],
    src:"普通（1年4月1週）×2.1で換算。主に上がる量と、一緒に上がる量÷0.4の平均"},
@@ -1810,12 +1820,13 @@ function memoView(){
     <li>3週の得は、伸びやすい時期で特訓約3回分、伸びにくい時期で約16回分</li>
     <li>来る時期が固まり、そのあと1〜2年来ないことがある</li>
     <li>判定は特訓の最後にあり、特訓をしない週には始まらない。大会に一度も出ていないケツァルコアトルにも来たので、優勝は条件ではない。特訓のたびの抽選（1/10前後）とみるのが自然</li>
-    <li>クエレブレ通常種（大会中心、月1回だけ特訓）：1年生で優勝28回、試しの特訓8回で1回（5回目・1年12月3週）。5週続き（4週目に終了の表示のあと継続）、攻撃特訓で毎週約40＝(15＋絶好調3)×1.7＋アイテム10</li></ul>
+    <li>クエレブレ通常種（大会中心、月1回だけ特訓）：1年生で優勝28回、試しの特訓8回で1回（5回目・1年12月3週）。5週続き（4週目に終了の表示のあと継続）、攻撃特訓で毎週約40＝(15＋絶好調3)×1.7＋アイテム10</li>
+    <li>同じ流れ（並行して育てる1年生・2年生のそれぞれの系統）の前の世代から引き継ぐらしい。九頭龍変異種（2年1月2週）→クエレブレ通常種（1年12月3週）、ケツァルコアトル（2年6月3週）→クエレブレ変異種（1年6月1週）は、どちらも始まりから約45週。ただしクエレブレ通常種の2年目は45〜49週目と2月の特訓でも来ず、ヒュドラー変異種〜ケツァルコアトル1年目は約150週来なかった。「約45週のクールダウン＋そのあと抽選」が今のところの見方。特訓だけ・大会だけで有意に増やす方法は見つかっていない</li></ul>
     <p class="ev-h">調子</p>
     <ul><li>絶好調だと、アイテム無し特訓の上がる量が普通より各パラメータ約+3〜4（ケツァルコアトルの4月1週と2週、九頭龍変異種の4月1週と8月・11月で比較）</li></ul>
     <p class="ev-h">伸びにくさ</p>
     <ul><li>育成が進むと、たくさん伸ばしたパラメータの特訓の上がる量が減る。伸ばしていないパラメータは減らない</li>
-    <li>上がる量は「種族値」と「伸びにくくなる数値」の二段構え。伸びにくくなる数値は、体力・防御・命中が500、攻撃が600、素早さは500より上（501でも満額）、回避は未確認（ケツァルコアトル）</li>
+    <li>上がる量は「種族値」と「伸びにくくなる数値」の二段構え。伸びにくくなる数値は、体力・防御・命中が500、攻撃が600、素早さは500より上（501でも満額）、回避は未確認（ケツァルコアトル）。伸びにくくなる数値は種族・パラメータごとに違い、100刻み（魔導書タブの「伸びが落ちる値」）。超えてすぐは満額のことが多く、約65%→約35%と段階的に下がる</li>
     <li>ケツァルコアトルの体力は300〜500で1割ほど減り、500を超えると急に下がって543で約半分、627で約3割、700前後で2まで下がり、768でも2</li>
     <li>命中（命中アイテムあり）は492で満額、533と564で約65%、581と605で約35%、619で約25%</li>
     <li>アイテムは名前のパラメータの特訓を約+7。ほかの特訓は変わらない。伸びにくさがあっても+7は減らない</li>
@@ -1869,7 +1880,7 @@ function viewBook(){
   const skl=r=>{const k=skK[nsp(r.sp)],o=k&&SK[k];if(!o)return `<p class="bk-none">スキルはまだ調べていません</p>`;
     return `${Object.entries(o).map(([n,db],i)=>{const [v]=bestLv(db.L);
       return `<div class="bk-s bk-s${i+1}"><div class="bk-sn"><b${db.L&&db.L.M?"":` class="nmx" title="レベルMaxではない"`}>${esc(skn(n))}</b>${db.at?elTag(db.at):""}</div>${v?`<div class="bk-sm">マナ${esc(v[1])}${+v[2]?`・威力${esc(v[2])}・命中${accTag(v[3])}`:""}</div>${v[4]?`<div class="bk-se">${effHTML(v[4],v[0])}</div>`:""}`:`<div class="bk-sm">値は未確認</div>`}</div>`}).join("")}`};
-  const card=(r,b)=>`<div class="bk-c${r.v?"":" nov"}"><div class="bk-body"><div class="bk-n">${b?`<span class="rr rr-${r.rr}">${r.rr}</span>`:""}${esc(spn(r.sp))}${r.v?`<span class="bk-tot"><i>計</i>${spvTot(r)}</span>${r.new?`<span class="bk-ok">済</span>`:""}`:`<small class="bk-nv">種族値は未調査</small>`}</div>${r.v?`<div class="bk-rd">${bkStat(r)}</div>`:""}${skl(r)}</div></div>`;
+  const card=(r,b)=>`<div class="bk-c${r.v?"":" nov"}"><div class="bk-body"><div class="bk-n">${b?`<span class="rr rr-${r.rr}">${r.rr}</span>`:""}${esc(spn(r.sp))}${r.v?`<span class="bk-tot"><i>計</i>${spvTot(r)}</span>${r.new?`<span class="bk-ok">済</span>`:""}`:`<small class="bk-nv">種族値は未調査</small>`}</div>${r.v?`<div class="bk-rd">${state.bkVw==="th"?(r.th?bkTh(r):`<p class="bk-none">伸びが落ちる値は<br>まだ調べていません</p>`):bkStat(r)}</div>`:""}${skl(r)}</div></div>`;
   const groups=RR_ORD.map(rr=>{const A=AF.filter(r=>r.rr===rr);if(!A.length)return"";const L=A.filter(r=>r.v);
     const avg=L.length?Math.round(L.reduce((a,r)=>a+spvTot(r),0)/L.length):0;
     return `<h3 class="bk-h"><span class="rr rr-${rr}">${rr}</span><span class="n">${A.length}種${L.length?`・測った${L.length}種の合計の平均 ${avg}`:""}</span></h3><div class="bk-g">${[...L,...A.filter(r=>!r.v)].map(r=>card(r)).join("")}</div>`}).join("");
@@ -1878,7 +1889,8 @@ function viewBook(){
     return `<h3 class="bk-h">${t}<span class="n">${L.length}種</span></h3><div class="bk-g">${L.map(r=>card(r,1)).join("")}</div>`}).join("");
   const tyBtn=["all",...TYS].map(k=>{const n=k==="all"?AR.length:AR.filter(r=>spvType(r)===k).length;
     return `<button data-bkty="${esc(k)}" aria-pressed="${ft===k}"${n?"":" disabled"}>${k==="all"?"全部":esc(k==="種族値未調査"?"未分類":k.replace(/型$/,"").replace("逃切り","逃切"))}<small class="cnt">${n}</small></button>`}).join("");
-  return `<div class="sorter bk-rr">${["all",...RR_ORD].map(k=>`<button data-bkrr="${k}" aria-pressed="${fr===k}">${k==="all"?"すべて":k}<small class="cnt">${k==="all"?ALL.length:ALL.filter(r=>r.rr===k).length}</small></button>`).join("")}</div>
+  const vwBtn=`<div class="sorter bk-rr bk-vw">${[["spv","種族値"],["th","伸びが落ちる値"]].map(([k,n])=>`<button data-bkvw="${k}" aria-pressed="${(state.bkVw||"spv")===k}">${n}</button>`).join("")}</div>${state.bkVw==="th"?`<p class="note">特訓のメインのパラメータがこの数値を超えると、上がる量が落ち始める（100刻み）。「〜」はその数値でもまだ落ちていない。超えてすぐは満額のことが多く、約65%→約35%と段階的に下がる</p>`:""}`;
+  return `${vwBtn}<div class="sorter bk-rr">${["all",...RR_ORD].map(k=>`<button data-bkrr="${k}" aria-pressed="${fr===k}">${k==="all"?"すべて":k}<small class="cnt">${k==="all"?ALL.length:ALL.filter(r=>r.rr===k).length}</small></button>`).join("")}</div>
   <div class="sorter bk-rr bk-ty">${tyBtn}</div>
   <h2><span class="tg">${ico("hex")}</span>タイプ別の種族値</h2>
   ${types}
@@ -1886,7 +1898,8 @@ function viewBook(){
   ${groups}`;
 }
 document.addEventListener("click",e=>{const r=e.target.closest("[data-bkrr]");if(r){state.bkRr=r.dataset.bkrr;save();render();return}
-  const t=e.target.closest("[data-bkty]");if(t&&!t.disabled){state.bkTy=t.dataset.bkty;save();render();return}});
+  const t=e.target.closest("[data-bkty]");if(t&&!t.disabled){state.bkTy=t.dataset.bkty;save();render();return}
+  const w=e.target.closest("[data-bkvw]");if(w){state.bkVw=w.dataset.bkvw;save();render();return}});
 /* ===== 記録（育成・バトル）。この端末のブラウザに保存し、コピーしてClaudeに渡す ===== */
 const LG_KEY="dragon-log-v1";
 let LOG=[];try{LOG=JSON.parse(localStorage.getItem(LG_KEY)||"[]")}catch(e){LOG=[]}
