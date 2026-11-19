@@ -494,6 +494,7 @@ mark{background:hsl(45 95% 62% / .55);color:inherit;border-radius:3px;padding:0 
 .bk-sv i{font-style:normal;color:var(--mute);font-size:var(--fs-s)}
 .bk-sv b{font-weight:400}
 .bk-sv b.un{opacity:.45}
+.bk-sv.th{gap:4px 8px}.bk-sv b small,.bk-tot small{font-size:.6em;letter-spacing:-.03em}
 .bk-sv b.s{color:var(--hi);font-weight:700}.bk-sv b.lo{color:var(--lo);font-weight:700}
 .bk-tot{margin-left:5px;white-space:nowrap;font-weight:700;font-size:var(--fs-s)}
 .bk-ok{margin-left:5px;color:var(--hi);font-size:var(--fs-s)}
@@ -1113,6 +1114,7 @@ function hexMini(v,{R=31,pad=3,max=36}={}){
 }
 /* 減衰点の六角形：実測（th）があればそれを、なければ「種族値×27を100で丸めた値」を予想として使う。
    実測は濃く、予想はうすく。700以上は赤、400以下は青。外枠は1000 */
+const h00=v=>`${v/100}<small>00</small>`;
 const thEst=x=>Math.max(100,Math.round(x*27/100)*100);
 function thOf(r){
   return r.v.map((x,i)=>{const t=r.th&&r.th[i],e=thEst(x);
@@ -1123,7 +1125,7 @@ function thOf(r){
 function bkTh(r){
   const T=thOf(r),cl=o=>(o.v>=700?"s":o.v<=400?"lo":"")+(o.m?"":" un");
   const al=T.map((o,i)=>`${STATS_L[i]}${o.v}${o.m?"":"（予想）"}`).join("、");
-  return `<div class="bk-st">${hexMini(T.map(o=>o.v),{R:34,max:1000})}<div class="bk-sv" role="img" aria-label="${esc(r.sp)}の減衰点：${al}">${T.map((o,i)=>`<span><i>${STATS[i]}</i><b class="${cl(o).trim()}">${o.v}</b></span>`).join("")}</div></div>`;
+  return `<div class="bk-st">${hexMini(T.map(o=>o.v),{R:34,max:1000})}<div class="bk-sv th" role="img" aria-label="${esc(r.sp)}の減衰点：${al}">${T.map((o,i)=>`<span><i>${STATS[i]}</i><b class="${cl(o).trim()}">${h00(o.v)}</b></span>`).join("")}</div></div>`;
 }
 function bkStat(r){
   const cl=x=>x>=29?" s":x<12?" lo":"";
@@ -1895,7 +1897,7 @@ function viewBook(){
   const skl=r=>{const k=skK[nsp(r.sp)],o=k&&SK[k];if(!o)return `<p class="bk-none">スキルはまだ調べていません</p>`;
     return `${Object.entries(o).map(([n,db],i)=>{const [v]=bestLv(db.L);
       return `<div class="bk-s bk-s${i+1}"><div class="bk-sn"><b${db.L&&db.L.M?"":` class="nmx" title="レベルMaxではない"`}>${esc(skn(n))}</b>${db.at?elTag(db.at):""}</div>${v?`<div class="bk-sm">マナ${esc(v[1])}${+v[2]?`・威力${esc(v[2])}・命中${accTag(v[3])}`:""}</div>${v[4]?`<div class="bk-se">${effHTML(v[4],v[0])}</div>`:""}`:`<div class="bk-sm">値は未確認</div>`}</div>`}).join("")}`};
-  const card=(r,b)=>`<div class="bk-c${r.v?"":" nov"}"><div class="bk-body"><div class="bk-n">${b?`<span class="rr rr-${r.rr}">${r.rr}</span>`:""}${esc(spn(r.sp))}${r.v?`<span class="bk-tot"><i>計</i>${state.bkVw==="th"?thOf(r).reduce((a,o)=>a+o.v,0):spvTot(r)}</span>${r.new?`<span class="bk-ok">済</span>`:""}`:`<small class="bk-nv">種族値は未調査</small>`}</div>${r.v?`<div class="bk-rd">${state.bkVw==="th"?bkTh(r):bkStat(r)}</div>`:""}${skl(r)}</div></div>`;
+  const card=(r,b)=>`<div class="bk-c${r.v?"":" nov"}"><div class="bk-body"><div class="bk-n">${b?`<span class="rr rr-${r.rr}">${r.rr}</span>`:""}${esc(spn(r.sp))}${r.v?`<span class="bk-tot"><i>計</i>${state.bkVw==="th"?h00(thOf(r).reduce((a,o)=>a+o.v,0)):spvTot(r)}</span>${r.new?`<span class="bk-ok">済</span>`:""}`:`<small class="bk-nv">種族値は未調査</small>`}</div>${r.v?`<div class="bk-rd">${state.bkVw==="th"?bkTh(r):bkStat(r)}</div>`:""}${skl(r)}</div></div>`;
   const groups=RR_ORD.map(rr=>{const A=AF.filter(r=>r.rr===rr);if(!A.length)return"";const L=A.filter(r=>r.v);
     const avg=L.length?Math.round(L.reduce((a,r)=>a+spvTot(r),0)/L.length):0;
     return `<h3 class="bk-h"><span class="rr rr-${rr}">${rr}</span><span class="n">${A.length}種${L.length?`・測った${L.length}種の合計の平均 ${avg}`:""}</span></h3><div class="bk-g">${[...L,...A.filter(r=>!r.v)].map(r=>card(r)).join("")}</div>`}).join("");
