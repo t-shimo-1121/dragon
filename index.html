@@ -1112,7 +1112,7 @@ function hexMini(v,{R=31,pad=3,max=36}={}){
   return `<svg class="radar hm" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" aria-hidden="true"><polygon class="frame" points="${poly(1)}"/><polygon class="gl" points="${poly(.5)}"/><polygon class="area" points="${v.map((x,i)=>pt(i,Math.max(.06,x/max)).map(n=>n.toFixed(1)).join(",")).join(" ")}"/></svg>`;
 }
 /* 減衰点の六角形：実測（th）があればそれを、なければ「種族値×27を100で丸めた値」を予想として使う。
-   数字は100の位だけ（8＝800）。実測は濃く、予想はうすく。700以上は赤、400以下は青。外枠は1000 */
+   実測は濃く、予想はうすく。700以上は赤、400以下は青。外枠は1000 */
 const thEst=x=>Math.max(100,Math.round(x*27/100)*100);
 function thOf(r){
   return r.v.map((x,i)=>{const t=r.th&&r.th[i],e=thEst(x);
@@ -1123,7 +1123,7 @@ function thOf(r){
 function bkTh(r){
   const T=thOf(r),cl=o=>(o.v>=700?"s":o.v<=400?"lo":"")+(o.m?"":" un");
   const al=T.map((o,i)=>`${STATS_L[i]}${o.v}${o.m?"":"（予想）"}`).join("、");
-  return `<div class="bk-st">${hexMini(T.map(o=>o.v),{R:34,max:1000})}<div class="bk-sv" role="img" aria-label="${esc(r.sp)}の減衰点：${al}">${T.map((o,i)=>`<span><i>${STATS[i]}</i><b class="${cl(o).trim()}">${o.v/100}</b></span>`).join("")}</div></div>`;
+  return `<div class="bk-st">${hexMini(T.map(o=>o.v),{R:34,max:1000})}<div class="bk-sv" role="img" aria-label="${esc(r.sp)}の減衰点：${al}">${T.map((o,i)=>`<span><i>${STATS[i]}</i><b class="${cl(o).trim()}">${o.v}</b></span>`).join("")}</div></div>`;
 }
 function bkStat(r){
   const cl=x=>x>=29?" s":x<12?" lo":"";
@@ -1895,7 +1895,7 @@ function viewBook(){
   const skl=r=>{const k=skK[nsp(r.sp)],o=k&&SK[k];if(!o)return `<p class="bk-none">スキルはまだ調べていません</p>`;
     return `${Object.entries(o).map(([n,db],i)=>{const [v]=bestLv(db.L);
       return `<div class="bk-s bk-s${i+1}"><div class="bk-sn"><b${db.L&&db.L.M?"":` class="nmx" title="レベルMaxではない"`}>${esc(skn(n))}</b>${db.at?elTag(db.at):""}</div>${v?`<div class="bk-sm">マナ${esc(v[1])}${+v[2]?`・威力${esc(v[2])}・命中${accTag(v[3])}`:""}</div>${v[4]?`<div class="bk-se">${effHTML(v[4],v[0])}</div>`:""}`:`<div class="bk-sm">値は未確認</div>`}</div>`}).join("")}`};
-  const card=(r,b)=>`<div class="bk-c${r.v?"":" nov"}"><div class="bk-body"><div class="bk-n">${b?`<span class="rr rr-${r.rr}">${r.rr}</span>`:""}${esc(spn(r.sp))}${r.v?`<span class="bk-tot"><i>計</i>${state.bkVw==="th"?thOf(r).reduce((a,o)=>a+o.v/100,0):spvTot(r)}</span>${r.new?`<span class="bk-ok">済</span>`:""}`:`<small class="bk-nv">種族値は未調査</small>`}</div>${r.v?`<div class="bk-rd">${state.bkVw==="th"?bkTh(r):bkStat(r)}</div>`:""}${skl(r)}</div></div>`;
+  const card=(r,b)=>`<div class="bk-c${r.v?"":" nov"}"><div class="bk-body"><div class="bk-n">${b?`<span class="rr rr-${r.rr}">${r.rr}</span>`:""}${esc(spn(r.sp))}${r.v?`<span class="bk-tot"><i>計</i>${state.bkVw==="th"?thOf(r).reduce((a,o)=>a+o.v,0):spvTot(r)}</span>${r.new?`<span class="bk-ok">済</span>`:""}`:`<small class="bk-nv">種族値は未調査</small>`}</div>${r.v?`<div class="bk-rd">${state.bkVw==="th"?bkTh(r):bkStat(r)}</div>`:""}${skl(r)}</div></div>`;
   const groups=RR_ORD.map(rr=>{const A=AF.filter(r=>r.rr===rr);if(!A.length)return"";const L=A.filter(r=>r.v);
     const avg=L.length?Math.round(L.reduce((a,r)=>a+spvTot(r),0)/L.length):0;
     return `<h3 class="bk-h"><span class="rr rr-${rr}">${rr}</span><span class="n">${A.length}種${L.length?`・測った${L.length}種の合計の平均 ${avg}`:""}</span></h3><div class="bk-g">${[...L,...A.filter(r=>!r.v)].map(r=>card(r)).join("")}</div>`}).join("");
@@ -1904,7 +1904,7 @@ function viewBook(){
     return `<h3 class="bk-h">${t}<span class="n">${L.length}種</span></h3><div class="bk-g">${L.map(r=>card(r,1)).join("")}</div>`}).join("");
   const tyBtn=["all",...TYS].map(k=>{const n=k==="all"?AR.length:AR.filter(r=>spvType(r)===k).length;
     return `<button data-bkty="${esc(k)}" aria-pressed="${ft===k}"${n?"":" disabled"}>${k==="all"?"全部":esc(k==="種族値未調査"?"未分類":k.replace(/型$/,"").replace("逃切り","逃切"))}<small class="cnt">${n}</small></button>`}).join("");
-  const vwBtn=`<div class="sorter bk-rr bk-vw">${[["spv","種族値"],["th","減衰点"]].map(([k,n])=>`<button data-bkvw="${k}" aria-pressed="${(state.bkVw||"spv")===k}">${n}</button>`).join("")}</div>${state.bkVw==="th"?`<p class="note">減衰点：特訓のメインのパラメータがこの数値を超えると、上がる量が落ち始める。数字は100の位（8＝800）。<b>濃い数字は実測</b>、うすい数字は「種族値×27を100で丸めた」予想。超えてすぐは満額のことが多く、約65%→約35%と段階的に下がる</p>`:""}`;
+  const vwBtn=`<div class="sorter bk-rr bk-vw">${[["spv","種族値"],["th","減衰点"]].map(([k,n])=>`<button data-bkvw="${k}" aria-pressed="${(state.bkVw||"spv")===k}">${n}</button>`).join("")}</div>${state.bkVw==="th"?`<p class="note">減衰点：特訓のメインのパラメータがこの数値を超えると、上がる量が落ち始める。<b>濃い数字は実測</b>、うすい数字は「種族値×27を100で丸めた」予想。超えてすぐは満額のことが多く、約65%→約35%と段階的に下がる</p>`:""}`;
   return `${vwBtn}<div class="sorter bk-rr">${["all",...RR_ORD].map(k=>`<button data-bkrr="${k}" aria-pressed="${fr===k}">${k==="all"?"すべて":k}<small class="cnt">${k==="all"?ALL.length:ALL.filter(r=>r.rr===k).length}</small></button>`).join("")}</div>
   <div class="sorter bk-rr bk-ty">${tyBtn}</div>
   <h2><span class="tg">${ico("hex")}</span>タイプ別の種族値</h2>
