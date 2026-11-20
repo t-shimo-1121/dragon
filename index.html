@@ -1529,7 +1529,32 @@ function viewAbility(){
   const all=[...new Set([...Object.keys(m),...Object.keys(AB)])].map(n=>[n,m[n]||[]]).sort((a,b)=>pct(b[0])-pct(a[0])||b[1].length-a[1].length||a[0].localeCompare(b[0],"ja"));
   const byName=AB_NAMES.map(([g])=>{const r=all.filter(([n])=>abName(n)===g);return r.length?`<div class="abg"><p class="abgrp"><b>${g}</b><small>${r.length}</small></p>${abDropCond(g,abilityTable(r.map(([n])=>({n}))))}</div>`:""}).join("");
   return `<p class="hint">発動確率の高い順（条件を満たせば必ず発動するものが先）。効果はMaxの値です（Maxが分からないものは、分かっている一番高いレベルの効果）</p>
-    <div class="box ab-g" style="padding:4px 10px">${byName}</div>`;
+    <div class="box ab-g" style="padding:4px 10px">${byName}</div>${abStack()}`;
+}
+/* 重ね付け：魔石からの継承で同じアビリティを2つ付けられる（2026/11/19判明）。
+   同じパラメータのバフは重ならないので、2つにして増えるのは発動確率。2つが別々に抽選されると仮定：1−(1−p)² */
+const AB_STACK=[
+  ["効果が足し算になる","同時に出れば2回分",[
+    ["リカバリー","20%→36%。5ターンで回復約20%→40%"],
+    ["マナアップ","20%→36%。5ターンでマナ約+2→+4"],
+    ["緊急チャージ","被弾時25%→44%マナ2↑"],
+    ["フクツの意志","体力35%以下でマナ+4（未確認）"],
+    ["追加攻撃","20%→36%（2回追加は未確認）"]]],
+  ["確率が上がるだけ","効果は1つ分",[
+    ["健康キラー","70%→91%。ほぼ確定"],
+    ["ふんばる","40%→64%"],
+    ["速攻の構え","40%→64%攻大↑"],
+    ["守りの構え","30%→51%防大↑"],
+    ["デトックス","30%→51%"],
+    ["クリティカル","30%→51%"]]],
+  ["重ねる意味がない","必ず出るので無駄",[
+    ["フクツ系","守り・見切り・攻め・素早さ"]]]];
+function abStack(){
+  const g=AB_STACK.map(([h,sub,r])=>`<div class="abg"><p class="abgrp"><b>${h}</b><small>${sub}</small></p>
+    <div class="xtbl"><table class="abtbl"><tbody>${r.map(([n,e])=>`<tr><td class="nm"><b>${esc(n)}</b></td><td class="ef">${arrows(esc(e))}</td></tr>`).join("")}</tbody></table></div></div>`).join("");
+  return `<h2><span class="tg">${ico("shield")}</span>重ね付け</h2>
+    <p class="hint">魔石からの継承で、同じアビリティを2つ付けられる。バフは重ならないので、増えるのは発動確率（2つが別々に抽選されると仮定）</p>
+    <div class="box ab-g" style="padding:4px 10px">${g}</div>`;
 }
 /* ===== 情報 ===== */
 /* ===== 描画・操作 ===== */
