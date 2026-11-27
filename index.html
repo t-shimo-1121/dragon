@@ -1450,9 +1450,13 @@ function skillList(){
   const [byA,achips]=step(byM,"命中","skacc",state.skAcc,r=>r.acc,uniq(byM,r=>r.acc,(a,b)=>ACC_ORD.indexOf(a)-ACC_ORD.indexOf(b)),v=>v==="-"?"なし":accTag(v));
   const [byP,pchips]=step(byA,"威力","skpow",state.skPow,r=>r.pow,uniq(byA,r=>r.pow,(a,b)=>b-a));
   const [rows,cchips]=step(byP,"効果","skcat",state.skCat,skCat,SK_CATS.filter(k=>byP.some(r=>skCat(r)===k)));
-  /* 並び順は固定：通常種→変異種の順、通常種のナンバー順 */
-  const keyNo=r=>msNo(r.d?r.d.sp:r.sp)*1000+(r.d?r.d.no:0),ix=new Map(allR.map((r,i)=>[r,i]));
-  rows.sort((a,b)=>keyNo(a)-keyNo(b)||ix.get(a)-ix.get(b));
+  /* 並び順：マナの少ない順。同じマナならドラゴン別スキルと同じ順（種族の順→その種族のスキルの順→通常種・変異種） */
+  const BASES=MASEKI_N.concat(MASEKI_R).filter(x=>SK[x]||SK[x+"変異種"]);
+  const ordKey=r=>{const sp=r.d?r.d.sp:r.sp,v=/変異種$/.test(sp),bs=sp.replace(/変異種$/,""),bi=BASES.indexOf(bs);
+    const nm=[...new Set([...Object.keys(SK[bs]||{}),...Object.keys(SK[bs+"変異種"]||{})])],si=nm.indexOf(r.n);
+    return [(bi<0?999:bi),(si<0?9:si),v?1:0]};
+  const mn=r=>{const m=Number(r.mana);return isNaN(m)?99:m},ix=new Map(allR.map((r,i)=>[r,i]));
+  rows.sort((a,b)=>{const d=mn(a)-mn(b);if(d)return d;const ka=ordKey(a),kb=ordKey(b);for(let i=0;i<3;i++)if(ka[i]!==kb[i])return ka[i]-kb[i];return ix.get(a)-ix.get(b)});
   const list=rows.length?`<div class="box sklist"><div class="xtbl"><table class="sktbl"><thead><tr><th>スキル・種族</th><th class="c">属性</th><th class="c">マナ</th><th class="c">命中</th><th class="c">威力</th></tr></thead><tbody>${
     rows.map(r=>{const e=effHTML(r.eff,r.dur);
       const op=r.d?` data-open="${r.d.no}"`:` class="unown"`;
@@ -1496,7 +1500,7 @@ function speciesSkillCards(){
 function viewSkill(){
   const missing=[...new Set(D.filter(x=>!SK[x.sp]).map(x=>x.sp))].map(sp=>esc(spn(sp))).join("・");
   return `<h2><span class="tg">${ico("bolt")}</span>ドラゴン別スキル</h2><p class="hint">通常種と変異種を1枚にまとめています。上の行が通常種、下の行が変異種。変異種で値が変わったところに色をつけています。値はMaxです（分からないものはLvを表示）</p><button class="go-down" data-skjump>スキル一覧へ ↓</button>${speciesSkillCards()}
-    <h2 id="sk-list"><span class="tg">${ico("bolt")}</span>スキル一覧</h2><p class="hint">はじめは通常種→変異種の順に、通常種のナンバー順で並びます。値はMaxです（Maxが分からないものはLvを表示）。「未習得」はまだ持っていない種族のスキルです</p>${skillList()}
+    <h2 id="sk-list"><span class="tg">${ico("bolt")}</span>スキル一覧</h2><p class="hint">マナの少ない順。同じマナなら上のドラゴン別スキルと同じ順で並びます。値はMaxです（Maxが分からないものはLvを表示）。「未習得」はまだ持っていない種族のスキルです</p>${skillList()}
     ${missing?`<p class="hint" style="margin-top:10px">まだデータがないドラゴン：${missing}</p>`:""}`;
 }
 
