@@ -735,7 +735,7 @@ const D=[
 ["ヴィーヴル変異種","ヴルルン",[["S",999],["D",506],["S",999],["D",508],["S",999],["D",521]],[["不死のダイヤ",0],["頭突き",0],["がむしゃら噛み",0]],[["フクツの守り",4],["狙い撃ち",4],["デトックス",0]]],
 ["ワイヴァーン変異種","オワンワーン",[["A",860],["D",412],["B",795],["A",812],["A",805],["S",999]],[["空中機動",3],["毒刺し",0],["焼き払う",4]],[["フクツの見切り",0],["クリティカル",2],["デトックス",0]]]
 ].map((d,i)=>{
-  const o={no:i+1,sp:d[0],nk:d[1],st:d[2].map(x=>({r:x[0],v:x[1]})),sk:d[3].map(x=>({n:x[0],lv:x[1]})),ab:d[4].map(x=>x?{n:x[0],lv:x[1]}:{n:"",lv:0,none:true})};
+  const o={no:i+1,sp:d[0],nk:d[1],us:d[5]||"ゆ",st:d[2].map(x=>({r:x[0],v:x[1]})),sk:d[3].map(x=>({n:x[0],lv:x[1]})),ab:d[4].map(x=>x?{n:x[0],lv:x[1]}:{n:"",lv:0,none:true})};
   o.total=o.st.reduce((a,b)=>a+b.v,0);
   return o;
 });
@@ -1222,8 +1222,12 @@ const gSkills=g=>g.skKey?skillTable(g.skKey,Object.keys(SK[g.skKey]).map(n=>({n}
 /* ===== 魔石（これまで育てた相棒の記録） ===== */
 function viewMaseki(){
   if(state.detail)return viewDetail(D.find(d=>d.no===state.detail));
-  const list=orderD();
-  const have=new Set(D.map(d=>d.sp));
+  /* ユーザーで絞り込み。データの6番目にユーザー名（省略時は「ゆ」） */
+  const USERS=["ゆ","て"],u=USERS.includes(state.dUser)?state.dUser:"all";
+  const inU=d=>u==="all"||d.us===u;
+  const list=orderD().filter(inU),DU=D.filter(inU);
+  const ubtn=`<div class="sorter flt"><span class="flt-l">ユーザー</span>${[["all","すべて"],...USERS.map(x=>[x,x])].map(([k,l])=>`<button type="button" data-duser="${k}" aria-pressed="${u===k}">${l}<small>${k==="all"?D.length:D.filter(d=>d.us===k).length}</small></button>`).join("")}</div>`;
+  const have=new Set(DU.map(d=>d.sp));
   const miss=state.dMiss?MASEKI.map((sp,i)=>({sp,n:i+1})).filter(x=>!have.has(x.sp)):[];
   const missN=MASEKI.filter(sp=>!have.has(sp)).length;
   const missBtn=`<label class="miss-t"><input type="checkbox" data-dmiss ${state.dMiss?"checked":""}>未取得の魔石も表示<small>${missN}</small></label>`;
@@ -1238,7 +1242,7 @@ function viewMaseki(){
         <h4 class="d-sec">${ico("bolt")}スキル</h4>${skillTable(d.sp,d.sk)}
         <h4 class="d-sec">${ico("shield")}アビリティ</h4>${abilityTable(d.ab)}</div>
     </div>`})()).join("");
-  return `<h2><span class="tg">${ico("gem")}</span>相棒の魔石<span class="n">${D.length}体</span></h2><p class="hint">これまで育てた相棒の記録です。合計の高い順</p>${missBtn}<div class="grid">${cards}</div>${viewRank()}`;
+  return `<h2><span class="tg">${ico("gem")}</span>相棒の魔石<span class="n">${DU.length}体</span></h2><p class="hint">これまで育てた相棒の記録です。合計の高い順</p>${ubtn}${missBtn}<div class="grid">${cards}</div>${DU.length?viewRank(DU):""}`;
 }
 const dList=()=>orderD();
 /* Maxのデータが無ければ、分かっている一番高いレベルのデータを使う。[値, "Lv3"などの札（Maxなら空）] */
@@ -1351,8 +1355,8 @@ const GROUPS=[
   ["shield","防御系","体＋防",d=>d.st[0].v+d.st[2].v,d=>`体 ${d.st[0].v}・防 ${d.st[2].v}`],
   ["wing","スピード系","早＋避",d=>d.st[3].v+d.st[5].v,d=>`早 ${d.st[3].v}・避 ${d.st[5].v}`],
 ];
-function viewRank(){
-  const card=(ic,t,u,f,sub)=>()=>rankCard(ic,t+"ランキング",u,topN(D.map(d=>({d,name:d.nk,v:f(d),sub:sub(d),more:()=>`${paramTable(d)}${skillTable(d.sp,d.sk)}`,tie:d.no})),D.length));
+function viewRank(DU=D){
+  const card=(ic,t,u,f,sub)=>()=>rankCard(ic,t+"ランキング",u,topN(DU.map(d=>({d,name:d.nk,v:f(d),sub:sub(d),more:()=>`${paramTable(d)}${skillTable(d.sp,d.sk)}`,tie:d.no})),DU.length));
   const ST_IC=ST_ICON;
   const ranks=rankSel("status",[
     ...GROUPS.map(([ic,t,u,f,sub],i)=>[["total","atk","def","spd"][i],t,card(ic,t,u,f,sub)]),
@@ -2166,6 +2170,7 @@ function viewTier(){
     <p class="hint">対戦データではなく、スキルと種族値から見た目安。カードは候補で、付けられるのは1枚。灰色のアビリティは2つ重ねた効果が未確認</p>
     <div class="sorter">${btn}</div>${tiers}`;
 }
+document.addEventListener("click",e=>{const b=e.target.closest("[data-duser]");if(b){state.dUser=b.dataset.duser;render()}});
 document.addEventListener("click",e=>{const b=e.target.closest("[data-trtier]");if(b){state.trTier=b.dataset.trtier;render()}});
 
 const VIEWS={book:viewBook,sim:viewSim,skill:viewSkill,ability:viewAbility,card:viewCard,battle:viewBattle,tier:viewTier,maseki:viewMaseki,log:viewLog};
