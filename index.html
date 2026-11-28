@@ -1961,10 +1961,10 @@ function memoView(){
          ["クエレブレ変異種","",["6月1週",3],0],
          ["ファイヤー・ドレイク変異種","1体目",["2月1週",7],"-"],
          ["九頭龍","","-",["5月3週",3]],
-         ["ファイヤー・ドレイク変異種","2体目",["8月4週",4],["7月3週",3]],
+         ["ファイヤー・ドレイク変異種","2体目",["8月4週",4],[["7月3週",3],["12月4週",7]]],
          ["レインボー・サーペント変異種","",["7月2週",3],"育成中"],
          ["聖ゲオルギウス・ドラゴン変異種","",["10月1週",3],"育成中"]].map(([d,t,a,b])=>{
-        const c=v=>Array.isArray(v)?`${v[0]} <b>${v[1]}</b><small>週</small>`:`<span class="gk-m">${v===0?"なし":v==="-"?"–":v}</span>`;
+        const c1=v=>`${v[0]} <b>${v[1]}</b><small>週</small>`,c=v=>Array.isArray(v)?(Array.isArray(v[0])?v.map(c1).join("<br>"):c1(v)):`<span class="gk-m">${v===0?"なし":v==="-"?"–":v}</span>`;
         return `<tr><td class="gk-d">${esc(spn(d))}${t?`<small class="gk-m"> ${t}</small>`:""}</td><td class="gk-p">${c(a)}</td><td class="gk-p">${c(b)}</td></tr>`}).join("")}
     </tbody></table>
     <p class="ev-h">調子</p>
